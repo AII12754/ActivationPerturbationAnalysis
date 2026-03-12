@@ -93,14 +93,14 @@ def run_single_experiment(
         result.post_perturbation_start,
     )
 
-    # 4. Forward passes --------------------------------------------------
+    # 4. Forward passes (hidden states stay on GPU) ----------------------
     logger.debug("Running forward pass on original (%d tokens)…", len(result.original_ids))
     orig_hidden = extract_hidden_states(model, result.original_ids)
 
     logger.debug("Running forward pass on perturbed (%d tokens)…", len(result.perturbed_ids))
     pert_hidden = extract_hidden_states(model, result.perturbed_ids)
 
-    # 5. Compute metrics -------------------------------------------------
+    # 5. Compute metrics (vectorized on GPU, only scalars come back) -----
     records = compute_distance_buckets(
         original_states=orig_hidden,
         perturbed_states=pert_hidden,

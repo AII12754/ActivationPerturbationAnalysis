@@ -68,7 +68,7 @@ def extract_hidden_states(
     model: AutoModelForCausalLM,
     token_ids: List[int],
     device: Optional[torch.device] = None,
-) -> List[torch.Tensor]:
+) -> torch.Tensor:
     """Run a forward pass and return hidden states for every layer.
 
     Parameters
@@ -83,8 +83,9 @@ def extract_hidden_states(
 
     Returns
     -------
-    List of tensors, one per layer (including the embedding layer).
-    Each tensor has shape ``(seq_len, hidden_dim)`` on **CPU**.
+    Tensor of shape ``(num_layers+1, seq_len, hidden_dim)`` on the
+    **model's device** (GPU).  Kept on-device so that downstream
+    similarity computation runs on GPU.
     """
     if device is None:
         device = next(model.parameters()).device
@@ -94,7 +95,8 @@ def extract_hidden_states(
 
     # outputs.hidden_states is a tuple of (num_layers+1,) tensors,
     # each of shape (batch=1, seq_len, hidden_dim).
-    hidden_states: List[torch.Tensor] = [
-        hs.squeeze(0).cpu() for hs in outputs.hidden_states
-    ]
+    # Stack into a single (num_layers+1, seq_len, hidden_dim) tensor on GPU.
+    hidden_states = torch.cat(
+        [hs.squeeze(0).unsqueeze(0) for hs in outputs.hidden_states], dim=0
+    )
     return hidden_states
