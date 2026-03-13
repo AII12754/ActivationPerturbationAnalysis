@@ -57,6 +57,7 @@ def load_model_and_tokenizer(
         max_memory=max_memory,
         trust_remote_code=trust_remote_code,
         output_hidden_states=True,
+        attn_implementation="eager",
     )
     model.eval()
     logger.info("Model loaded. Parameters: %s", f"{model.num_parameters():,}")
@@ -96,7 +97,9 @@ def extract_hidden_states(
     # outputs.hidden_states is a tuple of (num_layers+1,) tensors,
     # each of shape (batch=1, seq_len, hidden_dim).
     # Stack into a single (num_layers+1, seq_len, hidden_dim) tensor on GPU.
-    hidden_states = torch.cat(
-        [hs.squeeze(0).unsqueeze(0) for hs in outputs.hidden_states], dim=0
+    hidden_states = torch.stack(
+        [hs.squeeze(0) for hs in outputs.hidden_states], dim=0
     )
+    # Explicitly free the model outputs and intermediate references.
+    del outputs, input_ids
     return hidden_states

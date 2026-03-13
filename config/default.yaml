@@ -4,16 +4,16 @@
 
 # --- Model ---------------------------------------------------
 model:
-  path: "/path/to/your/model"          # local HuggingFace model directory
-  dtype: "float16"                      # float16 | bfloat16 | float32
-  max_memory_per_gpu_gb: 75            # leave headroom on 80 GB A100s
-  trust_remote_code: false
+  path: "/root/share/models/Qwen2.5-32B-Instruct"
+  dtype: "bfloat16"
+  max_memory_per_gpu_gb: 75
+  trust_remote_code: true
 
 # --- GPU scheduling ------------------------------------------
 gpu:
-  min_free_memory_gb: 40               # skip GPUs with less free VRAM
-  max_parallel_experiments: 4           # cap on concurrent experiment workers
-  detect_automatically: true            # auto-detect via pynvml
+  min_free_memory_gb: 40
+  max_parallel_experiments: 1
+  detect_automatically: true
 
 # --- Experiment sweep ----------------------------------------
 sweep:
@@ -23,20 +23,18 @@ sweep:
     - 1024
     - 2048
     - 4096
-    - 8192
-    - 16384
 
-  perturbation_positions:               # fraction of context length
+  perturbation_positions:
     - 0.10
-    - 0.20
-    - 0.80
+    - 0.25
+    - 0.50
+    - 0.75
     - 0.90
 
-  perturbation_span_lengths:            # in tokens
+  perturbation_span_lengths:
     - 8
     - 32
     - 128
-    - 512
 
   perturbation_types:
     - "random_replace"
@@ -48,27 +46,27 @@ sweep:
 
 # --- Distance-based measurement -----------------------------
 measurement:
-  immediate_window: 10                  # first N tokens after perturbation
-  short_window: 100                     # first N tokens after perturbation
-  periodic_sampling_step: 100           # sample every N tokens
-  periodic_sampling_width: 10           # width of each sampling window
+  immediate_window: 10
+  short_window: 100
+  periodic_sampling_step: 100
+  periodic_sampling_width: 10
 
 # --- Prompt generation --------------------------------------
 prompts:
-  source: "dataset"                     # "dataset" | "template"
-  dataset_name: "wikitext"              # HuggingFace dataset id
-  dataset_config: "wikitext-103-raw-v1"
-  dataset_split: "train"
+  source: "dataset"
+  dataset_name: "/root/share/dataset/wikitext-2-raw-v1"
+  dataset_config: "default"
+  dataset_split: "test"
   seed: 42
-  num_prompt_candidates: 50             # preload this many long passages
+  num_prompt_candidates: 50
 
 # --- Result storage -----------------------------------------
 storage:
   output_dir: "./results"
-  format: "parquet"                     # parquet | csv
-  checkpoint_every: 10                  # checkpoint after N experiments
+  format: "parquet"
+  checkpoint_every: 10
 
 # --- Logging ------------------------------------------------
 logging:
-  level: "INFO"                         # DEBUG | INFO | WARNING
+  level: "INFO"
   log_file: "./results/experiment.log"

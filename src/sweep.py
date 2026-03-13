@@ -83,9 +83,14 @@ def run_sweep(config: Dict[str, Any]):
 
     model_cfg = config["model"]
 
-    # Build max_memory map from available GPUs.
+    # Build max_memory map from CUDA-visible devices (not pynvml indices).
+    import torch
     max_mem_gb = model_cfg.get("max_memory_per_gpu_gb", 70)
-    max_memory = {g.index: f"{max_mem_gb}GiB" for g in gpus} if gpus else None
+    num_visible = torch.cuda.device_count()
+    if num_visible > 0:
+        max_memory = {i: f"{max_mem_gb}GiB" for i in range(num_visible)}
+    else:
+        max_memory = None
 
     model, tokenizer = load_model_and_tokenizer(
         model_path=model_cfg["path"],

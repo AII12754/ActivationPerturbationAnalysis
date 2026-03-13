@@ -107,9 +107,15 @@ class PromptGenerator:
     ) -> List[str]:
         """Load long text passages from the specified HuggingFace dataset."""
         try:
+            import os
             from datasets import load_dataset
 
-            ds = load_dataset(name, config, split=split, trust_remote_code=True)
+            # Support local directories containing parquet files.
+            if os.path.isdir(name):
+                logger.info("Loading dataset from local directory: %s", name)
+                ds = load_dataset("parquet", data_files=os.path.join(name, "*.parquet"), split="train")
+            else:
+                ds = load_dataset(name, config, split=split, trust_remote_code=True)
         except Exception as exc:
             logger.warning(
                 "Failed to load dataset %s/%s (%s). Falling back to templates.",

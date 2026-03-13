@@ -1,0 +1,472 @@
+2026-03-12 12:42:48,169 [INFO] __main__: Configuration loaded from config/default.yaml
+2026-03-12 12:42:50,952 [INFO] src.scheduler: Detected 8 usable GPUs (min_free=40.0 GB).
+2026-03-12 12:42:51,005 [INFO] src.model: Loading tokenizer from /root/share/models/Qwen2.5-32B-Instruct
+2026-03-12 12:42:51,382 [INFO] src.model: Loading model from /root/share/models/Qwen2.5-32B-Instruct (dtype=bfloat16)
+2026-03-12 12:43:07,296 [INFO] src.model: Model loaded. Parameters: 32,763,876,352
+2026-03-12 12:43:07,467 [INFO] src.prompts: Loading dataset from local directory: /root/share/dataset/wikitext-2-raw-v1
+2026-03-12 12:43:10,554 [INFO] src.prompts: Loaded 16 long passages from /root/share/dataset/wikitext-2-raw-v1/default.
+2026-03-12 12:43:10,623 [INFO] src.sweep: Built 420 experiment jobs.
+2026-03-12 12:43:10,623 [INFO] src.sweep: Starting sweep: 420 experiments.
+2026-03-12 12:43:10,623 [INFO] src.sweep: [1/420] Running cc9899ca258493ce — ctx=256 pos=0.10 span=8 type=random_replace
+2026-03-12 12:43:11,685 [INFO] src.sweep: [2/420] Running f021bd89cf8e9ebd — ctx=256 pos=0.10 span=8 type=mask
+2026-03-12 12:43:12,134 [INFO] src.sweep: [3/420] Running 71f70e03ce6ea579 — ctx=256 pos=0.10 span=8 type=delete
+2026-03-12 12:43:12,603 [INFO] src.sweep: [4/420] Running c1bac05563a0e625 — ctx=256 pos=0.10 span=8 type=compress
+2026-03-12 12:43:13,063 [INFO] src.sweep: [5/420] Running 85bb57ca43db81df — ctx=256 pos=0.10 span=8 type=paraphrase
+2026-03-12 12:43:13,512 [INFO] src.sweep: [6/420] Running 26d487a86c919ae5 — ctx=256 pos=0.10 span=8 type=semantic_change
+2026-03-12 12:43:13,928 [INFO] src.sweep: [7/420] Running 5a65568661939b96 — ctx=256 pos=0.10 span=32 type=random_replace
+2026-03-12 12:43:14,357 [INFO] src.sweep: [8/420] Running c1c83025fd2bf35d — ctx=256 pos=0.10 span=32 type=mask
+2026-03-12 12:43:14,827 [INFO] src.sweep: [9/420] Running 8c8f39b78cb06ce6 — ctx=256 pos=0.10 span=32 type=delete
+2026-03-12 12:43:15,250 [INFO] src.sweep: [10/420] Running 0888bc139e603eee — ctx=256 pos=0.10 span=32 type=compress
+2026-03-12 12:43:15,695 [INFO] src.storage: Flushed 10140 records to results/results_part_000000.parquet.
+2026-03-12 12:43:15,697 [INFO] src.sweep: [11/420] Running e9babb27766a60a4 — ctx=256 pos=0.10 span=32 type=paraphrase
+2026-03-12 12:43:16,159 [INFO] src.sweep: [12/420] Running 2e52879dd89421e3 — ctx=256 pos=0.10 span=32 type=semantic_change
+2026-03-12 12:43:16,608 [INFO] src.sweep: [13/420] Running ac86595906b1acbb — ctx=256 pos=0.10 span=128 type=random_replace
+2026-03-12 12:43:17,012 [INFO] src.sweep: [14/420] Running f7da6b410eeb91a1 — ctx=256 pos=0.10 span=128 type=mask
+2026-03-12 12:43:17,473 [INFO] src.sweep: [15/420] Running 15db9a7e653eb273 — ctx=256 pos=0.10 span=128 type=delete
+2026-03-12 12:43:17,932 [INFO] src.sweep: [16/420] Running 05efd4b87cd61009 — ctx=256 pos=0.10 span=128 type=compress
+2026-03-12 12:43:18,312 [INFO] src.sweep: [17/420] Running 4b5bbf3a6a90453b — ctx=256 pos=0.10 span=128 type=paraphrase
+2026-03-12 12:43:18,730 [INFO] src.sweep: [18/420] Running f5e1bd73c7cdf6ea — ctx=256 pos=0.10 span=128 type=semantic_change
+2026-03-12 12:43:19,142 [INFO] src.sweep: [19/420] Running 23bd524622325066 — ctx=256 pos=0.25 span=8 type=random_replace
+2026-03-12 12:43:19,555 [INFO] src.sweep: [20/420] Running aca4df1e424097be — ctx=256 pos=0.25 span=8 type=mask
+2026-03-12 12:43:20,032 [INFO] src.storage: Flushed 9750 records to results/results_part_000001.parquet.
+2026-03-12 12:43:20,037 [INFO] src.sweep: [21/420] Running 886064a33a202361 — ctx=256 pos=0.25 span=8 type=delete
+2026-03-12 12:43:20,458 [INFO] src.sweep: [22/420] Running cfbf246f5efbab49 — ctx=256 pos=0.25 span=8 type=compress
+2026-03-12 12:43:20,869 [INFO] src.sweep: [23/420] Running 2e41bace0d1e3dc8 — ctx=256 pos=0.25 span=8 type=paraphrase
+2026-03-12 12:43:21,316 [INFO] src.sweep: [24/420] Running 143de9456689cdc0 — ctx=256 pos=0.25 span=8 type=semantic_change
+2026-03-12 12:43:21,742 [INFO] src.sweep: [25/420] Running c9477a5d4d13349d — ctx=256 pos=0.25 span=32 type=random_replace
+2026-03-12 12:43:22,207 [INFO] src.sweep: [26/420] Running 73600928a1fb7921 — ctx=256 pos=0.25 span=32 type=mask
+2026-03-12 12:43:22,609 [INFO] src.sweep: [27/420] Running 30b70be20271b620 — ctx=256 pos=0.25 span=32 type=delete
+2026-03-12 12:43:23,010 [INFO] src.sweep: [28/420] Running 31d32dfa4b47e975 — ctx=256 pos=0.25 span=32 type=compress
+2026-03-12 12:43:23,448 [INFO] src.sweep: [29/420] Running e5eb81f7b62c92f0 — ctx=256 pos=0.25 span=32 type=paraphrase
+2026-03-12 12:43:23,850 [INFO] src.sweep: [30/420] Running 3de1adfa1fae44bf — ctx=256 pos=0.25 span=32 type=semantic_change
+2026-03-12 12:43:24,328 [INFO] src.storage: Flushed 9750 records to results/results_part_000002.parquet.
+2026-03-12 12:43:24,330 [INFO] src.sweep: [31/420] Running 8c95f002afcf2139 — ctx=256 pos=0.25 span=128 type=random_replace
+2026-03-12 12:43:24,746 [INFO] src.sweep: [32/420] Running e3e10a75fcea5802 — ctx=256 pos=0.25 span=128 type=mask
+2026-03-12 12:43:25,148 [INFO] src.sweep: [33/420] Running 7bd7e74e3335aa5d — ctx=256 pos=0.25 span=128 type=delete
+2026-03-12 12:43:25,526 [INFO] src.sweep: [34/420] Running 444e1331daf2b6a6 — ctx=256 pos=0.25 span=128 type=compress
+2026-03-12 12:43:25,971 [INFO] src.sweep: [35/420] Running 516a676e9093a8ca — ctx=256 pos=0.25 span=128 type=paraphrase
+2026-03-12 12:43:26,408 [INFO] src.sweep: [36/420] Running 5a13ab36a87944de — ctx=256 pos=0.25 span=128 type=semantic_change
+2026-03-12 12:43:26,803 [INFO] src.sweep: [37/420] Running 254df61125dd0374 — ctx=256 pos=0.50 span=8 type=random_replace
+2026-03-12 12:43:27,204 [INFO] src.sweep: [38/420] Running 8f02e139ddf44b30 — ctx=256 pos=0.50 span=8 type=mask
+2026-03-12 12:43:27,666 [INFO] src.sweep: [39/420] Running 3392050688cc2c0c — ctx=256 pos=0.50 span=8 type=delete
+2026-03-12 12:43:28,170 [INFO] src.sweep: [40/420] Running 49668a6bd35dc737 — ctx=256 pos=0.50 span=8 type=compress
+2026-03-12 12:43:28,628 [INFO] src.storage: Flushed 9360 records to results/results_part_000003.parquet.
+2026-03-12 12:43:28,630 [INFO] src.sweep: [41/420] Running 745823f78461b268 — ctx=256 pos=0.50 span=8 type=paraphrase
+2026-03-12 12:43:29,032 [INFO] src.sweep: [42/420] Running 8634dcc0d03b1733 — ctx=256 pos=0.50 span=8 type=semantic_change
+2026-03-12 12:43:29,465 [INFO] src.sweep: [43/420] Running 00d1cf2ca47c0acf — ctx=256 pos=0.50 span=32 type=random_replace
+2026-03-12 12:43:29,879 [INFO] src.sweep: [44/420] Running c0384c9ace325013 — ctx=256 pos=0.50 span=32 type=mask
+2026-03-12 12:43:30,282 [INFO] src.sweep: [45/420] Running 1fd48ad2894a5c81 — ctx=256 pos=0.50 span=32 type=delete
+2026-03-12 12:43:30,722 [INFO] src.sweep: [46/420] Running 617802920de66bc8 — ctx=256 pos=0.50 span=32 type=compress
+2026-03-12 12:43:31,121 [INFO] src.sweep: [47/420] Running 20886dc8e19bc3e1 — ctx=256 pos=0.50 span=32 type=paraphrase
+2026-03-12 12:43:31,554 [INFO] src.sweep: [48/420] Running 690f5703e8eee293 — ctx=256 pos=0.50 span=32 type=semantic_change
+2026-03-12 12:43:31,976 [INFO] src.sweep: [49/420] Running 459b2a32a9a40eaa — ctx=256 pos=0.50 span=128 type=random_replace
+2026-03-12 12:43:32,348 [INFO] src.sweep: [50/420] Running 4886cc65ae9bb029 — ctx=256 pos=0.50 span=128 type=mask
+2026-03-12 12:43:32,798 [INFO] src.storage: Flushed 7410 records to results/results_part_000004.parquet.
+2026-03-12 12:43:32,800 [INFO] src.sweep: [51/420] Running 58625a22f1e4fa1f — ctx=256 pos=0.50 span=128 type=delete
+2026-03-12 12:43:33,184 [INFO] src.sweep: [52/420] Running 6de9c38e4a17cc32 — ctx=256 pos=0.50 span=128 type=compress
+2026-03-12 12:43:33,558 [INFO] src.sweep: [53/420] Running 17ee9a0d69381a7b — ctx=256 pos=0.50 span=128 type=paraphrase
+2026-03-12 12:43:33,954 [INFO] src.sweep: [54/420] Running 08a92fe69dc5fb88 — ctx=256 pos=0.50 span=128 type=semantic_change
+2026-03-12 12:43:34,329 [INFO] src.sweep: [55/420] Running dad262cf8961f4cd — ctx=256 pos=0.75 span=8 type=random_replace
+2026-03-12 12:43:34,755 [INFO] src.sweep: [56/420] Running b6822e7e5f1ac9c6 — ctx=256 pos=0.75 span=8 type=mask
+2026-03-12 12:43:35,177 [INFO] src.sweep: [57/420] Running cdcb8adaadb38380 — ctx=256 pos=0.75 span=8 type=delete
+2026-03-12 12:43:35,614 [INFO] src.sweep: [58/420] Running 25d0a39753797d86 — ctx=256 pos=0.75 span=8 type=compress
+2026-03-12 12:43:36,036 [INFO] src.sweep: [59/420] Running 44fd49b5dab5c1b2 — ctx=256 pos=0.75 span=8 type=paraphrase
+2026-03-12 12:43:36,478 [INFO] src.sweep: [60/420] Running bc9795b545df4e5a — ctx=256 pos=0.75 span=8 type=semantic_change
+2026-03-12 12:43:36,909 [INFO] src.storage: Flushed 5460 records to results/results_part_000005.parquet.
+2026-03-12 12:43:36,910 [INFO] src.sweep: [61/420] Running b927078432493612 — ctx=256 pos=0.75 span=32 type=random_replace
+2026-03-12 12:43:37,324 [INFO] src.sweep: [62/420] Running 57cd90851d0caaff — ctx=256 pos=0.75 span=32 type=mask
+2026-03-12 12:43:37,764 [INFO] src.sweep: [63/420] Running e205083f8ee86f69 — ctx=256 pos=0.75 span=32 type=delete
+2026-03-12 12:43:38,215 [INFO] src.sweep: [64/420] Running e6fe90954bc9804c — ctx=256 pos=0.75 span=32 type=compress
+2026-03-12 12:43:38,656 [INFO] src.sweep: [65/420] Running ed4943a9ac8df64e — ctx=256 pos=0.75 span=32 type=paraphrase
+2026-03-12 12:43:39,085 [INFO] src.sweep: [66/420] Running b0f0158e1ada0d8c — ctx=256 pos=0.75 span=32 type=semantic_change
+2026-03-12 12:43:39,499 [INFO] src.sweep: [67/420] Running 75f61f3efd746f82 — ctx=256 pos=0.90 span=8 type=random_replace
+2026-03-12 12:43:39,927 [INFO] src.sweep: [68/420] Running 764f95fd495ccdb1 — ctx=256 pos=0.90 span=8 type=mask
+2026-03-12 12:43:40,354 [INFO] src.sweep: [69/420] Running b3bb772eb25cbd84 — ctx=256 pos=0.90 span=8 type=delete
+2026-03-12 12:43:40,778 [INFO] src.sweep: [70/420] Running 163de9b5fbcf1bec — ctx=256 pos=0.90 span=8 type=compress
+2026-03-12 12:43:41,246 [INFO] src.storage: Flushed 9100 records to results/results_part_000006.parquet.
+2026-03-12 12:43:41,248 [INFO] src.sweep: [71/420] Running 8af4c8a119797ac9 — ctx=256 pos=0.90 span=8 type=paraphrase
+2026-03-12 12:43:41,668 [INFO] src.sweep: [72/420] Running 62a4df83228bc465 — ctx=256 pos=0.90 span=8 type=semantic_change
+2026-03-12 12:43:42,091 [INFO] src.sweep: [73/420] Running 81dac6341539b1b8 — ctx=512 pos=0.10 span=8 type=random_replace
+2026-03-12 12:43:42,734 [INFO] src.sweep: [74/420] Running 5c4aeca0df019bce — ctx=512 pos=0.10 span=8 type=mask
+2026-03-12 12:43:43,322 [INFO] src.sweep: [75/420] Running 619d9d17585d2e5b — ctx=512 pos=0.10 span=8 type=delete
+2026-03-12 12:43:43,935 [INFO] src.sweep: [76/420] Running 46721c5a402972e4 — ctx=512 pos=0.10 span=8 type=compress
+2026-03-12 12:43:44,519 [INFO] src.sweep: [77/420] Running fc661c88b0610dc7 — ctx=512 pos=0.10 span=8 type=paraphrase
+2026-03-12 12:43:45,107 [INFO] src.sweep: [78/420] Running a621b330efa1b793 — ctx=512 pos=0.10 span=8 type=semantic_change
+2026-03-12 12:43:45,688 [INFO] src.sweep: [79/420] Running 6cefd978e3301210 — ctx=512 pos=0.10 span=32 type=random_replace
+2026-03-12 12:43:46,267 [INFO] src.sweep: [80/420] Running abd5b31434b67bf4 — ctx=512 pos=0.10 span=32 type=mask
+2026-03-12 12:43:46,894 [INFO] src.storage: Flushed 11180 records to results/results_part_000007.parquet.
+2026-03-12 12:43:46,897 [INFO] src.sweep: [81/420] Running 23febfd2f651d5b0 — ctx=512 pos=0.10 span=32 type=delete
+2026-03-12 12:43:47,482 [INFO] src.sweep: [82/420] Running 4c5e56bc33cc4616 — ctx=512 pos=0.10 span=32 type=compress
+2026-03-12 12:43:48,069 [INFO] src.sweep: [83/420] Running 74138eb80b946973 — ctx=512 pos=0.10 span=32 type=paraphrase
+2026-03-12 12:43:48,695 [INFO] src.sweep: [84/420] Running 33e39501fd180be5 — ctx=512 pos=0.10 span=32 type=semantic_change
+2026-03-12 12:43:49,291 [INFO] src.sweep: [85/420] Running 708bc09e3cc66e49 — ctx=512 pos=0.10 span=128 type=random_replace
+2026-03-12 12:43:49,874 [INFO] src.sweep: [86/420] Running 71666f723c52bd33 — ctx=512 pos=0.10 span=128 type=mask
+2026-03-12 12:43:50,482 [INFO] src.sweep: [87/420] Running 5e81e4572ad45d51 — ctx=512 pos=0.10 span=128 type=delete
+2026-03-12 12:43:51,049 [INFO] src.sweep: [88/420] Running 7437afee3b572a9b — ctx=512 pos=0.10 span=128 type=compress
+2026-03-12 12:43:51,637 [INFO] src.sweep: [89/420] Running 4def1fb3eb8a9f59 — ctx=512 pos=0.10 span=128 type=paraphrase
+2026-03-12 12:43:52,242 [INFO] src.sweep: [90/420] Running d0e7790ccbb0d81f — ctx=512 pos=0.10 span=128 type=semantic_change
+2026-03-12 12:43:52,850 [INFO] src.storage: Flushed 11310 records to results/results_part_000008.parquet.
+2026-03-12 12:43:52,853 [INFO] src.sweep: [91/420] Running 77f640fec71cc963 — ctx=512 pos=0.25 span=8 type=random_replace
+2026-03-12 12:43:53,429 [INFO] src.sweep: [92/420] Running 5c57453bffcaa280 — ctx=512 pos=0.25 span=8 type=mask
+2026-03-12 12:43:54,009 [INFO] src.sweep: [93/420] Running 50360d1be4bb8e52 — ctx=512 pos=0.25 span=8 type=delete
+2026-03-12 12:43:54,592 [INFO] src.sweep: [94/420] Running b3628a6f8151ae19 — ctx=512 pos=0.25 span=8 type=compress
+2026-03-12 12:43:55,219 [INFO] src.sweep: [95/420] Running b995446d2c47eda9 — ctx=512 pos=0.25 span=8 type=paraphrase
+2026-03-12 12:43:55,849 [INFO] src.sweep: [96/420] Running dee68043e1b0507a — ctx=512 pos=0.25 span=8 type=semantic_change
+2026-03-12 12:43:56,415 [INFO] src.sweep: [97/420] Running cb85f775df3b3e4e — ctx=512 pos=0.25 span=32 type=random_replace
+2026-03-12 12:43:57,038 [INFO] src.sweep: [98/420] Running aecff904caf3d40d — ctx=512 pos=0.25 span=32 type=mask
+2026-03-12 12:43:57,610 [INFO] src.sweep: [99/420] Running 4eb947e90a6d7c6b — ctx=512 pos=0.25 span=32 type=delete
+2026-03-12 12:43:58,207 [INFO] src.sweep: [100/420] Running 7e557a4526d60f4c — ctx=512 pos=0.25 span=32 type=compress
+2026-03-12 12:43:58,889 [INFO] src.storage: Flushed 11050 records to results/results_part_000009.parquet.
+2026-03-12 12:43:58,892 [INFO] src.sweep: [101/420] Running b8b51ea56d39f1b0 — ctx=512 pos=0.25 span=32 type=paraphrase
+2026-03-12 12:43:59,521 [INFO] src.sweep: [102/420] Running 90e026d4a0f4b6c3 — ctx=512 pos=0.25 span=32 type=semantic_change
+2026-03-12 12:44:00,098 [INFO] src.sweep: [103/420] Running 8be25ed5bb7b3d9f — ctx=512 pos=0.25 span=128 type=random_replace
+2026-03-12 12:44:00,674 [INFO] src.sweep: [104/420] Running 69c1b1c13ea6bf3b — ctx=512 pos=0.25 span=128 type=mask
+2026-03-12 12:44:01,251 [INFO] src.sweep: [105/420] Running ff7329b87a2ae8fc — ctx=512 pos=0.25 span=128 type=delete
+2026-03-12 12:44:01,820 [INFO] src.sweep: [106/420] Running 63f88d2c5976a294 — ctx=512 pos=0.25 span=128 type=compress
+2026-03-12 12:44:02,471 [INFO] src.sweep: [107/420] Running 371c89666e57b8fb — ctx=512 pos=0.25 span=128 type=paraphrase
+2026-03-12 12:44:03,089 [INFO] src.sweep: [108/420] Running 06f133c882e7362d — ctx=512 pos=0.25 span=128 type=semantic_change
+2026-03-12 12:44:03,725 [INFO] src.sweep: [109/420] Running b6f9d61784b10059 — ctx=512 pos=0.50 span=8 type=random_replace
+2026-03-12 12:44:04,385 [INFO] src.sweep: [110/420] Running 64631281163261c7 — ctx=512 pos=0.50 span=8 type=mask
+2026-03-12 12:44:05,010 [INFO] src.storage: Flushed 10530 records to results/results_part_000010.parquet.
+2026-03-12 12:44:05,013 [INFO] src.sweep: [111/420] Running a8973baaea837386 — ctx=512 pos=0.50 span=8 type=delete
+2026-03-12 12:44:05,600 [INFO] src.sweep: [112/420] Running cca05155efa6a08f — ctx=512 pos=0.50 span=8 type=compress
+2026-03-12 12:44:06,191 [INFO] src.sweep: [113/420] Running aa3e36b9391f047f — ctx=512 pos=0.50 span=8 type=paraphrase
+2026-03-12 12:44:06,814 [INFO] src.sweep: [114/420] Running b63188bae5690795 — ctx=512 pos=0.50 span=8 type=semantic_change
+2026-03-12 12:44:07,431 [INFO] src.sweep: [115/420] Running 0c673e2a8d3b9b59 — ctx=512 pos=0.50 span=32 type=random_replace
+2026-03-12 12:44:08,003 [INFO] src.sweep: [116/420] Running 248e59cb2880104e — ctx=512 pos=0.50 span=32 type=mask
+2026-03-12 12:44:08,595 [INFO] src.sweep: [117/420] Running d6e506a684f4386c — ctx=512 pos=0.50 span=32 type=delete
+2026-03-12 12:44:09,210 [INFO] src.sweep: [118/420] Running 31e828c1d3c3e1b5 — ctx=512 pos=0.50 span=32 type=compress
+2026-03-12 12:44:09,841 [INFO] src.sweep: [119/420] Running 3bb5f077f7363a0b — ctx=512 pos=0.50 span=32 type=paraphrase
+2026-03-12 12:44:10,419 [INFO] src.sweep: [120/420] Running dc2abcd55568ffdd — ctx=512 pos=0.50 span=32 type=semantic_change
+2026-03-12 12:44:11,022 [INFO] src.storage: Flushed 10400 records to results/results_part_000011.parquet.
+2026-03-12 12:44:11,025 [INFO] src.sweep: [121/420] Running 116c8e792c0faa86 — ctx=512 pos=0.50 span=128 type=random_replace
+2026-03-12 12:44:11,601 [INFO] src.sweep: [122/420] Running f77802fba9648e7c — ctx=512 pos=0.50 span=128 type=mask
+2026-03-12 12:44:12,177 [INFO] src.sweep: [123/420] Running 94dcba2873186cdf — ctx=512 pos=0.50 span=128 type=delete
+2026-03-12 12:44:12,716 [INFO] src.sweep: [124/420] Running 3b7462ac4572542a — ctx=512 pos=0.50 span=128 type=compress
+2026-03-12 12:44:13,281 [INFO] src.sweep: [125/420] Running 0f1191a690d39264 — ctx=512 pos=0.50 span=128 type=paraphrase
+2026-03-12 12:44:13,884 [INFO] src.sweep: [126/420] Running 2b146d7cae480212 — ctx=512 pos=0.50 span=128 type=semantic_change
+2026-03-12 12:44:14,490 [INFO] src.sweep: [127/420] Running 6ed7168a392a10e4 — ctx=512 pos=0.75 span=8 type=random_replace
+2026-03-12 12:44:15,063 [INFO] src.sweep: [128/420] Running 748c35b68a6abd39 — ctx=512 pos=0.75 span=8 type=mask
+2026-03-12 12:44:15,615 [INFO] src.sweep: [129/420] Running 65244ed2745f20c7 — ctx=512 pos=0.75 span=8 type=delete
+2026-03-12 12:44:16,184 [INFO] src.sweep: [130/420] Running 352e543f6f19f7c5 — ctx=512 pos=0.75 span=8 type=compress
+2026-03-12 12:44:16,860 [INFO] src.storage: Flushed 9750 records to results/results_part_000012.parquet.
+2026-03-12 12:44:16,862 [INFO] src.sweep: [131/420] Running 58afdb049ace75fb — ctx=512 pos=0.75 span=8 type=paraphrase
+2026-03-12 12:44:17,437 [INFO] src.sweep: [132/420] Running 558efb496b343986 — ctx=512 pos=0.75 span=8 type=semantic_change
+2026-03-12 12:44:18,013 [INFO] src.sweep: [133/420] Running 5a707a6b7120023c — ctx=512 pos=0.75 span=32 type=random_replace
+2026-03-12 12:44:18,609 [INFO] src.sweep: [134/420] Running d15e530f5983bd9a — ctx=512 pos=0.75 span=32 type=mask
+2026-03-12 12:44:19,249 [INFO] src.sweep: [135/420] Running f5db4ca3c65053b2 — ctx=512 pos=0.75 span=32 type=delete
+2026-03-12 12:44:19,829 [INFO] src.sweep: [136/420] Running e375e6e9727d69c2 — ctx=512 pos=0.75 span=32 type=compress
+2026-03-12 12:44:20,401 [INFO] src.sweep: [137/420] Running 1c93e2191f2deeb7 — ctx=512 pos=0.75 span=32 type=paraphrase
+2026-03-12 12:44:20,991 [INFO] src.sweep: [138/420] Running ea1a53673ccc1803 — ctx=512 pos=0.75 span=32 type=semantic_change
+2026-03-12 12:44:21,559 [INFO] src.sweep: [139/420] Running fc6798f8828648d9 — ctx=512 pos=0.75 span=128 type=random_replace
+2026-03-12 12:44:22,057 [INFO] src.sweep: [140/420] Running 8101e78d041a872a — ctx=512 pos=0.75 span=128 type=mask
+2026-03-12 12:44:22,589 [INFO] src.storage: Flushed 7410 records to results/results_part_000013.parquet.
+2026-03-12 12:44:22,591 [INFO] src.sweep: [141/420] Running 0ca436f6b1cfb236 — ctx=512 pos=0.75 span=128 type=delete
+2026-03-12 12:44:23,074 [INFO] src.sweep: [142/420] Running 5885725bb93a61c8 — ctx=512 pos=0.75 span=128 type=compress
+2026-03-12 12:44:23,594 [INFO] src.sweep: [143/420] Running 60d60b73a5338cb3 — ctx=512 pos=0.75 span=128 type=paraphrase
+2026-03-12 12:44:24,104 [INFO] src.sweep: [144/420] Running 5b042e14b523fb66 — ctx=512 pos=0.75 span=128 type=semantic_change
+2026-03-12 12:44:24,628 [INFO] src.sweep: [145/420] Running e2efe9d584f662b6 — ctx=512 pos=0.90 span=8 type=random_replace
+2026-03-12 12:44:25,211 [INFO] src.sweep: [146/420] Running e7b8b4aa602d7c56 — ctx=512 pos=0.90 span=8 type=mask
+2026-03-12 12:44:25,777 [INFO] src.sweep: [147/420] Running c181ac55ca2c9e61 — ctx=512 pos=0.90 span=8 type=delete
+2026-03-12 12:44:26,339 [INFO] src.sweep: [148/420] Running 39d7a8162e550c47 — ctx=512 pos=0.90 span=8 type=compress
+2026-03-12 12:44:26,909 [INFO] src.sweep: [149/420] Running 42f94b52c030d02f — ctx=512 pos=0.90 span=8 type=paraphrase
+2026-03-12 12:44:27,530 [INFO] src.sweep: [150/420] Running 2a969d60be075193 — ctx=512 pos=0.90 span=8 type=semantic_change
+2026-03-12 12:44:28,234 [INFO] src.storage: Flushed 5460 records to results/results_part_000014.parquet.
+2026-03-12 12:44:28,236 [INFO] src.sweep: [151/420] Running b650ad1bad70d0e1 — ctx=512 pos=0.90 span=32 type=random_replace
+2026-03-12 12:44:28,804 [INFO] src.sweep: [152/420] Running 708836ad633b4d4d — ctx=512 pos=0.90 span=32 type=mask
+2026-03-12 12:44:29,373 [INFO] src.sweep: [153/420] Running 0b752c689d3323c9 — ctx=512 pos=0.90 span=32 type=delete
+2026-03-12 12:44:29,941 [INFO] src.sweep: [154/420] Running 47b83200a0317d1f — ctx=512 pos=0.90 span=32 type=compress
+2026-03-12 12:44:30,567 [INFO] src.sweep: [155/420] Running 9a7fe149f14f1836 — ctx=512 pos=0.90 span=32 type=paraphrase
+2026-03-12 12:44:31,136 [INFO] src.sweep: [156/420] Running 6019a6f9b226e2f9 — ctx=512 pos=0.90 span=32 type=semantic_change
+2026-03-12 12:44:31,707 [INFO] src.sweep: [157/420] Running 16b50c7a9dc99aac — ctx=1024 pos=0.10 span=8 type=random_replace
+2026-03-12 12:44:32,699 [INFO] src.sweep: [158/420] Running 6f41a5d0398bfde0 — ctx=1024 pos=0.10 span=8 type=mask
+2026-03-12 12:44:33,723 [INFO] src.sweep: [159/420] Running 09913ab642b6a28a — ctx=1024 pos=0.10 span=8 type=delete
+2026-03-12 12:44:34,726 [INFO] src.sweep: [160/420] Running a3afebaab6c8d02e — ctx=1024 pos=0.10 span=8 type=compress
+2026-03-12 12:44:35,740 [INFO] src.storage: Flushed 11440 records to results/results_part_000015.parquet.
+2026-03-12 12:44:35,743 [INFO] src.sweep: [161/420] Running 39edd6295b36640a — ctx=1024 pos=0.10 span=8 type=paraphrase
+2026-03-12 12:44:36,795 [INFO] src.sweep: [162/420] Running ea0c83cb2d130f41 — ctx=1024 pos=0.10 span=8 type=semantic_change
+2026-03-12 12:44:37,817 [INFO] src.sweep: [163/420] Running 2aed9a62821d66fb — ctx=1024 pos=0.10 span=32 type=random_replace
+2026-03-12 12:44:38,802 [INFO] src.sweep: [164/420] Running 37aaa000e0ef39be — ctx=1024 pos=0.10 span=32 type=mask
+2026-03-12 12:44:39,794 [INFO] src.sweep: [165/420] Running f874100420db4cef — ctx=1024 pos=0.10 span=32 type=delete
+2026-03-12 12:44:40,784 [INFO] src.sweep: [166/420] Running 942de37a0b85c3f2 — ctx=1024 pos=0.10 span=32 type=compress
+2026-03-12 12:44:41,775 [INFO] src.sweep: [167/420] Running 84ba2939a627bb20 — ctx=1024 pos=0.10 span=32 type=paraphrase
+2026-03-12 12:44:42,826 [INFO] src.sweep: [168/420] Running 620a4cc4eba3e213 — ctx=1024 pos=0.10 span=32 type=semantic_change
+2026-03-12 12:44:43,824 [INFO] src.sweep: [169/420] Running 091bbb0e680a784e — ctx=1024 pos=0.10 span=128 type=random_replace
+2026-03-12 12:44:44,821 [INFO] src.sweep: [170/420] Running 5fb268ba5ff70a1d — ctx=1024 pos=0.10 span=128 type=mask
+2026-03-12 12:44:45,900 [INFO] src.storage: Flushed 14300 records to results/results_part_000016.parquet.
+2026-03-12 12:44:45,903 [INFO] src.sweep: [171/420] Running d0b60d42d26abb32 — ctx=1024 pos=0.10 span=128 type=delete
+2026-03-12 12:44:46,859 [INFO] src.sweep: [172/420] Running fd17d1442c7cb615 — ctx=1024 pos=0.10 span=128 type=compress
+2026-03-12 12:44:47,836 [INFO] src.sweep: [173/420] Running 35604d1cb1dccfce — ctx=1024 pos=0.10 span=128 type=paraphrase
+2026-03-12 12:44:48,847 [INFO] src.sweep: [174/420] Running 7b83d5a25b2139a4 — ctx=1024 pos=0.10 span=128 type=semantic_change
+2026-03-12 12:44:49,888 [INFO] src.sweep: [175/420] Running 43c723117a46c9de — ctx=1024 pos=0.25 span=8 type=random_replace
+2026-03-12 12:44:50,930 [INFO] src.sweep: [176/420] Running f2b77366cadc8eab — ctx=1024 pos=0.25 span=8 type=mask
+2026-03-12 12:44:51,911 [INFO] src.sweep: [177/420] Running 3e7362d347ad9349 — ctx=1024 pos=0.25 span=8 type=delete
+2026-03-12 12:44:52,919 [INFO] src.sweep: [178/420] Running 17f38390aa6f3305 — ctx=1024 pos=0.25 span=8 type=compress
+2026-03-12 12:44:53,966 [INFO] src.sweep: [179/420] Running 959f6732bcb4982c — ctx=1024 pos=0.25 span=8 type=paraphrase
+2026-03-12 12:44:55,020 [INFO] src.sweep: [180/420] Running d4491c4d5da594c4 — ctx=1024 pos=0.25 span=8 type=semantic_change
+2026-03-12 12:44:56,097 [INFO] src.storage: Flushed 13650 records to results/results_part_000017.parquet.
+2026-03-12 12:44:56,100 [INFO] src.sweep: [181/420] Running 211129910c4e9fc1 — ctx=1024 pos=0.25 span=32 type=random_replace
+2026-03-12 12:44:57,145 [INFO] src.sweep: [182/420] Running 4093d958adb25c3e — ctx=1024 pos=0.25 span=32 type=mask
+2026-03-12 12:44:58,196 [INFO] src.sweep: [183/420] Running 32857f9878882a5e — ctx=1024 pos=0.25 span=32 type=delete
+2026-03-12 12:44:59,193 [INFO] src.sweep: [184/420] Running d11d8f7fd58f5567 — ctx=1024 pos=0.25 span=32 type=compress
+2026-03-12 12:45:00,206 [INFO] src.sweep: [185/420] Running 749a9a6ebb6c40ab — ctx=1024 pos=0.25 span=32 type=paraphrase
+2026-03-12 12:45:01,259 [INFO] src.sweep: [186/420] Running 8b7a9abee9177615 — ctx=1024 pos=0.25 span=32 type=semantic_change
+2026-03-12 12:45:02,284 [INFO] src.sweep: [187/420] Running bc012686ff4911b8 — ctx=1024 pos=0.25 span=128 type=random_replace
+2026-03-12 12:45:03,270 [INFO] src.sweep: [188/420] Running 0eab55a9111c03ca — ctx=1024 pos=0.25 span=128 type=mask
+2026-03-12 12:45:04,279 [INFO] src.sweep: [189/420] Running 29efb02a827bb9fd — ctx=1024 pos=0.25 span=128 type=delete
+2026-03-12 12:45:05,239 [INFO] src.sweep: [190/420] Running 120c31937ec00071 — ctx=1024 pos=0.25 span=128 type=compress
+2026-03-12 12:45:06,262 [INFO] src.storage: Flushed 13390 records to results/results_part_000018.parquet.
+2026-03-12 12:45:06,265 [INFO] src.sweep: [191/420] Running 1a9a84e1628599c8 — ctx=1024 pos=0.25 span=128 type=paraphrase
+2026-03-12 12:45:07,318 [INFO] src.sweep: [192/420] Running 790e681c9f123c9d — ctx=1024 pos=0.25 span=128 type=semantic_change
+2026-03-12 12:45:08,308 [INFO] src.sweep: [193/420] Running 7db1cd05a5267d9a — ctx=1024 pos=0.50 span=8 type=random_replace
+2026-03-12 12:45:09,307 [INFO] src.sweep: [194/420] Running 39eb65e624d6d3cd — ctx=1024 pos=0.50 span=8 type=mask
+2026-03-12 12:45:10,287 [INFO] src.sweep: [195/420] Running 3db9bbca97fa5e1b — ctx=1024 pos=0.50 span=8 type=delete
+2026-03-12 12:45:11,280 [INFO] src.sweep: [196/420] Running 454107acc50179f6 — ctx=1024 pos=0.50 span=8 type=compress
+2026-03-12 12:45:12,275 [INFO] src.sweep: [197/420] Running 1f2f30c60406695a — ctx=1024 pos=0.50 span=8 type=paraphrase
+2026-03-12 12:45:13,282 [INFO] src.sweep: [198/420] Running efe21d131c7e3472 — ctx=1024 pos=0.50 span=8 type=semantic_change
+2026-03-12 12:45:14,267 [INFO] src.sweep: [199/420] Running c08e3fa6f7de1419 — ctx=1024 pos=0.50 span=32 type=random_replace
+2026-03-12 12:45:15,250 [INFO] src.sweep: [200/420] Running e0eb3fd70cd86752 — ctx=1024 pos=0.50 span=32 type=mask
+2026-03-12 12:45:16,268 [INFO] src.storage: Flushed 12350 records to results/results_part_000019.parquet.
+2026-03-12 12:45:16,271 [INFO] src.sweep: [201/420] Running 307e43969294095d — ctx=1024 pos=0.50 span=32 type=delete
+2026-03-12 12:45:17,244 [INFO] src.sweep: [202/420] Running 7d7338ea4999e5a1 — ctx=1024 pos=0.50 span=32 type=compress
+2026-03-12 12:45:18,230 [INFO] src.sweep: [203/420] Running 78bdefae5d87f6f9 — ctx=1024 pos=0.50 span=32 type=paraphrase
+2026-03-12 12:45:19,266 [INFO] src.sweep: [204/420] Running bd4bbcf40ce4ff55 — ctx=1024 pos=0.50 span=32 type=semantic_change
+2026-03-12 12:45:20,258 [INFO] src.sweep: [205/420] Running fa851253a8f95e28 — ctx=1024 pos=0.50 span=128 type=random_replace
+2026-03-12 12:45:21,247 [INFO] src.sweep: [206/420] Running 54475a4af0ccd842 — ctx=1024 pos=0.50 span=128 type=mask
+2026-03-12 12:45:22,313 [INFO] src.sweep: [207/420] Running 21d3f59c1924e8f0 — ctx=1024 pos=0.50 span=128 type=delete
+2026-03-12 12:45:23,242 [INFO] src.sweep: [208/420] Running ed6f43e30e565301 — ctx=1024 pos=0.50 span=128 type=compress
+2026-03-12 12:45:24,232 [INFO] src.sweep: [209/420] Running 232ab85ffd826af2 — ctx=1024 pos=0.50 span=128 type=paraphrase
+2026-03-12 12:45:25,265 [INFO] src.sweep: [210/420] Running 143d2467a3c8d946 — ctx=1024 pos=0.50 span=128 type=semantic_change
+2026-03-12 12:45:26,268 [INFO] src.storage: Flushed 11310 records to results/results_part_000020.parquet.
+2026-03-12 12:45:26,270 [INFO] src.sweep: [211/420] Running 26ced61e67c87f04 — ctx=1024 pos=0.75 span=8 type=random_replace
+2026-03-12 12:45:27,234 [INFO] src.sweep: [212/420] Running 95076f815f3f7af2 — ctx=1024 pos=0.75 span=8 type=mask
+2026-03-12 12:45:28,235 [INFO] src.sweep: [213/420] Running c6cd49239a94154d — ctx=1024 pos=0.75 span=8 type=delete
+2026-03-12 12:45:29,203 [INFO] src.sweep: [214/420] Running 0e725f22c5da5509 — ctx=1024 pos=0.75 span=8 type=compress
+2026-03-12 12:45:30,207 [INFO] src.sweep: [215/420] Running 96c911474e9deb85 — ctx=1024 pos=0.75 span=8 type=paraphrase
+2026-03-12 12:45:31,212 [INFO] src.sweep: [216/420] Running 6cb65ddcb751e34e — ctx=1024 pos=0.75 span=8 type=semantic_change
+2026-03-12 12:45:32,194 [INFO] src.sweep: [217/420] Running 5785b30f8aae7584 — ctx=1024 pos=0.75 span=32 type=random_replace
+2026-03-12 12:45:33,169 [INFO] src.sweep: [218/420] Running 984db9367c54e08a — ctx=1024 pos=0.75 span=32 type=mask
+2026-03-12 12:45:34,160 [INFO] src.sweep: [219/420] Running 5135f5777f51917f — ctx=1024 pos=0.75 span=32 type=delete
+2026-03-12 12:45:35,126 [INFO] src.sweep: [220/420] Running 2df7c66af3779080 — ctx=1024 pos=0.75 span=32 type=compress
+2026-03-12 12:45:36,131 [INFO] src.storage: Flushed 10400 records to results/results_part_000021.parquet.
+2026-03-12 12:45:36,134 [INFO] src.sweep: [221/420] Running 0943d62bcc949b53 — ctx=1024 pos=0.75 span=32 type=paraphrase
+2026-03-12 12:45:37,105 [INFO] src.sweep: [222/420] Running 88d0f30c9b115e64 — ctx=1024 pos=0.75 span=32 type=semantic_change
+2026-03-12 12:45:38,086 [INFO] src.sweep: [223/420] Running fe5760ff12207d37 — ctx=1024 pos=0.75 span=128 type=random_replace
+2026-03-12 12:45:39,128 [INFO] src.sweep: [224/420] Running bf913e3b397abe0f — ctx=1024 pos=0.75 span=128 type=mask
+2026-03-12 12:45:40,090 [INFO] src.sweep: [225/420] Running 2555c55da0913254 — ctx=1024 pos=0.75 span=128 type=delete
+2026-03-12 12:45:41,040 [INFO] src.sweep: [226/420] Running ea29d7f311014b03 — ctx=1024 pos=0.75 span=128 type=compress
+2026-03-12 12:45:42,013 [INFO] src.sweep: [227/420] Running 45a0c7e2ee90f3dd — ctx=1024 pos=0.75 span=128 type=paraphrase
+2026-03-12 12:45:43,043 [INFO] src.sweep: [228/420] Running 2a6c1cc8cbac6f20 — ctx=1024 pos=0.75 span=128 type=semantic_change
+2026-03-12 12:45:44,010 [INFO] src.sweep: [229/420] Running 72d8b47882935fe3 — ctx=1024 pos=0.90 span=8 type=random_replace
+2026-03-12 12:45:44,978 [INFO] src.sweep: [230/420] Running fa147e0211ce2052 — ctx=1024 pos=0.90 span=8 type=mask
+2026-03-12 12:45:46,008 [INFO] src.storage: Flushed 9750 records to results/results_part_000022.parquet.
+2026-03-12 12:45:46,011 [INFO] src.sweep: [231/420] Running dddb118269c1167e — ctx=1024 pos=0.90 span=8 type=delete
+2026-03-12 12:45:47,045 [INFO] src.sweep: [232/420] Running aa5d388b9081919f — ctx=1024 pos=0.90 span=8 type=compress
+2026-03-12 12:45:48,029 [INFO] src.sweep: [233/420] Running 7b1a10e39ddca044 — ctx=1024 pos=0.90 span=8 type=paraphrase
+2026-03-12 12:45:48,992 [INFO] src.sweep: [234/420] Running 9fcd575dc2126f56 — ctx=1024 pos=0.90 span=8 type=semantic_change
+2026-03-12 12:45:49,962 [INFO] src.sweep: [235/420] Running 30a2aaf0499a70bf — ctx=1024 pos=0.90 span=32 type=random_replace
+2026-03-12 12:45:50,930 [INFO] src.sweep: [236/420] Running 8c264c9aa2b681b7 — ctx=1024 pos=0.90 span=32 type=mask
+2026-03-12 12:45:51,892 [INFO] src.sweep: [237/420] Running 65e38974ef52e48e — ctx=1024 pos=0.90 span=32 type=delete
+2026-03-12 12:45:52,847 [INFO] src.sweep: [238/420] Running a9e26633e3caa43b — ctx=1024 pos=0.90 span=32 type=compress
+2026-03-12 12:45:53,881 [INFO] src.sweep: [239/420] Running cff21be5de7bc240 — ctx=1024 pos=0.90 span=32 type=paraphrase
+2026-03-12 12:45:54,869 [INFO] src.sweep: [240/420] Running f53765024defffb7 — ctx=1024 pos=0.90 span=32 type=semantic_change
+2026-03-12 12:45:55,839 [INFO] src.storage: Flushed 9100 records to results/results_part_000023.parquet.
+2026-03-12 12:45:55,841 [INFO] src.sweep: [241/420] Running 0303cfcc9cc24a14 — ctx=2048 pos=0.10 span=8 type=random_replace
+2026-03-12 12:45:57,889 [INFO] src.sweep: [242/420] Running 438dbd9bde7cbf05 — ctx=2048 pos=0.10 span=8 type=mask
+2026-03-12 12:45:59,895 [INFO] src.sweep: [243/420] Running 42ba0d9d7ad56575 — ctx=2048 pos=0.10 span=8 type=delete
+2026-03-12 12:46:01,913 [INFO] src.sweep: [244/420] Running 6ae3ffe2ac8293ca — ctx=2048 pos=0.10 span=8 type=compress
+2026-03-12 12:46:03,938 [INFO] src.sweep: [245/420] Running a5934a15b6299ae2 — ctx=2048 pos=0.10 span=8 type=paraphrase
+2026-03-12 12:46:05,957 [INFO] src.sweep: [246/420] Running 9b9368457d3e3f92 — ctx=2048 pos=0.10 span=8 type=semantic_change
+2026-03-12 12:46:07,967 [INFO] src.sweep: [247/420] Running 3015171450cbeec1 — ctx=2048 pos=0.10 span=32 type=random_replace
+2026-03-12 12:46:09,973 [INFO] src.sweep: [248/420] Running 3a193f7a4aec6c92 — ctx=2048 pos=0.10 span=32 type=mask
+2026-03-12 12:46:12,003 [INFO] src.sweep: [249/420] Running 41bd9a86ed94f95b — ctx=2048 pos=0.10 span=32 type=delete
+2026-03-12 12:46:14,044 [INFO] src.sweep: [250/420] Running 0c9632aab6df430f — ctx=2048 pos=0.10 span=32 type=compress
+2026-03-12 12:46:16,109 [INFO] src.storage: Flushed 20800 records to results/results_part_000024.parquet.
+2026-03-12 12:46:16,113 [INFO] src.sweep: [251/420] Running 716f9457f07ebec0 — ctx=2048 pos=0.10 span=32 type=paraphrase
+2026-03-12 12:46:18,118 [INFO] src.sweep: [252/420] Running 4b372dc592c48288 — ctx=2048 pos=0.10 span=32 type=semantic_change
+2026-03-12 12:46:20,122 [INFO] src.sweep: [253/420] Running d2fa329ce7582986 — ctx=2048 pos=0.10 span=128 type=random_replace
+2026-03-12 12:46:22,255 [INFO] src.sweep: [254/420] Running 269b360c0b02178e — ctx=2048 pos=0.10 span=128 type=mask
+2026-03-12 12:46:24,266 [INFO] src.sweep: [255/420] Running 2a8a2b06c5650f15 — ctx=2048 pos=0.10 span=128 type=delete
+2026-03-12 12:46:26,234 [INFO] src.sweep: [256/420] Running c50d54a45131b4db — ctx=2048 pos=0.10 span=128 type=compress
+2026-03-12 12:46:28,289 [INFO] src.sweep: [257/420] Running 59e180e7a55dc7f7 — ctx=2048 pos=0.10 span=128 type=paraphrase
+2026-03-12 12:46:30,344 [INFO] src.sweep: [258/420] Running 6ed8f905ba83baca — ctx=2048 pos=0.10 span=128 type=semantic_change
+2026-03-12 12:46:32,358 [INFO] src.sweep: [259/420] Running 5b95cc1af318d49d — ctx=2048 pos=0.25 span=8 type=random_replace
+2026-03-12 12:46:34,367 [INFO] src.sweep: [260/420] Running 6eec07b96fa60fde — ctx=2048 pos=0.25 span=8 type=mask
+2026-03-12 12:46:36,429 [INFO] src.storage: Flushed 20020 records to results/results_part_000025.parquet.
+2026-03-12 12:46:36,433 [INFO] src.sweep: [261/420] Running 53e1ed150f7ee521 — ctx=2048 pos=0.25 span=8 type=delete
+2026-03-12 12:46:38,423 [INFO] src.sweep: [262/420] Running ffbec0b3f1ba749f — ctx=2048 pos=0.25 span=8 type=compress
+2026-03-12 12:46:40,458 [INFO] src.sweep: [263/420] Running 741a119d45a31152 — ctx=2048 pos=0.25 span=8 type=paraphrase
+2026-03-12 12:46:42,459 [INFO] src.sweep: [264/420] Running dd5527af358dd78a — ctx=2048 pos=0.25 span=8 type=semantic_change
+2026-03-12 12:46:44,500 [INFO] src.sweep: [265/420] Running 18a5bdea9e5a1bc1 — ctx=2048 pos=0.25 span=32 type=random_replace
+2026-03-12 12:46:46,555 [INFO] src.sweep: [266/420] Running b42d7cf4c82facaf — ctx=2048 pos=0.25 span=32 type=mask
+2026-03-12 12:46:48,555 [INFO] src.sweep: [267/420] Running efce5a9fb2e489a9 — ctx=2048 pos=0.25 span=32 type=delete
+2026-03-12 12:46:50,566 [INFO] src.sweep: [268/420] Running c5e2fb74f6f16728 — ctx=2048 pos=0.25 span=32 type=compress
+2026-03-12 12:46:52,566 [INFO] src.sweep: [269/420] Running c125798f9178b244 — ctx=2048 pos=0.25 span=32 type=paraphrase
+2026-03-12 12:46:54,606 [INFO] src.sweep: [270/420] Running e84bfa1332ac8d76 — ctx=2048 pos=0.25 span=32 type=semantic_change
+2026-03-12 12:46:56,650 [INFO] src.storage: Flushed 18850 records to results/results_part_000026.parquet.
+2026-03-12 12:46:56,653 [INFO] src.sweep: [271/420] Running 42d0296f23220baa — ctx=2048 pos=0.25 span=128 type=random_replace
+2026-03-12 12:46:58,647 [INFO] src.sweep: [272/420] Running bd3a72d5236a8562 — ctx=2048 pos=0.25 span=128 type=mask
+2026-03-12 12:47:00,634 [INFO] src.sweep: [273/420] Running 9cf0208a74a50e50 — ctx=2048 pos=0.25 span=128 type=delete
+2026-03-12 12:47:02,583 [INFO] src.sweep: [274/420] Running 2813e259d42f2d7c — ctx=2048 pos=0.25 span=128 type=compress
+2026-03-12 12:47:04,579 [INFO] src.sweep: [275/420] Running 2b3b69bfc7d82c48 — ctx=2048 pos=0.25 span=128 type=paraphrase
+2026-03-12 12:47:06,579 [INFO] src.sweep: [276/420] Running 9b1312a8488c7a77 — ctx=2048 pos=0.25 span=128 type=semantic_change
+2026-03-12 12:47:08,572 [INFO] src.sweep: [277/420] Running 7bfe7ef91fff4d0f — ctx=2048 pos=0.50 span=8 type=random_replace
+2026-03-12 12:47:10,599 [INFO] src.sweep: [278/420] Running 076a58cb605e934b — ctx=2048 pos=0.50 span=8 type=mask
+2026-03-12 12:47:12,590 [INFO] src.sweep: [279/420] Running 505858cadb6f75b6 — ctx=2048 pos=0.50 span=8 type=delete
+2026-03-12 12:47:14,664 [INFO] src.sweep: [280/420] Running 87a9c3986145b472 — ctx=2048 pos=0.50 span=8 type=compress
+2026-03-12 12:47:16,747 [INFO] src.storage: Flushed 17160 records to results/results_part_000027.parquet.
+2026-03-12 12:47:16,751 [INFO] src.sweep: [281/420] Running 133d8f0599f6d143 — ctx=2048 pos=0.50 span=8 type=paraphrase
+2026-03-12 12:47:18,758 [INFO] src.sweep: [282/420] Running 1e9f7a5496fb3e1f — ctx=2048 pos=0.50 span=8 type=semantic_change
+2026-03-12 12:47:20,757 [INFO] src.sweep: [283/420] Running bc2ec71ace49f2f1 — ctx=2048 pos=0.50 span=32 type=random_replace
+2026-03-12 12:47:22,756 [INFO] src.sweep: [284/420] Running 5b7b3ad6c0b71b42 — ctx=2048 pos=0.50 span=32 type=mask
+2026-03-12 12:47:24,735 [INFO] src.sweep: [285/420] Running 391af6b644aa262f — ctx=2048 pos=0.50 span=32 type=delete
+2026-03-12 12:47:26,771 [INFO] src.sweep: [286/420] Running ba554b2e21e3d27d — ctx=2048 pos=0.50 span=32 type=compress
+2026-03-12 12:47:28,853 [INFO] src.sweep: [287/420] Running 4ff483d0b9739681 — ctx=2048 pos=0.50 span=32 type=paraphrase
+2026-03-12 12:47:30,837 [INFO] src.sweep: [288/420] Running c64fa7fb15131fdd — ctx=2048 pos=0.50 span=32 type=semantic_change
+2026-03-12 12:47:32,833 [INFO] src.sweep: [289/420] Running 56d65c98b3fde0a0 — ctx=2048 pos=0.50 span=128 type=random_replace
+2026-03-12 12:47:34,836 [INFO] src.sweep: [290/420] Running 9d0eec98cf815a54 — ctx=2048 pos=0.50 span=128 type=mask
+2026-03-12 12:47:36,883 [INFO] src.storage: Flushed 14950 records to results/results_part_000028.parquet.
+2026-03-12 12:47:36,886 [INFO] src.sweep: [291/420] Running 187d9ff144355fb7 — ctx=2048 pos=0.50 span=128 type=delete
+2026-03-12 12:47:38,806 [INFO] src.sweep: [292/420] Running 963d921d26991415 — ctx=2048 pos=0.50 span=128 type=compress
+2026-03-12 12:47:40,765 [INFO] src.sweep: [293/420] Running 22cc91e6bc7876b3 — ctx=2048 pos=0.50 span=128 type=paraphrase
+2026-03-12 12:47:42,781 [INFO] src.sweep: [294/420] Running f3a2414c2da55a11 — ctx=2048 pos=0.50 span=128 type=semantic_change
+2026-03-12 12:47:44,774 [INFO] src.sweep: [295/420] Running ef194de03dab6f0e — ctx=2048 pos=0.75 span=8 type=random_replace
+2026-03-12 12:47:46,784 [INFO] src.sweep: [296/420] Running 8927f65126b2553e — ctx=2048 pos=0.75 span=8 type=mask
+2026-03-12 12:47:48,788 [INFO] src.sweep: [297/420] Running 625bd7f6f514b8e8 — ctx=2048 pos=0.75 span=8 type=delete
+2026-03-12 12:47:50,760 [INFO] src.sweep: [298/420] Running 5e6e3f1d81dee3dd — ctx=2048 pos=0.75 span=8 type=compress
+2026-03-12 12:47:52,784 [INFO] src.sweep: [299/420] Running 36be9c3e90df52a5 — ctx=2048 pos=0.75 span=8 type=paraphrase
+2026-03-12 12:47:54,791 [INFO] src.sweep: [300/420] Running 0e8c6557f96de470 — ctx=2048 pos=0.75 span=8 type=semantic_change
+2026-03-12 12:47:56,818 [INFO] src.storage: Flushed 13130 records to results/results_part_000029.parquet.
+2026-03-12 12:47:56,821 [INFO] src.sweep: [301/420] Running 64446104235c7eee — ctx=2048 pos=0.75 span=32 type=random_replace
+2026-03-12 12:47:58,844 [INFO] src.sweep: [302/420] Running d39f6153abd23af5 — ctx=2048 pos=0.75 span=32 type=mask
+2026-03-12 12:48:00,823 [INFO] src.sweep: [303/420] Running e1c73a8d84369435 — ctx=2048 pos=0.75 span=32 type=delete
+2026-03-12 12:48:02,814 [INFO] src.sweep: [304/420] Running bab05b7b8dc6707b — ctx=2048 pos=0.75 span=32 type=compress
+2026-03-12 12:48:04,771 [INFO] src.sweep: [305/420] Running 40878409ccea802c — ctx=2048 pos=0.75 span=32 type=paraphrase
+2026-03-12 12:48:06,760 [INFO] src.sweep: [306/420] Running 171d1e69211ce2fa — ctx=2048 pos=0.75 span=32 type=semantic_change
+2026-03-12 12:48:08,779 [INFO] src.sweep: [307/420] Running 23f69c888d69a953 — ctx=2048 pos=0.75 span=128 type=random_replace
+2026-03-12 12:48:10,740 [INFO] src.sweep: [308/420] Running 85868b4b0ebaa00b — ctx=2048 pos=0.75 span=128 type=mask
+2026-03-12 12:48:12,716 [INFO] src.sweep: [309/420] Running a84b47901483baaf — ctx=2048 pos=0.75 span=128 type=delete
+2026-03-12 12:48:14,645 [INFO] src.sweep: [310/420] Running 3740387b417b6770 — ctx=2048 pos=0.75 span=128 type=compress
+2026-03-12 12:48:16,635 [INFO] src.storage: Flushed 11440 records to results/results_part_000030.parquet.
+2026-03-12 12:48:16,638 [INFO] src.sweep: [311/420] Running 5bbe52af58ff399a — ctx=2048 pos=0.75 span=128 type=paraphrase
+2026-03-12 12:48:18,626 [INFO] src.sweep: [312/420] Running 3cb45937d339b1f5 — ctx=2048 pos=0.75 span=128 type=semantic_change
+2026-03-12 12:48:20,605 [INFO] src.sweep: [313/420] Running 3742b011afc8664e — ctx=2048 pos=0.90 span=8 type=random_replace
+2026-03-12 12:48:22,605 [INFO] src.sweep: [314/420] Running 90187538d5595c29 — ctx=2048 pos=0.90 span=8 type=mask
+2026-03-12 12:48:24,570 [INFO] src.sweep: [315/420] Running 12d71c15824d03a0 — ctx=2048 pos=0.90 span=8 type=delete
+2026-03-12 12:48:26,581 [INFO] src.sweep: [316/420] Running 598f297a2f5a328a — ctx=2048 pos=0.90 span=8 type=compress
+2026-03-12 12:48:28,565 [INFO] src.sweep: [317/420] Running f664deb7bb37489b — ctx=2048 pos=0.90 span=8 type=paraphrase
+2026-03-12 12:48:30,527 [INFO] src.sweep: [318/420] Running e4d6f0fd31a85c02 — ctx=2048 pos=0.90 span=8 type=semantic_change
+2026-03-12 12:48:32,505 [INFO] src.sweep: [319/420] Running b0037ae961633ff9 — ctx=2048 pos=0.90 span=32 type=random_replace
+2026-03-12 12:48:34,493 [INFO] src.sweep: [320/420] Running b5b43d5ef6c884b2 — ctx=2048 pos=0.90 span=32 type=mask
+2026-03-12 12:48:36,475 [INFO] src.storage: Flushed 10010 records to results/results_part_000031.parquet.
+2026-03-12 12:48:36,477 [INFO] src.sweep: [321/420] Running 92d72ed421ca9832 — ctx=2048 pos=0.90 span=32 type=delete
+2026-03-12 12:48:38,472 [INFO] src.sweep: [322/420] Running 2c3cc7011236a6b7 — ctx=2048 pos=0.90 span=32 type=compress
+2026-03-12 12:48:40,435 [INFO] src.sweep: [323/420] Running 0fb4f1e24786ee29 — ctx=2048 pos=0.90 span=32 type=paraphrase
+2026-03-12 12:48:42,405 [INFO] src.sweep: [324/420] Running 6d13291cf4729ed2 — ctx=2048 pos=0.90 span=32 type=semantic_change
+2026-03-12 12:48:44,408 [INFO] src.sweep: [325/420] Running cb123f4fe7fa0c5f — ctx=2048 pos=0.90 span=128 type=random_replace
+2026-03-12 12:48:46,417 [INFO] src.sweep: [326/420] Running 0289f45e6892fe29 — ctx=2048 pos=0.90 span=128 type=mask
+2026-03-12 12:48:48,387 [INFO] src.sweep: [327/420] Running dcb15e76e3f5ed7c — ctx=2048 pos=0.90 span=128 type=delete
+2026-03-12 12:48:50,306 [INFO] src.sweep: [328/420] Running d5971f18b7a0767c — ctx=2048 pos=0.90 span=128 type=compress
+2026-03-12 12:48:52,268 [INFO] src.sweep: [329/420] Running 04f733bd82178d48 — ctx=2048 pos=0.90 span=128 type=paraphrase
+2026-03-12 12:48:54,389 [INFO] src.sweep: [330/420] Running 98f3a19a9a2dc4ad — ctx=2048 pos=0.90 span=128 type=semantic_change
+2026-03-12 12:48:56,400 [INFO] src.storage: Flushed 9360 records to results/results_part_000032.parquet.
+2026-03-12 12:48:56,403 [INFO] src.sweep: [331/420] Running 33525da067cbdaf7 — ctx=4096 pos=0.10 span=8 type=random_replace
+2026-03-12 12:49:01,399 [INFO] src.sweep: [332/420] Running f9fb4558bacb0e59 — ctx=4096 pos=0.10 span=8 type=mask
+2026-03-12 12:49:06,445 [INFO] src.sweep: [333/420] Running 68e319541b97b4b5 — ctx=4096 pos=0.10 span=8 type=delete
+2026-03-12 12:49:11,457 [INFO] src.sweep: [334/420] Running 3ec104f38541d1a6 — ctx=4096 pos=0.10 span=8 type=compress
+2026-03-12 12:49:16,517 [INFO] src.sweep: [335/420] Running 34713b4ef22e38b8 — ctx=4096 pos=0.10 span=8 type=paraphrase
+2026-03-12 12:49:21,586 [INFO] src.sweep: [336/420] Running b1120637b51d1d28 — ctx=4096 pos=0.10 span=8 type=semantic_change
+2026-03-12 12:49:26,558 [INFO] src.sweep: [337/420] Running 0acb70f4cdb74400 — ctx=4096 pos=0.10 span=32 type=random_replace
+2026-03-12 12:49:31,537 [INFO] src.sweep: [338/420] Running 653f32039d15c9da — ctx=4096 pos=0.10 span=32 type=mask
+2026-03-12 12:49:36,593 [INFO] src.sweep: [339/420] Running 9054eccf3a64158e — ctx=4096 pos=0.10 span=32 type=delete
+2026-03-12 12:49:41,599 [INFO] src.sweep: [340/420] Running 61839d64729272c3 — ctx=4096 pos=0.10 span=32 type=compress
+2026-03-12 12:49:46,698 [INFO] src.storage: Flushed 32500 records to results/results_part_000033.parquet.
+2026-03-12 12:49:46,705 [INFO] src.sweep: [341/420] Running e0c71ef0b305d044 — ctx=4096 pos=0.10 span=32 type=paraphrase
+2026-03-12 12:49:51,726 [INFO] src.sweep: [342/420] Running 3aa92aba371c5ed6 — ctx=4096 pos=0.10 span=32 type=semantic_change
+2026-03-12 12:49:56,735 [INFO] src.sweep: [343/420] Running 27fa5f802584acdf — ctx=4096 pos=0.10 span=128 type=random_replace
+2026-03-12 12:50:01,739 [INFO] src.sweep: [344/420] Running 2497d11bb33335da — ctx=4096 pos=0.10 span=128 type=mask
+2026-03-12 12:50:06,721 [INFO] src.sweep: [345/420] Running 5935eff988e3636b — ctx=4096 pos=0.10 span=128 type=delete
+2026-03-12 12:50:11,640 [INFO] src.sweep: [346/420] Running 577cb70f6f76a753 — ctx=4096 pos=0.10 span=128 type=compress
+2026-03-12 12:50:16,598 [INFO] src.sweep: [347/420] Running 87322693d9fc15d5 — ctx=4096 pos=0.10 span=128 type=paraphrase
+2026-03-12 12:50:22,147 [INFO] src.sweep: [348/420] Running fa01dcbc889a68b0 — ctx=4096 pos=0.10 span=128 type=semantic_change
+2026-03-12 12:50:27,173 [INFO] src.sweep: [349/420] Running bb09183a1c2c53ab — ctx=4096 pos=0.25 span=8 type=random_replace
+2026-03-12 12:50:32,209 [INFO] src.sweep: [350/420] Running 1e8106460e4bafc4 — ctx=4096 pos=0.25 span=8 type=mask
+2026-03-12 12:50:37,266 [INFO] src.storage: Flushed 31330 records to results/results_part_000034.parquet.
+2026-03-12 12:50:37,272 [INFO] src.sweep: [351/420] Running 115e6fbe75ede396 — ctx=4096 pos=0.25 span=8 type=delete
+2026-03-12 12:50:42,290 [INFO] src.sweep: [352/420] Running fa1c9ea67daa7777 — ctx=4096 pos=0.25 span=8 type=compress
+2026-03-12 12:50:47,324 [INFO] src.sweep: [353/420] Running 54622817ee1f18fa — ctx=4096 pos=0.25 span=8 type=paraphrase
+2026-03-12 12:50:52,296 [INFO] src.sweep: [354/420] Running 7004e8c0e71b5c9d — ctx=4096 pos=0.25 span=8 type=semantic_change
+2026-03-12 12:50:57,289 [INFO] src.sweep: [355/420] Running c563ed79efec6d7c — ctx=4096 pos=0.25 span=32 type=random_replace
+2026-03-12 12:51:02,322 [INFO] src.sweep: [356/420] Running 5e5d146599848328 — ctx=4096 pos=0.25 span=32 type=mask
+2026-03-12 12:51:07,326 [INFO] src.sweep: [357/420] Running 4ec19d43f63560d5 — ctx=4096 pos=0.25 span=32 type=delete
+2026-03-12 12:51:12,288 [INFO] src.sweep: [358/420] Running cc69dc0a1475affa — ctx=4096 pos=0.25 span=32 type=compress
+2026-03-12 12:51:17,290 [INFO] src.sweep: [359/420] Running 9b356c5fbb6a398a — ctx=4096 pos=0.25 span=32 type=paraphrase
+2026-03-12 12:51:22,298 [INFO] src.sweep: [360/420] Running abc9ec4cd466ed19 — ctx=4096 pos=0.25 span=32 type=semantic_change
+2026-03-12 12:51:27,381 [INFO] src.storage: Flushed 28600 records to results/results_part_000035.parquet.
+2026-03-12 12:51:27,386 [INFO] src.sweep: [361/420] Running db65dc5a7ffe7f2e — ctx=4096 pos=0.25 span=128 type=random_replace
+2026-03-12 12:51:32,375 [INFO] src.sweep: [362/420] Running 75cb5279a12bdeb4 — ctx=4096 pos=0.25 span=128 type=mask
+2026-03-12 12:51:37,350 [INFO] src.sweep: [363/420] Running 71d89ac1bf951b58 — ctx=4096 pos=0.25 span=128 type=delete
+2026-03-12 12:51:42,235 [INFO] src.sweep: [364/420] Running d7528ecd350eca66 — ctx=4096 pos=0.25 span=128 type=compress
+2026-03-12 12:51:47,186 [INFO] src.sweep: [365/420] Running b5c64b0ce0067854 — ctx=4096 pos=0.25 span=128 type=paraphrase
+2026-03-12 12:51:52,242 [INFO] src.sweep: [366/420] Running bf1286fbb25e0bc9 — ctx=4096 pos=0.25 span=128 type=semantic_change
+2026-03-12 12:51:57,227 [INFO] src.sweep: [367/420] Running 9a4940ce2e639a6f — ctx=4096 pos=0.50 span=8 type=random_replace
+2026-03-12 12:52:02,177 [INFO] src.sweep: [368/420] Running 9b03421affad27b2 — ctx=4096 pos=0.50 span=8 type=mask
+2026-03-12 12:52:07,112 [INFO] src.sweep: [369/420] Running c877765242e78502 — ctx=4096 pos=0.50 span=8 type=delete
+2026-03-12 12:52:12,090 [INFO] src.sweep: [370/420] Running 55b0c2f4e557a9bf — ctx=4096 pos=0.50 span=8 type=compress
+2026-03-12 12:52:17,193 [INFO] src.storage: Flushed 25610 records to results/results_part_000036.parquet.
+2026-03-12 12:52:17,198 [INFO] src.sweep: [371/420] Running 85106b045654e65b — ctx=4096 pos=0.50 span=8 type=paraphrase
+2026-03-12 12:52:22,179 [INFO] src.sweep: [372/420] Running 9eab3af8fbabadc4 — ctx=4096 pos=0.50 span=8 type=semantic_change
+2026-03-12 12:52:27,125 [INFO] src.sweep: [373/420] Running abb4d6e6e3c2416f — ctx=4096 pos=0.50 span=32 type=random_replace
+2026-03-12 12:52:32,085 [INFO] src.sweep: [374/420] Running adceef3bd20b582a — ctx=4096 pos=0.50 span=32 type=mask
+2026-03-12 12:52:37,108 [INFO] src.sweep: [375/420] Running e265c9afafda0e3b — ctx=4096 pos=0.50 span=32 type=delete
+2026-03-12 12:52:42,088 [INFO] src.sweep: [376/420] Running c23f509a74903e98 — ctx=4096 pos=0.50 span=32 type=compress
+2026-03-12 12:52:47,043 [INFO] src.sweep: [377/420] Running a8a61417d8b4d78f — ctx=4096 pos=0.50 span=32 type=paraphrase
+2026-03-12 12:52:52,039 [INFO] src.sweep: [378/420] Running 0c709f931cd09f3b — ctx=4096 pos=0.50 span=32 type=semantic_change
+2026-03-12 12:52:57,004 [INFO] src.sweep: [379/420] Running dd7d243a03b32de7 — ctx=4096 pos=0.50 span=128 type=random_replace
+2026-03-12 12:53:01,952 [INFO] src.sweep: [380/420] Running 1b7f617c8b9338bb — ctx=4096 pos=0.50 span=128 type=mask
+2026-03-12 12:53:06,970 [INFO] src.storage: Flushed 21970 records to results/results_part_000037.parquet.
+2026-03-12 12:53:06,975 [INFO] src.sweep: [381/420] Running 1c3e1e1d835a9d91 — ctx=4096 pos=0.50 span=128 type=delete
+2026-03-12 12:53:11,844 [INFO] src.sweep: [382/420] Running 7c295116c7b752d5 — ctx=4096 pos=0.50 span=128 type=compress
+2026-03-12 12:53:16,771 [INFO] src.sweep: [383/420] Running eee81bb020773e53 — ctx=4096 pos=0.50 span=128 type=paraphrase
+2026-03-12 12:53:21,725 [INFO] src.sweep: [384/420] Running 48cb9b1aaa63de48 — ctx=4096 pos=0.50 span=128 type=semantic_change
+2026-03-12 12:53:26,664 [INFO] src.sweep: [385/420] Running 065949a331ec86d1 — ctx=4096 pos=0.75 span=8 type=random_replace
+2026-03-12 12:53:31,621 [INFO] src.sweep: [386/420] Running f0babf3b2f855ced — ctx=4096 pos=0.75 span=8 type=mask
+2026-03-12 12:53:36,546 [INFO] src.sweep: [387/420] Running 2e47c53ece1a9fed — ctx=4096 pos=0.75 span=8 type=delete
+2026-03-12 12:53:41,470 [INFO] src.sweep: [388/420] Running acb0f2dcb203f24f — ctx=4096 pos=0.75 span=8 type=compress
+2026-03-12 12:53:46,472 [INFO] src.sweep: [389/420] Running d4dd12baa4f9f913 — ctx=4096 pos=0.75 span=8 type=paraphrase
+2026-03-12 12:53:51,976 [INFO] src.sweep: [390/420] Running ce13318f094a21c6 — ctx=4096 pos=0.75 span=8 type=semantic_change
+2026-03-12 12:53:56,957 [INFO] src.storage: Flushed 17940 records to results/results_part_000038.parquet.
+2026-03-12 12:53:56,961 [INFO] src.sweep: [391/420] Running ff806538a8e080a3 — ctx=4096 pos=0.75 span=32 type=random_replace
+2026-03-12 12:54:01,899 [INFO] src.sweep: [392/420] Running d00435da997f686d — ctx=4096 pos=0.75 span=32 type=mask
+2026-03-12 12:54:06,830 [INFO] src.sweep: [393/420] Running 7418e22600ff37ff — ctx=4096 pos=0.75 span=32 type=delete
+2026-03-12 12:54:11,766 [INFO] src.sweep: [394/420] Running 4236b36df6563a5f — ctx=4096 pos=0.75 span=32 type=compress
+2026-03-12 12:54:16,710 [INFO] src.sweep: [395/420] Running 97800d5576a84bff — ctx=4096 pos=0.75 span=32 type=paraphrase
+2026-03-12 12:54:21,672 [INFO] src.sweep: [396/420] Running 6d8b2d678bef2e96 — ctx=4096 pos=0.75 span=32 type=semantic_change
+2026-03-12 12:54:26,595 [INFO] src.sweep: [397/420] Running 25c926fc2997ba71 — ctx=4096 pos=0.75 span=128 type=random_replace
+2026-03-12 12:54:31,515 [INFO] src.sweep: [398/420] Running 1636cff18f3ae7c3 — ctx=4096 pos=0.75 span=128 type=mask
+2026-03-12 12:54:36,454 [INFO] src.sweep: [399/420] Running 826449c5e5a164bf — ctx=4096 pos=0.75 span=128 type=delete
+2026-03-12 12:54:41,296 [INFO] src.sweep: [400/420] Running 3be897f34596086f — ctx=4096 pos=0.75 span=128 type=compress
+2026-03-12 12:54:46,247 [INFO] src.storage: Flushed 14690 records to results/results_part_000039.parquet.
+2026-03-12 12:54:46,250 [INFO] src.sweep: [401/420] Running a2eee9c1483d3b53 — ctx=4096 pos=0.75 span=128 type=paraphrase
+2026-03-12 12:54:51,194 [INFO] src.sweep: [402/420] Running b424ed871eb80824 — ctx=4096 pos=0.75 span=128 type=semantic_change
+2026-03-12 12:54:56,204 [INFO] src.sweep: [403/420] Running 366208f637204a0e — ctx=4096 pos=0.90 span=8 type=random_replace
+2026-03-12 12:55:01,123 [INFO] src.sweep: [404/420] Running 119d0cd888e713d5 — ctx=4096 pos=0.90 span=8 type=mask
+2026-03-12 12:55:06,046 [INFO] src.sweep: [405/420] Running 576599c5c027ee6c — ctx=4096 pos=0.90 span=8 type=delete
+2026-03-12 12:55:10,966 [INFO] src.sweep: [406/420] Running 77f1dd1caa8c3e25 — ctx=4096 pos=0.90 span=8 type=compress
+2026-03-12 12:55:15,935 [INFO] src.sweep: [407/420] Running a9bf3c0b0f82c028 — ctx=4096 pos=0.90 span=8 type=paraphrase
+2026-03-12 12:55:21,030 [INFO] src.sweep: [408/420] Running 4828f3082f28b570 — ctx=4096 pos=0.90 span=8 type=semantic_change
+2026-03-12 12:55:25,983 [INFO] src.sweep: [409/420] Running d79504945a735f19 — ctx=4096 pos=0.90 span=32 type=random_replace
+2026-03-12 12:55:30,908 [INFO] src.sweep: [410/420] Running 7273996f87908da4 — ctx=4096 pos=0.90 span=32 type=mask
+2026-03-12 12:55:35,865 [INFO] src.storage: Flushed 12090 records to results/results_part_000040.parquet.
+2026-03-12 12:55:35,867 [INFO] src.sweep: [411/420] Running 2dd4bcfbf392687b — ctx=4096 pos=0.90 span=32 type=delete
+2026-03-12 12:55:40,789 [INFO] src.sweep: [412/420] Running 0b4922d63637cbeb — ctx=4096 pos=0.90 span=32 type=compress
+2026-03-12 12:55:45,706 [INFO] src.sweep: [413/420] Running 56309726073f041b — ctx=4096 pos=0.90 span=32 type=paraphrase
+2026-03-12 12:55:50,987 [INFO] src.sweep: [414/420] Running 494df80f26c039ba — ctx=4096 pos=0.90 span=32 type=semantic_change
+2026-03-12 12:55:55,934 [INFO] src.sweep: [415/420] Running 9a2fc2ab9cb5405e — ctx=4096 pos=0.90 span=128 type=random_replace
+2026-03-12 12:56:00,851 [INFO] src.sweep: [416/420] Running 6c4ad3da7375eb0f — ctx=4096 pos=0.90 span=128 type=mask
+2026-03-12 12:56:05,746 [INFO] src.sweep: [417/420] Running 962ba82706dbcb3f — ctx=4096 pos=0.90 span=128 type=delete
+2026-03-12 12:56:10,599 [INFO] src.sweep: [418/420] Running 0ce892230037866d — ctx=4096 pos=0.90 span=128 type=compress
+2026-03-12 12:56:15,475 [INFO] src.sweep: [419/420] Running bf2c400e9e17395c — ctx=4096 pos=0.90 span=128 type=paraphrase
+2026-03-12 12:56:20,918 [INFO] src.sweep: [420/420] Running 8cad01ae38547666 — ctx=4096 pos=0.90 span=128 type=semantic_change
+2026-03-12 12:56:25,851 [INFO] src.storage: Flushed 10660 records to results/results_part_000041.parquet.
+2026-03-12 12:56:25,854 [INFO] src.sweep: Sweep complete. 420 experiments in 795.2 s.

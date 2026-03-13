@@ -114,6 +114,8 @@ def run_single_experiment(
 
     # Free GPU memory eagerly.
     del orig_hidden, pert_hidden
+    import gc
+    gc.collect()
     torch.cuda.empty_cache()
 
     return records
