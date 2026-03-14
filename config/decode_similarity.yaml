@@ -1,0 +1,64 @@
+# ============================================================
+# Decode-Time Activation Similarity — Configuration
+# ============================================================
+# Studies self-similarity patterns during autoregressive decoding:
+# for each newly decoded token, how similar are its intermediate
+# activations to all historical tokens at each layer?
+
+# --- Model ---------------------------------------------------
+model:
+  path: "/root/share/models/Qwen2.5-32B-Instruct"
+  dtype: "bfloat16"
+  max_memory_per_gpu_gb: 75
+  trust_remote_code: true
+
+# --- GPU scheduling ------------------------------------------
+gpu:
+  min_free_memory_gb: 40
+  max_parallel_experiments: 1
+  detect_automatically: true
+
+# --- Decode parameters ---------------------------------------
+decode:
+  num_decode_tokens: 128
+  top_k_references: 10
+  temperature: 1.0
+  do_sample: false
+  similarity_thresholds:
+    - 0.90
+    - 0.95
+    - 0.98
+  store_layer_subset: null        # null = all layers
+  activation_dtype: "float32"     # cast activations for similarity
+
+# --- Sweep parameters ----------------------------------------
+sweep:
+  context_lengths:
+    - 256
+    - 512
+    - 1024
+    - 2048
+  num_prompts_per_length: 3
+  num_decode_tokens:
+    - 64
+    - 128
+
+# --- Prompt generation ---------------------------------------
+prompts:
+  source: "dataset"
+  dataset_name: "/root/share/dataset/wikitext-2-raw-v1"
+  dataset_config: "default"
+  dataset_split: "test"
+  seed: 42
+  num_prompt_candidates: 50
+
+# --- Result storage ------------------------------------------
+storage:
+  output_dir: "./results_decode"
+  format: "parquet"
+  checkpoint_every: 5
+
+# --- Logging -------------------------------------------------
+logging:
+  level: "INFO"
+  log_file: "./results_decode/experiment.log"
