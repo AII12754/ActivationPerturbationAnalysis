@@ -1,0 +1,62 @@
+# ============================================================
+# Residual Stream Decomposition — Configuration
+# ============================================================
+# Decomposes the residual stream: delta[L] = h[L] - h[L-1].
+# Measures which layers do real work (large delta) vs skip
+# (small delta), and how deltas relate to the stream/embeddings.
+
+# --- Model ---------------------------------------------------
+model:
+  path: "/root/share/models/Qwen2.5-32B-Instruct"
+  dtype: "bfloat16"
+  max_memory_per_gpu_gb: 75
+  trust_remote_code: true
+
+# --- GPU scheduling ------------------------------------------
+gpu:
+  min_free_memory_gb: 40
+  overhead_factor: 1.25
+
+# --- Residual parameters ------------------------------------
+residual:
+  num_decode_tokens: 128
+  do_sample: false
+  temperature: 1.0
+  activation_dtype: "float32"
+
+# --- Sweep parameters ----------------------------------------
+sweep:
+  context_lengths:
+    - 256
+    - 512
+    - 1024
+    - 2048
+  num_prompts_per_length: 3
+
+# --- Prompt generation ---------------------------------------
+prompts:
+  source: "dataset"
+  dataset_name: "/root/share/dataset/wikitext-2-raw-v1"
+  dataset_config: "default"
+  dataset_split: "test"
+  seed: 42
+  num_prompt_candidates: 50
+  datasets:
+    - "/root/share/dataset/wikitext-2-raw-v1"
+    - "/root/share/dataset/cnndn"
+    - "/root/share/dataset/xsum"
+    - "/root/share/dataset/alpaca"
+    - "/root/share/dataset/gsm8k"
+    - "/root/share/dataset/trivia_qa-rc"
+    - "/root/share/dataset/ShareGPT52K"
+
+# --- Result storage ------------------------------------------
+storage:
+  output_dir: "./results_residual"
+  format: "parquet"
+  checkpoint_every: 5
+
+# --- Logging -------------------------------------------------
+logging:
+  level: "INFO"
+  log_file: "./results_residual/experiment.log"

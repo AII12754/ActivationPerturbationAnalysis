@@ -1,0 +1,60 @@
+# ============================================================
+# Representation Geometry — Configuration
+# ============================================================
+# Studies the geometry of hidden-state representations via SVD:
+# effective rank, anisotropy, explained variance, singular value
+# spectra, and norm statistics across all layers.
+
+# --- Model ---------------------------------------------------
+model:
+  path: "/root/share/models/Qwen2.5-32B-Instruct"
+  dtype: "bfloat16"
+  max_memory_per_gpu_gb: 75
+  trust_remote_code: true
+
+# --- GPU scheduling ------------------------------------------
+# GPU group size is auto-detected from model weight size vs free VRAM.
+gpu:
+  min_free_memory_gb: 40
+  overhead_factor: 1.25
+
+# --- Geometry parameters -------------------------------------
+geometry:
+  pca_components: 100
+  isotropy_samples: 500
+  activation_dtype: "float32"
+
+# --- Sweep parameters ----------------------------------------
+sweep:
+  context_lengths:
+    - 256
+    - 512
+    - 1024
+    - 2048
+    - 4096
+  num_prompts_per_length: 3
+
+# --- Prompt generation ---------------------------------------
+prompts:
+  source: "dataset"
+  seed: 42
+  num_prompt_candidates: 50
+  datasets:
+    - "/root/share/dataset/wikitext-2-raw-v1"
+    - "/root/share/dataset/cnndn"
+    - "/root/share/dataset/xsum"
+    - "/root/share/dataset/alpaca"
+    - "/root/share/dataset/gsm8k"
+    - "/root/share/dataset/trivia_qa-rc"
+    - "/root/share/dataset/ShareGPT52K"
+
+# --- Result storage ------------------------------------------
+storage:
+  output_dir: "./results_geometry"
+  format: "parquet"
+  checkpoint_every: 5
+
+# --- Logging -------------------------------------------------
+logging:
+  level: "INFO"
+  log_file: "./results_geometry/experiment.log"

@@ -1,0 +1,64 @@
+# ============================================================
+# Activation State Detection — Configuration
+# ============================================================
+# Tracks hidden-state trajectories in PCA space during generation
+# and detects regime changes.  For each tracked layer, fits a PCA
+# basis from prefill hidden states, then projects decoded tokens
+# onto that basis to record coordinates, cosine, drift, and norm.
+
+# --- Model ---------------------------------------------------
+model:
+  path: "/root/share/models/Qwen2.5-32B-Instruct"
+  dtype: "bfloat16"
+  max_memory_per_gpu_gb: 75
+  trust_remote_code: true
+
+# --- GPU scheduling ------------------------------------------
+gpu:
+  min_free_memory_gb: 40
+  overhead_factor: 1.25
+
+# --- State detection parameters ------------------------------
+state_detection:
+  num_decode_tokens: 256
+  pca_components: 20
+  tracked_layers: null          # null = auto-select 9 evenly spaced
+  do_sample: false
+  temperature: 1.0
+  activation_dtype: "float32"
+
+# --- Sweep parameters ----------------------------------------
+sweep:
+  context_lengths:
+    - 256
+    - 512
+    - 1024
+  num_prompts_per_length: 3
+
+# --- Prompt generation ---------------------------------------
+prompts:
+  source: "dataset"
+  dataset_name: "/root/share/dataset/wikitext-2-raw-v1"
+  dataset_config: "default"
+  dataset_split: "test"
+  seed: 42
+  num_prompt_candidates: 50
+  datasets:
+    - "/root/share/dataset/wikitext-2-raw-v1"
+    - "/root/share/dataset/cnndn"
+    - "/root/share/dataset/xsum"
+    - "/root/share/dataset/alpaca"
+    - "/root/share/dataset/gsm8k"
+    - "/root/share/dataset/trivia_qa-rc"
+    - "/root/share/dataset/ShareGPT52K"
+
+# --- Result storage ------------------------------------------
+storage:
+  output_dir: "./results_state"
+  format: "parquet"
+  checkpoint_every: 5
+
+# --- Logging -------------------------------------------------
+logging:
+  level: "INFO"
+  log_file: "./results_state/experiment.log"
