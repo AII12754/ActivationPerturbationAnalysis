@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 TOPK_COLUMNS = [
     "experiment_id",
     "model_id",
+    "dataset_name",
     "prompt_id",
     "context_length",
     "num_decode_tokens",
@@ -41,6 +42,7 @@ TOPK_COLUMNS = [
 AGG_COLUMNS = [
     "experiment_id",
     "model_id",
+    "dataset_name",
     "prompt_id",
     "context_length",
     "num_decode_tokens",

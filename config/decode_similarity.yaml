@@ -13,10 +13,11 @@ model:
   trust_remote_code: true
 
 # --- GPU scheduling ------------------------------------------
+# GPU group size is auto-detected from model weight size vs free VRAM.
+# E.g. a 61 GB model on 8× 80 GB GPUs → 1 GPU/experiment, 8 parallel groups.
 gpu:
   min_free_memory_gb: 40
-  max_parallel_experiments: 1
-  detect_automatically: true
+  overhead_factor: 1.25             # VRAM overhead multiplier (weights × factor)
 
 # --- Decode parameters ---------------------------------------
 decode:
@@ -25,6 +26,7 @@ decode:
   temperature: 1.0
   do_sample: false
   similarity_thresholds:
+    - 0.70
     - 0.90
     - 0.95
     - 0.98
@@ -51,6 +53,17 @@ prompts:
   dataset_split: "test"
   seed: 42
   num_prompt_candidates: 50
+  # List of datasets to sweep over. Each entry can be a path string
+  # (uses default config/split) or a dict with name/config/split.
+  # If omitted or empty, only dataset_name above is used.
+  datasets:
+    - "/root/share/dataset/wikitext-2-raw-v1"
+    - "/root/share/dataset/cnndn"
+    - "/root/share/dataset/xsum"
+    - "/root/share/dataset/alpaca"
+    - "/root/share/dataset/gsm8k"
+    - "/root/share/dataset/trivia_qa-rc"
+    - "/root/share/dataset/ShareGPT52K"
 
 # --- Result storage ------------------------------------------
 storage:

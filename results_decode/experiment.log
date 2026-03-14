@@ -1,0 +1,93 @@
+2026-03-14 07:20:25,630 [INFO] __main__: Configuration loaded from config/decode_similarity.yaml
+2026-03-14 07:20:27,526 [INFO] src.scheduler: Detected 8 usable GPUs (min_free=40.0 GB).
+2026-03-14 07:20:27,526 [INFO] src.scheduler: Model VRAM estimate: 61.0 GB weights (dtype=bfloat16) × 1.25 overhead = 76.3 GB
+2026-03-14 07:20:27,526 [INFO] src.scheduler: Auto GPU partitioning: model needs ~76.3 GB, 79.3 GB/GPU → 1 GPU(s)/experiment, 8 parallel group(s) from 8 GPUs.
+2026-03-14 07:20:27,526 [INFO] src.decode_sweep: Parallel sweep: 8 GPUs / 1 per experiment = 8 parallel groups.
+2026-03-14 07:20:27,526 [INFO] src.scheduler: Scheduler: 8 GPU groups of size 1, max_parallel=8
+2026-03-14 07:20:27,527 [INFO] src.decode_sweep: Built 168 decode sweep jobs (7 datasets).
+2026-03-14 07:20:27,527 [INFO] src.decode_sweep: 168 total jobs, 0 already completed, 168 pending.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 0 (GPUs [0]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 1 (GPUs [1]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 2 (GPUs [2]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 3 (GPUs [3]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 4 (GPUs [4]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 5 (GPUs [5]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 6 (GPUs [6]): assigned 21 jobs.
+2026-03-14 07:20:27,528 [INFO] src.scheduler: GPU group 7 (GPUs [7]): assigned 21 jobs.
+2026-03-14 07:20:27,530 [INFO] src.scheduler: Spawned process for GPU group 0 (pid=140750).
+2026-03-14 07:20:27,530 [INFO] src.scheduler: Spawned process for GPU group 1 (pid=140751).
+2026-03-14 07:20:27,530 [INFO] src.scheduler: Spawned process for GPU group 2 (pid=140752).
+2026-03-14 07:20:27,531 [INFO] src.scheduler: Spawned process for GPU group 3 (pid=140753).
+2026-03-14 07:20:27,531 [INFO] src.scheduler: Spawned process for GPU group 4 (pid=140754).
+2026-03-14 07:20:27,532 [INFO] src.scheduler: Spawned process for GPU group 5 (pid=140755).
+2026-03-14 07:20:27,532 [INFO] src.scheduler: Spawned process for GPU group 6 (pid=140756).
+2026-03-14 07:20:27,533 [INFO] src.scheduler: Spawned process for GPU group 7 (pid=140757).
+2026-03-14 07:25:52,654 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000000.parquet.
+2026-03-14 07:25:52,741 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000000.parquet.
+2026-03-14 07:25:53,615 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000001.parquet.
+2026-03-14 07:25:53,700 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000001.parquet.
+2026-03-14 07:25:54,561 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000002.parquet.
+2026-03-14 07:25:54,646 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000002.parquet.
+2026-03-14 07:25:55,497 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000003.parquet.
+2026-03-14 07:25:55,582 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000003.parquet.
+2026-03-14 07:25:57,169 [INFO] src.decode_storage: Flushed 368640 topk records to results_decode/topk_part_000004.parquet.
+2026-03-14 07:25:57,319 [INFO] src.decode_storage: Flushed 36864 agg records to results_decode/agg_part_000004.parquet.
+2026-03-14 07:25:59,025 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000005.parquet.
+2026-03-14 07:25:59,195 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000005.parquet.
+2026-03-14 07:26:00,867 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000006.parquet.
+2026-03-14 07:26:01,074 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000006.parquet.
+2026-03-14 07:26:02,751 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000007.parquet.
+2026-03-14 07:26:02,917 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000007.parquet.
+2026-03-14 07:26:04,103 [INFO] src.decode_storage: Flushed 286720 topk records to results_decode/topk_part_000008.parquet.
+2026-03-14 07:26:04,217 [INFO] src.decode_storage: Flushed 28672 agg records to results_decode/agg_part_000008.parquet.
+2026-03-14 07:26:05,044 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000009.parquet.
+2026-03-14 07:26:05,126 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000009.parquet.
+2026-03-14 07:26:05,945 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000010.parquet.
+2026-03-14 07:26:06,027 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000010.parquet.
+2026-03-14 07:26:06,859 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000011.parquet.
+2026-03-14 07:26:06,944 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000011.parquet.
+2026-03-14 07:26:08,151 [INFO] src.decode_storage: Flushed 286720 topk records to results_decode/topk_part_000012.parquet.
+2026-03-14 07:26:08,268 [INFO] src.decode_storage: Flushed 28672 agg records to results_decode/agg_part_000012.parquet.
+2026-03-14 07:26:09,994 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000013.parquet.
+2026-03-14 07:26:10,159 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000013.parquet.
+2026-03-14 07:26:11,862 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000014.parquet.
+2026-03-14 07:26:12,026 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000014.parquet.
+2026-03-14 07:26:13,701 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000015.parquet.
+2026-03-14 07:26:13,864 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000015.parquet.
+2026-03-14 07:26:15,369 [INFO] src.decode_storage: Flushed 368640 topk records to results_decode/topk_part_000016.parquet.
+2026-03-14 07:26:15,518 [INFO] src.decode_storage: Flushed 36864 agg records to results_decode/agg_part_000016.parquet.
+2026-03-14 07:26:16,360 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000017.parquet.
+2026-03-14 07:26:16,443 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000017.parquet.
+2026-03-14 07:26:17,274 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000018.parquet.
+2026-03-14 07:26:17,356 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000018.parquet.
+2026-03-14 07:26:18,180 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000019.parquet.
+2026-03-14 07:26:18,262 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000019.parquet.
+2026-03-14 07:26:19,091 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000020.parquet.
+2026-03-14 07:26:19,173 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000020.parquet.
+2026-03-14 07:26:20,851 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000021.parquet.
+2026-03-14 07:26:21,015 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000021.parquet.
+2026-03-14 07:26:22,694 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000022.parquet.
+2026-03-14 07:26:22,859 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000022.parquet.
+2026-03-14 07:26:24,541 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000023.parquet.
+2026-03-14 07:26:24,705 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000023.parquet.
+2026-03-14 07:26:26,389 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000024.parquet.
+2026-03-14 07:26:26,552 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000024.parquet.
+2026-03-14 07:26:27,561 [INFO] src.decode_storage: Flushed 245760 topk records to results_decode/topk_part_000025.parquet.
+2026-03-14 07:26:27,658 [INFO] src.decode_storage: Flushed 24576 agg records to results_decode/agg_part_000025.parquet.
+2026-03-14 07:26:28,493 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000026.parquet.
+2026-03-14 07:26:28,575 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000026.parquet.
+2026-03-14 07:26:29,408 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000027.parquet.
+2026-03-14 07:26:29,491 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000027.parquet.
+2026-03-14 07:26:30,319 [INFO] src.decode_storage: Flushed 204800 topk records to results_decode/topk_part_000028.parquet.
+2026-03-14 07:26:30,401 [INFO] src.decode_storage: Flushed 20480 agg records to results_decode/agg_part_000028.parquet.
+2026-03-14 07:26:31,728 [INFO] src.decode_storage: Flushed 327680 topk records to results_decode/topk_part_000029.parquet.
+2026-03-14 07:26:31,856 [INFO] src.decode_storage: Flushed 32768 agg records to results_decode/agg_part_000029.parquet.
+2026-03-14 07:26:33,545 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000030.parquet.
+2026-03-14 07:26:33,708 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000030.parquet.
+2026-03-14 07:26:35,398 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000031.parquet.
+2026-03-14 07:26:35,590 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000031.parquet.
+2026-03-14 07:26:37,296 [INFO] src.decode_storage: Flushed 409600 topk records to results_decode/topk_part_000032.parquet.
+2026-03-14 07:26:37,499 [INFO] src.decode_storage: Flushed 40960 agg records to results_decode/agg_part_000032.parquet.
+2026-03-14 07:26:38,513 [INFO] src.decode_storage: Flushed 245760 topk records to results_decode/topk_part_000033.parquet.
+2026-03-14 07:26:38,610 [INFO] src.decode_storage: Flushed 24576 agg records to results_decode/agg_part_000033.parquet.
+2026-03-14 07:26:38,614 [INFO] src.decode_sweep: Parallel decode sweep complete. 168 jobs processed.

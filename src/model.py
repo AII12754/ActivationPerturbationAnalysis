@@ -56,8 +56,7 @@ def load_model_and_tokenizer(
         device_map=device_map or "auto",
         max_memory=max_memory,
         trust_remote_code=trust_remote_code,
-        output_hidden_states=True,
-        attn_implementation="eager",
+        attn_implementation="sdpa",
     )
     model.eval()
     logger.info("Model loaded. Parameters: %s", f"{model.num_parameters():,}")

@@ -149,7 +149,8 @@ def compute_reference_similarity(
 
     frac_above = {}
     for thr in thresholds:
-        key = f"frac_above_{str(thr).replace('.', '')}"
+        # Format threshold as 3-digit integer: 0.90 -> "090", 0.95 -> "095"
+        key = f"frac_above_{int(round(thr * 100)):03d}"
         frac_above[key] = (similarities > thr).float().mean(dim=1)  # (num_layers,)
 
     agg_stats = {

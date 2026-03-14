@@ -9,6 +9,7 @@ templates.  All lengths are measured in *tokens* using the model tokenizer.
 from __future__ import annotations
 
 import logging
+import os
 import random
 from typing import List, Optional
 
@@ -98,6 +99,81 @@ class PromptGenerator:
     # ------------------------------------------------------------------
     # Dataset loading
     # ------------------------------------------------------------------
+    @staticmethod
+    def _find_parquet_files(directory: str) -> List[str]:
+        """Recursively find parquet files, preferring train splits."""
+        import glob as _glob
+        # First try root level.
+        files = sorted(_glob.glob(os.path.join(directory, "*.parquet")))
+        if files:
+            return files
+        # Search all subdirectories recursively (skip hidden/cache dirs).
+        all_pq = sorted(
+            f for f in _glob.glob(os.path.join(directory, "**", "*.parquet"), recursive=True)
+            if "/." not in f
+        )
+        if not all_pq:
+            return []
+        # Prefer train files, then test, then everything.
+        train_files = [f for f in all_pq if "train" in os.path.basename(f)]
+        if train_files:
+            return train_files
+        test_files = [f for f in all_pq if "test" in os.path.basename(f)]
+        if test_files:
+            return test_files
+        return all_pq
+
+    @staticmethod
+    def _find_json_files(directory: str) -> List[str]:
+        """Find JSON files in a directory (non-recursive, skip metadata)."""
+        import glob as _glob
+        return sorted(
+            f for f in _glob.glob(os.path.join(directory, "*.json"))
+            if not os.path.basename(f).startswith(".")
+        )
+
+    @staticmethod
+    def _extract_texts_from_json(path: str) -> List[str]:
+        """Extract text strings from a JSON file (list of strings/dicts)."""
+        import json
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list) or not data:
+            return []
+        # List of plain strings (e.g. xsum prompts.json).
+        if isinstance(data[0], str):
+            return [t for t in data if isinstance(t, str) and len(t.strip()) > 50]
+        texts: List[str] = []
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            # Conversational format: {"conversations": [{"from":..,"value":..}]}
+            if "conversations" in item:
+                parts = [
+                    turn.get("value", "")
+                    for turn in item["conversations"]
+                    if isinstance(turn, dict) and turn.get("value")
+                ]
+                if parts:
+                    texts.append("\n\n".join(parts))
+            else:
+                # Pick the longest string value as the text.
+                str_vals = [v for v in item.values() if isinstance(v, str) and len(v) > 50]
+                if str_vals:
+                    texts.append(max(str_vals, key=len))
+        return texts
+
+    @staticmethod
+    def _pick_text_column(columns: List[str]) -> str:
+        """Heuristically pick the best text column from a dataset."""
+        # Prefer columns likely to contain long-form text.
+        preferred = ["text", "article", "content", "document", "passage",
+                      "context", "input", "question", "output", "instruction"]
+        for col in preferred:
+            if col in columns:
+                return col
+        return columns[0]
+
     def _load_dataset_passages(
         self,
         name: str,
@@ -107,13 +183,30 @@ class PromptGenerator:
     ) -> List[str]:
         """Load long text passages from the specified HuggingFace dataset."""
         try:
-            import os
             from datasets import load_dataset
 
-            # Support local directories containing parquet files.
             if os.path.isdir(name):
                 logger.info("Loading dataset from local directory: %s", name)
-                ds = load_dataset("parquet", data_files=os.path.join(name, "*.parquet"), split="train")
+                # Try parquet files first (recursively).
+                pq_files = self._find_parquet_files(name)
+                if pq_files:
+                    logger.info("Found %d parquet files in %s", len(pq_files), name)
+                    ds = load_dataset("parquet", data_files=pq_files, split="train")
+                else:
+                    # Try JSON files.
+                    json_files = self._find_json_files(name)
+                    if json_files:
+                        logger.info("Found %d JSON files in %s", len(json_files), name)
+                        all_json_texts: List[str] = []
+                        for jf in json_files:
+                            all_json_texts.extend(self._extract_texts_from_json(jf))
+                        if all_json_texts:
+                            logger.info("Extracted %d texts from JSON files.", len(all_json_texts))
+                            return self._build_passages(all_json_texts, num_candidates)
+                    # Last resort: try load_dataset with trust_remote_code
+                    # (handles builder scripts like xsum.py).
+                    logger.info("Trying load_dataset with trust_remote_code for %s", name)
+                    ds = load_dataset(name, split=split, trust_remote_code=True)
             else:
                 ds = load_dataset(name, config, split=split, trust_remote_code=True)
         except Exception as exc:
@@ -125,10 +218,20 @@ class PromptGenerator:
             )
             return list(_TEMPLATE_PARAGRAPHS)
 
-        # Concatenate short wiki paragraphs into long passages.
+        # Pick the best text column.
+        text_key = self._pick_text_column(ds.column_names)
+        logger.info("Using column '%s' from dataset %s", text_key, name)
+        all_texts = [t for t in ds[text_key] if t and isinstance(t, str) and len(t.strip()) > 100]
+
+        return self._build_passages(all_texts, num_candidates)
+
+    def _build_passages(
+        self,
+        all_texts: List[str],
+        num_candidates: int,
+    ) -> List[str]:
+        """Shuffle texts and concatenate into long passages."""
         rng = random.Random(self.seed)
-        text_key = "text" if "text" in ds.column_names else ds.column_names[0]
-        all_texts = [t for t in ds[text_key] if t and len(t.strip()) > 100]
         rng.shuffle(all_texts)
 
         passages: List[str] = []
@@ -147,7 +250,7 @@ class PromptGenerator:
         if buf:
             passages.append("\n\n".join(buf))
 
-        logger.info("Loaded %d long passages from %s/%s.", len(passages), name, config)
+        logger.info("Built %d long passages from %d texts.", len(passages), len(all_texts))
         return passages
 
     # ------------------------------------------------------------------
