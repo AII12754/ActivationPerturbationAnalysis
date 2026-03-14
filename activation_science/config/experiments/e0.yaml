@@ -1,0 +1,18 @@
+# E0: Decode-Time Activation Similarity
+decode:
+  num_decode_tokens: 128
+  top_k_references: 10
+  temperature: 1.0
+  do_sample: false
+  similarity_thresholds: [0.70, 0.90, 0.95, 0.98]
+  store_layer_subset: null
+  activation_dtype: "float32"
+
+sweep:
+  num_decode_tokens: [64, 128]
+
+storage:
+  output_dir: "./results_decode"
+
+logging:
+  log_file: "./results_decode/experiment.log"

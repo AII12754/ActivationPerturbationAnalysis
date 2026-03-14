@@ -1,0 +1,13 @@
+# E7: Perturbation Sensitivity
+perturbation:
+  layer_stride: 4
+  magnitudes: [0.1, 0.5, 1.0, 2.0]
+  num_svd_directions: 5
+  num_random_directions: 5
+  activation_dtype: "float32"
+
+storage:
+  output_dir: "./results_perturbation"
+
+logging:
+  log_file: "./results_perturbation/experiment.log"

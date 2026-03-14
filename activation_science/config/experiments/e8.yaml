@@ -1,0 +1,9 @@
+# E8: Token Type Analysis
+token_type:
+  activation_dtype: "float32"
+
+storage:
+  output_dir: "./results_token_type"
+
+logging:
+  log_file: "./results_token_type/experiment.log"

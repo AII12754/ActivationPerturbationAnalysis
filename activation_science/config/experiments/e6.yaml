@@ -1,0 +1,11 @@
+# E6: Causal Intervention
+causal:
+  intervention_types: ["zero", "mean_ablate", "skip"]
+  layer_stride: 4
+  measure_position: -1
+
+storage:
+  output_dir: "./results_causal"
+
+logging:
+  log_file: "./results_causal/experiment.log"

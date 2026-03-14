@@ -1,0 +1,11 @@
+# E4: Cross-Sequence Alignment
+cross_sequence:
+  context_length: 512
+  subspace_k: 10
+  activation_dtype: "float32"
+
+storage:
+  output_dir: "./results_cross_sequence"
+
+logging:
+  log_file: "./results_cross_sequence/experiment.log"

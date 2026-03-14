@@ -1,0 +1,12 @@
+# E1: Residual Stream Decomposition
+residual:
+  num_decode_tokens: 128
+  do_sample: false
+  temperature: 1.0
+  activation_dtype: "float32"
+
+storage:
+  output_dir: "./results_residual"
+
+logging:
+  log_file: "./results_residual/experiment.log"

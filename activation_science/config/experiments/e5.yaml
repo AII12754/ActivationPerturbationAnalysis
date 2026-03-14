@@ -1,0 +1,17 @@
+# E5: Activation State Detection
+state_detection:
+  num_decode_tokens: 256
+  pca_components: 20
+  tracked_layers: null
+  do_sample: false
+  temperature: 1.0
+  activation_dtype: "float32"
+
+sweep:
+  context_lengths: [256, 512, 1024]
+
+storage:
+  output_dir: "./results_state"
+
+logging:
+  log_file: "./results_state/experiment.log"

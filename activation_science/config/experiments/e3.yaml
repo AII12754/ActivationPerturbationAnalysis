@@ -1,0 +1,14 @@
+# E3: Representation Geometry
+geometry:
+  pca_components: 100
+  isotropy_samples: 500
+  activation_dtype: "float32"
+
+sweep:
+  context_lengths: [256, 512, 1024, 2048, 4096]
+
+storage:
+  output_dir: "./results_geometry"
+
+logging:
+  log_file: "./results_geometry/experiment.log"

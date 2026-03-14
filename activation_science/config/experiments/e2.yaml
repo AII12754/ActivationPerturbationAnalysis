@@ -1,0 +1,13 @@
+# E2: Logit Lens Analysis
+logit_lens:
+  num_decode_tokens: 128
+  top_k_predictions: 5
+  layer_stride: 1
+  do_sample: false
+  temperature: 1.0
+
+storage:
+  output_dir: "./results_logit_lens"
+
+logging:
+  log_file: "./results_logit_lens/experiment.log"
