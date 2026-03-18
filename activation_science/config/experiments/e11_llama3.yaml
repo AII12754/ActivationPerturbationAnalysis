@@ -1,0 +1,48 @@
+# E11: Reference Strategy Comparison — Meta-Llama-3-8B-Instruct
+model:
+  path: "/root/share/models/Meta-Llama-3-8B-Instruct"
+
+reference_strategies:
+  layer_boundaries: [1, 2, 3, 4, 5, 6, 7, 8]
+  group_size: 128
+  top_k: 4
+  num_warmup: 3
+  num_timing_runs: 10
+  activation_dtype: "float16"
+  static_table_batch_size: 256
+  position_bins:
+    - [0, 64]
+    - [64, 256]
+    - [256, 512]
+    - [512, 2048]
+  strategies:
+    static: true
+    ngram:
+      enabled: true
+      n_values: [2, 3]
+      batch_size: 128
+    cluster_mean: true
+    sequential: true
+    sliding_window:
+      enabled: true
+      window_sizes: [4, 16]
+    global_mean: true
+    hybrid:
+      enabled: true
+      cosine_threshold: 0.95
+    ema:
+      enabled: true
+      alphas: [0.3]
+    lowrank:
+      enabled: true
+      ranks: [32]
+
+sweep:
+  context_lengths: [512, 2048]
+  num_prompts_per_length: 2
+
+storage:
+  output_dir: "./results_reference_strategies_llama3"
+
+logging:
+  log_file: "./results_reference_strategies_llama3/experiment.log"

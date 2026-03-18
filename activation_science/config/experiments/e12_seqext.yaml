@@ -1,0 +1,22 @@
+# E12 Sequence-Extract mode: store hidden states from prefill (no extra forwards)
+trigram_pipeline:
+  layer_boundary: 6
+  group_size: 128
+  top_k: 1
+  int8_group_size: 128
+  int8_residual: true
+  residual_top_k: 1
+  activation_dtype: "float16"
+  ngram_batch_size: 128
+  table_mode: "cold"
+  table_update_mode: "sequence_extract"   # reuse prefill hidden states
+
+sweep:
+  context_lengths: [512, 2048]
+  num_prompts_per_length: 20
+
+storage:
+  output_dir: "./results_trigram_seqext"
+
+logging:
+  log_file: "./results_trigram_seqext/experiment.log"

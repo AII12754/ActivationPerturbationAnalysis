@@ -1,0 +1,28 @@
+# E10 override for Qwen3-MoE
+model:
+  path: "/root/share/models/qwen3moe"
+
+static_delta:
+  layer_boundaries: [1, 2, 3, 4, 5, 6, 7, 8]
+  group_sizes: [128, 256]
+  top_ks: [1, 2, 4]
+  num_warmup: 3
+  num_timing_runs: 10
+  activation_dtype: "float16"
+  static_table_batch_size: 256
+  position_bins:
+    - [0, 64]
+    - [64, 256]
+    - [256, 512]
+    - [512, 2048]
+  bandwidths_mbps: [200, 500, 1000]
+
+sweep:
+  context_lengths: [256, 512, 1024, 2048]
+  num_prompts_per_length: 2
+
+storage:
+  output_dir: "./results_static_delta_qwen3moe"
+
+logging:
+  log_file: "./results_static_delta_qwen3moe/experiment.log"

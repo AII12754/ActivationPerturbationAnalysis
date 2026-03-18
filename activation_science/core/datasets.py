@@ -82,11 +82,13 @@ class PromptGenerator:
         dataset_split: str = "train",
         num_candidates: int = 50,
         seed: int = 42,
+        passage_target_chars: int = 80_000,
     ):
         self.tokenizer = tokenizer
         self.source = source
         self.seed = seed
         self.rng = random.Random(seed)
+        self._passage_target_chars = passage_target_chars
 
         if source == "dataset":
             self._passages = self._load_dataset_passages(
@@ -192,7 +194,7 @@ class PromptGenerator:
                             all_json_texts.extend(self._extract_texts_from_json(jf))
                         if all_json_texts:
                             logger.info("Extracted %d texts from JSON files.", len(all_json_texts))
-                            return self._build_passages(all_json_texts, num_candidates)
+                            return self._build_passages(all_json_texts, num_candidates, self._passage_target_chars)
                     logger.info("Trying load_dataset with trust_remote_code for %s", name)
                     ds = load_dataset(name, split=split, trust_remote_code=True)
             else:
@@ -208,12 +210,13 @@ class PromptGenerator:
         logger.info("Using column '%s' from dataset %s", text_key, name)
         all_texts = [t for t in ds[text_key] if t and isinstance(t, str) and len(t.strip()) > 100]
 
-        return self._build_passages(all_texts, num_candidates)
+        return self._build_passages(all_texts, num_candidates, self._passage_target_chars)
 
     def _build_passages(
         self,
         all_texts: List[str],
         num_candidates: int,
+        target_chars: int = 80_000,
     ) -> List[str]:
         """Shuffle texts and concatenate into long passages."""
         rng = random.Random(self.seed)
@@ -222,7 +225,6 @@ class PromptGenerator:
         passages: List[str] = []
         buf: List[str] = []
         buf_chars = 0
-        target_chars = 80_000
         for t in all_texts:
             buf.append(t.strip())
             buf_chars += len(t)

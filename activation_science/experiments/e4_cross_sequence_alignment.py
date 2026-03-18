@@ -120,7 +120,7 @@ class CrossSequenceAlignmentExperiment(BaseExperiment):
         outputs_a = model(input_ids=tensor_a, output_hidden_states=True, use_cache=False)
         hidden_a = outputs_a.hidden_states
         num_all_layers = len(hidden_a) - 1
-        hidden_a_cpu = [h.squeeze(0).to(act_dtype).cpu() for h in hidden_a]
+        hidden_a_dev = [h.squeeze(0).to(act_dtype) for h in hidden_a]
         del outputs_a
         gc.collect()
         torch.cuda.empty_cache()
@@ -130,15 +130,15 @@ class CrossSequenceAlignmentExperiment(BaseExperiment):
         tensor_b = torch.tensor([ids_b], dtype=torch.long, device=device)
         outputs_b = model(input_ids=tensor_b, output_hidden_states=True, use_cache=False)
         hidden_b = outputs_b.hidden_states
-        hidden_b_cpu = [h.squeeze(0).to(act_dtype).cpu() for h in hidden_b]
+        hidden_b_dev = [h.squeeze(0).to(act_dtype) for h in hidden_b]
         del outputs_b
         gc.collect()
         torch.cuda.empty_cache()
 
         records = []
         for layer_idx in range(num_all_layers + 1):
-            ha = hidden_a_cpu[layer_idx]
-            hb = hidden_b_cpu[layer_idx]
+            ha = hidden_a_dev[layer_idx]
+            hb = hidden_b_dev[layer_idx]
 
             cka = linear_cka(ha, hb)
             proc_dist = procrustes_distance(ha, hb)
@@ -180,7 +180,7 @@ class CrossSequenceAlignmentExperiment(BaseExperiment):
                 "seq_len_b": hb.shape[0],
             })
 
-        del hidden_a_cpu, hidden_b_cpu
+        del hidden_a_dev, hidden_b_dev
         gc.collect()
         return {"alignment": records}
 

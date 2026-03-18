@@ -7,7 +7,7 @@
 model:
   path: "/root/share/models/Qwen2.5-32B-Instruct"
   dtype: "bfloat16"
-  max_memory_per_gpu_gb: 75
+  max_memory_per_gpu_gb: 78
   trust_remote_code: true
 
 # --- GPU scheduling ------------------------------------------
@@ -31,7 +31,7 @@ prompts:
   dataset_config: "default"
   dataset_split: "test"
   seed: 42
-  num_prompt_candidates: 50
+  num_prompt_candidates: 100
   datasets:
     - "/root/share/dataset/wikitext-2-raw-v1"
     - "/root/share/dataset/cnndn"

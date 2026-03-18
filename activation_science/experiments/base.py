@@ -294,10 +294,19 @@ class GenericSweepRunner:
     def _build_job_config(config: Dict[str, Any], params: Dict[str, Any]) -> Dict[str, Any]:
         """Build per-job config with any parameter overrides."""
         job_config = dict(config)
+        # Always propagate sweep params into job config
+        if "context_length" in params:
+            job_config["context_length"] = params["context_length"]
+        if "dataset_name" in params:
+            job_config["_dataset_name"] = params["dataset_name"]
+            job_config["_dataset_config"] = params.get("dataset_config", "default")
+            job_config["_dataset_split"] = params.get("dataset_split", "train")
         # Override num_decode_tokens if present in params
         if "num_decode_tokens" in params:
             for section_key in ["decode", "residual", "logit_lens", "state_detection",
-                                "geometry", "cross_sequence", "causal", "perturbation", "token_type"]:
+                                "geometry", "cross_sequence", "causal", "perturbation", "token_type",
+                                "delta_cache", "static_delta", "reference_strategies",
+                                "trigram_pipeline"]:
                 if section_key in config:
                     section = dict(config[section_key])
                     section["num_decode_tokens"] = params["num_decode_tokens"]

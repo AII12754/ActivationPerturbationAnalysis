@@ -40,6 +40,10 @@ def _register_experiments():
     from ..experiments.e6_causal_intervention import CausalInterventionExperiment
     from ..experiments.e7_perturbation_sensitivity import PerturbationSensitivityExperiment
     from ..experiments.e8_token_type_analysis import TokenTypeAnalysisExperiment
+    from ..experiments.e9_delta_cache_latency import DeltaCacheLatencyExperiment
+    from ..experiments.e10_static_token_delta import StaticTokenDeltaExperiment
+    from ..experiments.e11_reference_strategies import ReferenceStrategyExperiment
+    from ..experiments.e12_trigram_pipeline import TrigramPipelineExperiment
 
     EXPERIMENT_REGISTRY["e0"] = DecodeSimilarityExperiment
     EXPERIMENT_REGISTRY["e1"] = ResidualDecompositionExperiment
@@ -50,6 +54,11 @@ def _register_experiments():
     EXPERIMENT_REGISTRY["e6"] = CausalInterventionExperiment
     EXPERIMENT_REGISTRY["e7"] = PerturbationSensitivityExperiment
     EXPERIMENT_REGISTRY["e8"] = TokenTypeAnalysisExperiment
+    EXPERIMENT_REGISTRY["e9"] = DeltaCacheLatencyExperiment
+    EXPERIMENT_REGISTRY["e10"] = StaticTokenDeltaExperiment
+    EXPERIMENT_REGISTRY["e11"] = ReferenceStrategyExperiment
+    EXPERIMENT_REGISTRY["e12"] = TrigramPipelineExperiment
+    EXPERIMENT_REGISTRY["e12_seqext"] = TrigramPipelineExperiment
 
 
 # -------------------------------------------------------------------
@@ -126,7 +135,7 @@ def main():
     parser.add_argument(
         "experiment",
         choices=list(EXPERIMENT_REGISTRY.keys()),
-        help="Experiment ID (e0–e8).",
+        help="Experiment ID (e0–e12).",
     )
     parser.add_argument("--config", default=None, help="Path to override config YAML.")
     parser.add_argument("--parallel", action="store_true", help="Use multi-GPU parallel mode.")

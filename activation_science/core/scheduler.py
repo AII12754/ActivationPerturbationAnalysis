@@ -30,29 +30,31 @@ class GPUInfo:
 
 
 def detect_gpus(min_free_gb: float = 20.0) -> List[GPUInfo]:
-    """Return a list of GPUs that have at least *min_free_gb* free VRAM."""
-    try:
-        import pynvml
+    """Return a list of GPUs that have at least *min_free_gb* free VRAM.
 
-        pynvml.nvmlInit()
-    except Exception as exc:
-        logger.warning("pynvml unavailable (%s). Falling back to CUDA count.", exc)
-        return _fallback_detect()
+    Uses ``torch.cuda`` to respect ``CUDA_VISIBLE_DEVICES`` mapping.
+    """
+    import torch
 
-    count = pynvml.nvmlDeviceGetCount()
+    if not torch.cuda.is_available():
+        logger.warning("CUDA not available.")
+        return []
+
+    count = torch.cuda.device_count()
     gpus: List[GPUInfo] = []
     for i in range(count):
-        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-        name = pynvml.nvmlDeviceGetName(handle)
-        if isinstance(name, bytes):
-            name = name.decode()
-        mem = pynvml.nvmlDeviceGetMemoryInfo(handle)
+        name = torch.cuda.get_device_name(i)
+        props = torch.cuda.get_device_properties(i)
+        total_mb = props.total_memory // (1024 * 1024)
+        free_mb, total_bytes = torch.cuda.mem_get_info(i)
+        free_mb = free_mb // (1024 * 1024)
+        used_mb = total_mb - free_mb
         info = GPUInfo(
             index=i,
             name=name,
-            total_mb=mem.total // (1024 * 1024),
-            free_mb=mem.free // (1024 * 1024),
-            used_mb=mem.used // (1024 * 1024),
+            total_mb=total_mb,
+            free_mb=free_mb,
+            used_mb=used_mb,
         )
         if info.free_mb >= min_free_gb * 1024:
             gpus.append(info)
@@ -61,7 +63,6 @@ def detect_gpus(min_free_gb: float = 20.0) -> List[GPUInfo]:
                 "GPU %d (%s): %d MB free — below threshold, skipping.",
                 i, name, info.free_mb,
             )
-    pynvml.nvmlShutdown()
     logger.info("Detected %d usable GPUs (min_free=%.1f GB).", len(gpus), min_free_gb)
     return gpus
 

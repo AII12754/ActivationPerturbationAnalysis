@@ -1,0 +1,39 @@
+# E9: Delta-Cache Latency Profiling
+delta_cache:
+  num_decode_tokens: 32
+  batch_sizes: [1, 4, 8, 16, 32, 64]
+  group_sizes: [128, 256]
+  top_ks: [1, 2, 4]
+  history_lens: [512, 1024, 2048]
+  layer_boundaries: [4, 60]
+  num_warmup: 3
+  num_timing_runs: 10
+  activation_dtype: "float16"
+
+  early_exit:
+    thresholds: [0.90, 0.95, 0.98]
+    chunk_sizes: [32, 64, 128]
+
+  recent_window:
+    window_sizes: [128, 256, 512]
+
+  lsh:
+    num_tables: [4, 8, 16]
+    num_planes: [8, 12]
+    max_hamming: [1, 2, 3]
+
+  strategy_layer_filter:
+    early_exit: [4]
+    recent_window: [4]
+    lsh: [60]
+    exact: [4, 60]
+
+sweep:
+  context_lengths: [2048]
+  num_prompts_per_length: 2
+
+storage:
+  output_dir: "./results_delta_cache"
+
+logging:
+  log_file: "./results_delta_cache/experiment.log"
