@@ -199,6 +199,9 @@ class OverlappedPipeline:
         t_total_start = time.perf_counter()
         is_test = (phase == "test")
 
+        # Set CUDA device so synchronize()/Event.record() target the correct GPU
+        torch.cuda.set_device(self.device)
+
         # Tokenize
         input_ids = self.tokenizer.encode(text, add_special_tokens=False)
         if len(input_ids) > self.max_seq_len:
@@ -261,6 +264,9 @@ class OverlappedPipeline:
         }
 
         # 4. Encode all tiers — use CUDA events for timing (no intermediate syncs)
+        # Sync to drain GPU ops queued by classify thread (FP8→FP16 conversions)
+        # so that encode events measure only encode work
+        torch.cuda.synchronize()
         evt_enc_start = torch.cuda.Event(enable_timing=True)
         evt_after_delta = torch.cuda.Event(enable_timing=True)
         evt_after_unigram = torch.cuda.Event(enable_timing=True)
@@ -453,6 +459,10 @@ class OverlappedPipeline:
         """
         t_total_start = time.perf_counter()
         is_test = (phase == "test")
+
+        # Set CUDA device so synchronize()/Event.record() target the correct GPU
+        torch.cuda.set_device(self.device)
+
         decode_result = DecodeResult(decode_tokens=self.decode_tokens)
 
         running_token_ids: List[int] = list(input_ids)
@@ -516,6 +526,11 @@ class OverlappedPipeline:
             recon_cos = F.cosine_similarity(
                 real_h_2d.float(), recon.float(), dim=-1,
             ).item()
+            # Compute raw cosine (ref vs real) for non-unigram tiers
+            if ref_h is not None:
+                raw_cos = F.cosine_similarity(
+                    real_h_2d.float(), ref_h.float(), dim=-1,
+                ).item()
             raw_fp16_bytes = self.hidden_dim * 2
 
             # Store reconstructed for self-ref
