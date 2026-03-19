@@ -18,6 +18,15 @@ DTYPE_MAP = {
     "int8": torch.int8,
 }
 
+# FP8 dtypes may not be available on older PyTorch builds
+for _fp8_name, _fp8_attr in [
+    ("float8_e4m3fn", "float8_e4m3fn"),
+    ("float8_e5m2", "float8_e5m2"),
+]:
+    _dt = getattr(torch, _fp8_attr, None)
+    if _dt is not None:
+        DTYPE_MAP[_fp8_name] = _dt
+
 
 def resolve_dtype(name: str, default: torch.dtype = torch.float32) -> torch.dtype:
     """Resolve a string dtype name to a ``torch.dtype``."""

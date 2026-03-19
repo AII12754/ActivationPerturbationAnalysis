@@ -3,7 +3,7 @@
 Stores pre-computed hidden states from n-gram forward passes and supports:
   - Batch table construction from a corpus
   - Online updates from new requests
-  - Tiered classification: trigram → bigram → self-ref → unigram
+  - Tiered classification: trigram → self-ref → bigram → unigram
 
 DAG storage:
   Hidden states are organized as a two-level trie (DAG):
@@ -29,11 +29,13 @@ class _BigramNode:
     Stores the bigram hidden state and a dict mapping suffix token C
     to the trigram hidden state for (A, B, C).
     """
-    __slots__ = ("bigram_hidden", "suffixes")
+    __slots__ = ("bigram_hidden", "suffixes", "last_access", "hit_count")
 
     def __init__(self, bigram_hidden: torch.Tensor):
         self.bigram_hidden = bigram_hidden
         self.suffixes: Dict[int, torch.Tensor] = {}
+        self.last_access = 0
+        self.hit_count = 0
 
 
 class NgramTable:
@@ -49,9 +51,13 @@ class NgramTable:
         self,
         device: torch.device,
         dtype: torch.dtype = torch.float16,
+        max_entries: int = 0,
     ):
         self.device = device
         self.dtype = dtype
+        self.max_entries = max_entries  # 0 = unlimited (backward compat)
+        self._request_counter = 0
+        self._last_evicted = 0
         # Two-level trie: A -> B -> _BigramNode
         self._dag: Dict[int, Dict[int, _BigramNode]] = {}
         # Counts for fast stats
@@ -241,7 +247,7 @@ class NgramTable:
         """
         seq_len = len(token_ids)
         tiers: List[str] = []
-        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.device, dtype=self.dtype)
+        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.device, dtype=torch.float16)
         self_ref_sources: List[Optional[int]] = []
         first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
 
@@ -251,34 +257,38 @@ class NgramTable:
                 a, b, c = token_ids[i - 2], token_ids[i - 1], token_ids[i]
                 trigram = (a, b, c)
 
+                # 1. Trigram table lookup (highest priority)
+                node_ab = self._get_node(a, b)
+                if node_ab is not None and c in node_ab.suffixes:
+                    node_ab.hit_count += 1
+                    node_ab.last_access = self._request_counter
+                    tiers.append("trigram")
+                    ref_acts[i] = node_ab.suffixes[c].to(torch.float16)
+                    self_ref_sources.append(None)
+                    first_occurrence_map.setdefault(trigram, i)
+                    continue
+
+                # 2. Self-ref: repeated trigram from earlier in this sequence
                 if trigram in first_occurrence_map:
                     tiers.append("self_ref")
                     self_ref_sources.append(first_occurrence_map[trigram])
                     continue
 
-                # Trigram lookup: _dag[A][B].suffixes[C]
-                node_ab = self._get_node(a, b)
-                if node_ab is not None and c in node_ab.suffixes:
-                    tiers.append("trigram")
-                    ref_acts[i] = node_ab.suffixes[c]
-                    self_ref_sources.append(None)
-                    first_occurrence_map[trigram] = i
-                    continue
-
-            # Bigram lookup: _dag[B][C].bigram_hidden
-            # (bigram key is (token_ids[i-1], token_ids[i]) — the hidden
-            #  state of token_ids[i] with 2-token context)
+            # 3. Bigram lookup: _dag[B][C].bigram_hidden
             if i >= 1:
                 b_tok, c_tok = token_ids[i - 1], token_ids[i]
                 node_bc = self._get_node(b_tok, c_tok)
                 if node_bc is not None:
+                    node_bc.hit_count += 1
+                    node_bc.last_access = self._request_counter
                     tiers.append("bigram")
-                    ref_acts[i] = node_bc.bigram_hidden
+                    ref_acts[i] = node_bc.bigram_hidden.to(torch.float16)
                     self_ref_sources.append(None)
                     if trigram is not None:
                         first_occurrence_map.setdefault(trigram, i)
                     continue
 
+            # 4. Unigram fallback
             tiers.append("unigram")
             self_ref_sources.append(None)
             if trigram is not None:
@@ -337,8 +347,48 @@ class NgramTable:
                     node.suffixes[c] = h_i
                     self._num_trigrams += 1
 
+        self._request_counter += 1
+        self._last_evicted = self.evict()
+
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
         return self._num_trigrams - old_tri, self._num_bigrams - old_bi, elapsed_ms
+
+    def evict(self) -> int:
+        """Evict lowest-scoring entries if table exceeds max_entries."""
+        total = self._num_trigrams + self._num_bigrams
+        if self.max_entries <= 0 or total <= self.max_entries:
+            return 0
+
+        target = int(self.max_entries * 0.9)  # evict down to 90% of limit
+
+        # Collect all trigram entries with scores
+        scored_trigrams = []
+        for a, level_b in self._dag.items():
+            for b, node in level_b.items():
+                score = node.hit_count * 10 + node.last_access
+                for c in node.suffixes:
+                    scored_trigrams.append((score, a, b, c))
+
+        # Sort ascending (lowest score = evict first)
+        scored_trigrams.sort(key=lambda x: x[0])
+
+        evicted = 0
+        to_evict = total - target
+        for score, a, b, c in scored_trigrams:
+            if evicted >= to_evict:
+                break
+            node = self._dag[a][b]
+            del node.suffixes[c]
+            self._num_trigrams -= 1
+            evicted += 1
+            # Clean up empty nodes
+            if not node.suffixes:
+                del self._dag[a][b]
+                self._num_bigrams -= 1
+                if not self._dag[a]:
+                    del self._dag[a]
+
+        return evicted
 
     @property
     def stats(self) -> Dict[str, Any]:

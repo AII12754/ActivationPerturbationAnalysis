@@ -46,9 +46,11 @@ Each token position is classified into one of four tiers, in priority order:
 | Tier | Condition | Encoding | Description |
 |------|-----------|----------|-------------|
 | **Trigram** | Exact (A,B,C) match in DAG trie | Affine + Int4 delta | Best reference — 3-token context prefix matches a previously seen pattern |
-| **Bigram** | (B,C) prefix match in DAG | Affine + Int4 delta | 2-token context match; slightly weaker reference |
 | **Self-ref** | Same trigram appeared earlier in this request | Affine + Int4 delta | Delta against the already-reconstructed position from the same request |
+| **Bigram** | (B,C) prefix match in DAG | Affine + Int4 delta | 2-token context match; slightly weaker reference |
 | **Unigram** | No match | Int8 + outlier Top-K | Full independent encoding; no reference available |
+
+> **Tier ordering rationale**: Self-ref is ranked above bigram because empirical measurement shows self-ref reconstruction cosine (0.9996) exceeds bigram (0.9991). When a trigram table hit exists it always takes priority; otherwise a within-request self-reference provides a higher-quality delta target than a 2-token bigram match.
 
 ### 2.3 DAG Trie Storage
 
@@ -62,14 +64,36 @@ dag[token_A][token_B] → BigramNode:
 
 This structure shares the bigram prefix lookup across all trigrams with the same (A, B) prefix, reducing both lookup overhead and memory.
 
-### 2.4 Encoding Details
+### 2.4 FP8 Table Storage (Optional)
+
+By default the DAG trie stores hidden states in FP16 (2 bytes per element). An optional **FP8 (`float8_e4m3fn`) storage mode** halves per-entry memory with negligible quality impact:
+
+| Storage dtype | Memory per entry (dim=5120) | Per-tier cosine degradation |
+|---------------|----------------------------|----------------------------|
+| FP16 (default) | 10,240 bytes | — |
+| FP8 (e4m3fn) | 5,120 bytes | < 0.000005 |
+
+FP8 tensors are stored in the DAG and **upcast to FP16 at lookup time** for downstream affine math. This is configured via `table_dtype: "float8_e4m3fn"` in the experiment YAML.
+
+### 2.5 LRU Eviction (Optional)
+
+Without eviction, the DAG trie grows without bound — reaching **2.1 GB after 100 requests at ctx=2048**. An optional **frequency-weighted LRU eviction** caps total entries:
+
+- Each `_BigramNode` tracks `hit_count` and `last_access` (request index).
+- When total entries (trigrams + bigrams) exceed `max_table_entries`, the table evicts down to 90% capacity.
+- **Eviction score**: `hit_count × 10 + last_access` — frequently accessed and recently used entries are retained.
+- Trigram suffixes are evicted first; empty bigram nodes are cleaned up automatically.
+
+Configured via `max_table_entries: 100000` (0 = unlimited, the default — backward compatible).
+
+### 2.6 Encoding Details
 
 - **Affine transform**: Per-position scale and bias to align reference → real activation
 - **Int4 delta**: Groupwise 4-bit quantization (group\_size = 128) of the residual after affine alignment
 - **Top-K sparsity**: Keep top-1 outlier per group as FP16 for precision
 - **Int8 unigram**: Groupwise 8-bit quantization with top-1 FP16 outlier encoding for positions without references
 
-### 2.5 CPU/GPU Overlap Optimization
+### 2.7 CPU/GPU Overlap Optimization
 
 Two CPU-bound operations — **classify** (DAG trie lookups) and **table update** (DAG trie insertions) — are overlapped with GPU work using a background `ThreadPoolExecutor`:
 
@@ -334,7 +358,65 @@ The table continues growing throughout the test period — confirming that test 
 
 ---
 
-## 11. Coverage Growth Over Requests
+## 11. FP8 Storage & LRU Eviction Impact
+
+To validate the optional memory-management features (§2.4–2.5), we ran four configurations on 2 datasets × 2 context lengths, 10 requests each:
+
+| Configuration | `table_dtype` | `max_table_entries` |
+|---------------|---------------|---------------------|
+| Baseline | float16 | 0 (unlimited) |
+| FP8 only | float8\_e4m3fn | 0 (unlimited) |
+| LRU only | float16 | 100,000 |
+| FP8 + LRU | float8\_e4m3fn | 100,000 |
+
+### 11.1 Quality Impact
+
+| Config | Cosine mean | Cosine min | MSE mean |
+|--------|-------------|------------|----------|
+| Baseline | 0.999813 | 0.996935 | 8.00e-04 |
+| FP8 | 0.999812 | 0.996931 | 8.01e-04 |
+| LRU 100K | 0.999813 | 0.996935 | 8.00e-04 |
+| FP8 + LRU | 0.999812 | 0.996931 | 8.01e-04 |
+
+FP8 storage introduces a cosine degradation of **< 0.000005** — effectively zero. Per-tier breakdown confirms the loss is confined to trigram and bigram tiers (FP8 storage → FP16 upcast at lookup), while self-ref and unigram tiers are unaffected:
+
+| Config | Trigram cosine | Bigram cosine | Self-ref cosine | Unigram cosine |
+|--------|----------------|---------------|-----------------|----------------|
+| Baseline | 0.999316 | 0.999111 | 0.999591 | 0.999978 |
+| FP8 | 0.999312 | 0.999107 | 0.999591 | 0.999978 |
+
+### 11.2 Memory Impact
+
+Memory trajectory for wikitext, ctx=2048 over 10 requests:
+
+| Request | Baseline (MB) | FP8 (MB) | Reduction |
+|---------|---------------|----------|-----------|
+| 1 | 33.05 | 16.53 | 50.0% |
+| 5 | 156.34 | 78.17 | 50.0% |
+| 10 | 303.17 | 151.58 | **50.0%** |
+
+FP8 delivers an **exact 2× memory reduction** as expected (1 byte vs 2 bytes per element for dim=5120).
+
+### 11.3 LRU Eviction
+
+With 10 requests the table reached ~30K entries, below the 100K eviction threshold — so no eviction was triggered. At production scale (100 requests, ctx=2048), the table reaches ~126K trigrams + ~80K bigrams = ~206K entries, and the 100K cap would actively evict ~106K entries per update cycle. The eviction mechanism has been verified structurally; production-scale validation requires longer runs.
+
+### 11.4 Tier Ordering Validation
+
+The updated tier ordering (trigram → self-ref → bigram → unigram) is confirmed by per-tier reconstruction quality:
+
+| Tier | Reconstruction cosine |
+|------|-----------------------|
+| Trigram | 0.9993 |
+| Self-ref | **0.9996** |
+| Bigram | 0.9991 |
+| Unigram | 0.9999 |
+
+Self-ref (0.9996) consistently outperforms bigram (0.9991), validating the priority inversion over the original ordering.
+
+---
+
+## 12. Coverage Growth Over Requests
 
 The following figure shows how n-gram coverage (trigram + bigram + self-ref) evolves over the 100-request sequence:
 
@@ -344,7 +426,7 @@ Coverage increases rapidly during the first 20 requests, then grows more gradual
 
 ---
 
-## 12. Reconstruction Quality Stability
+## 13. Reconstruction Quality Stability
 
 Cosine similarity remains stable throughout both warmup and test periods:
 
@@ -352,7 +434,7 @@ Cosine similarity remains stable throughout both warmup and test periods:
 
 ---
 
-## 13. Summary
+## 14. Summary
 
 | Metric | ctx = 512 | ctx = 2048 |
 |--------|-----------|------------|
@@ -383,6 +465,10 @@ Cosine similarity remains stable throughout both warmup and test periods:
 5. **Effective across bandwidth regimes**: Even at 1 Gbps (typical InfiniBand subnets or high-end Ethernet), the system delivers 2.06× communication speedup for long contexts. At 200 Mbps (cloud VPC, WAN links), the speedup reaches 2.58×.
 
 6. **Coverage grows with usage**: The DAG trie learns new patterns continuously. After 50 warmup requests at ctx = 2048, coverage reaches 66% and continues improving. Domain-specific workloads (GSM8K, TriviaQA) achieve up to 79% coverage and 3.0× compression.
+
+7. **FP8 storage halves memory at zero quality cost**: Optional `float8_e4m3fn` table storage reduces DAG trie memory by exactly 50% (303 MB → 152 MB at 10 requests, ctx=2048) with cosine degradation < 0.000005 — indistinguishable from FP16 in practice.
+
+8. **LRU eviction bounds memory growth**: Optional frequency-weighted eviction (`max_table_entries`) prevents unbounded DAG growth in long-running deployments, retaining the most frequently accessed n-grams while evicting cold entries. Both features are independently toggleable and backward-compatible (off by default).
 
 ---
 

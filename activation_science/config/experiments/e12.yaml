@@ -10,6 +10,8 @@ trigram_pipeline:
   ngram_batch_size: 128
   table_mode: "cold"      # "cold" = empty start, "warm" = seed from first prompt
   table_update_mode: "sequence_extract"  # "sequence_extract" (reuse prefill) or "trigram_forward" (separate 3-token fwd)
+  table_dtype: "float16"                # "float16" (default) or "float8_e4m3fn" to halve per-entry memory
+  max_table_entries: 0                   # 0 = unlimited (default), >0 = LRU eviction cap
   # DAG trie: dag[A][B] -> (bigram_hidden, {C: trigram_hidden})
 
 sweep:

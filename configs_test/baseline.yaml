@@ -1,0 +1,19 @@
+# Baseline: no FP8, no LRU eviction (default behavior)
+trigram_pipeline:
+  table_dtype: "float16"
+  max_table_entries: 0
+
+sweep:
+  context_lengths: [512, 2048]
+  num_prompts_per_length: 10
+
+prompts:
+  datasets:
+    - "/root/share/dataset/wikitext-2-raw-v1"
+    - "/root/share/dataset/cnndn"
+
+storage:
+  output_dir: "./results_test_baseline"
+
+logging:
+  log_file: "./results_test_baseline/experiment.log"

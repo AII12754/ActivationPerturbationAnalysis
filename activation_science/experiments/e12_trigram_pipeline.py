@@ -87,6 +87,7 @@ TABLE_GROWTH_COLUMNS = [
     "num_trigrams", "num_bigrams", "memory_bytes",
     "trigram_coverage", "bigram_coverage",
     "new_trigrams_added", "new_bigrams_added", "update_time_ms",
+    "evicted_count",
 ]
 
 LATENCY_COLUMNS = [
@@ -170,7 +171,10 @@ class TrigramPipelineExperiment(BaseExperiment):
         latency_records: List[Dict[str, Any]] = []
 
         # Create NgramTable — persists across all prompts (DAG trie storage)
-        ngram_table = NgramTable(device=device, dtype=act_dtype)
+        table_dtype_str = tp_cfg.get("table_dtype", "float16")
+        table_dtype = resolve_dtype(table_dtype_str)
+        max_table_entries = tp_cfg.get("max_table_entries", 0)
+        ngram_table = NgramTable(device=device, dtype=table_dtype, max_entries=max_table_entries)
 
         # Get hidden_dim from model config (needed before first prefill for classify)
         hidden_dim = model.config.hidden_size
@@ -516,6 +520,7 @@ class TrigramPipelineExperiment(BaseExperiment):
                 "new_trigrams_added": new_tri,
                 "new_bigrams_added": new_bi,
                 "update_time_ms": update_ms,
+                "evicted_count": ngram_table._last_evicted,
             })
 
             # -- Latency record --
