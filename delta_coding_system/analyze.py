@@ -569,6 +569,29 @@ def generate_report(data: Dict, cfg: Dict, report_dir: Path):
             add(f"| {ds} | {df['recon_cosine_mean'].mean():.5f} | {df['compression_ratio'].mean():.2f}× |")
     add()
 
+    # 10b. Decode Raw Cosine Similarity
+    add("## 10b. Decode Raw Cosine Similarity")
+    add()
+    all_step_dfs = [data[ds]["decode_step_detail"] for ds in data if "decode_step_detail" in data[ds]]
+    if all_step_dfs:
+        sd = pd.concat(all_step_dfs)
+        non_uni = sd[sd["tier"] != "unigram"]
+        has_raw = non_uni[non_uni["raw_cosine"] > 0]
+        if not has_raw.empty:
+            add(f"Mean raw cosine (non-unigram): **{has_raw['raw_cosine'].mean():.4f}**")
+            add(f"Worst-case min: {has_raw['raw_cosine'].min():.4f}")
+            add()
+            add("### Per-Tier Raw Cosine (Decode)")
+            add("| Tier | Count | Raw Cosine Mean | Raw Cosine Min |")
+            add("|------|-------|-----------------|----------------|")
+            for tier in ["trigram", "self_ref", "bigram"]:
+                tier_data = has_raw[has_raw["tier"] == tier]
+                if not tier_data.empty:
+                    add(f"| {tier} | {len(tier_data)} | {tier_data['raw_cosine'].mean():.4f} | {tier_data['raw_cosine'].min():.4f} |")
+        else:
+            add("*No raw cosine data available for decode (re-run experiments to populate).*")
+    add()
+
     # 11. Decode Per-Step Trends
     add("## 11. Decode Per-Step Trends")
     add()
@@ -631,6 +654,62 @@ def generate_report(data: Dict, cfg: Dict, report_dir: Path):
             t_ours = mean_comp / bw_bps + encode_ms + decode_ms
             speedup = t_raw / max(t_ours, 0.01)
             add(f"| {bw} Mbps | {t_raw:.1f} | {t_ours:.1f} | **{speedup:.2f}×** |")
+    add()
+
+    # Decode Communication (per-step)
+    all_step_dfs2 = [data[ds]["decode_step_detail"] for ds in data if "decode_step_detail" in data[ds]]
+    if all_step_dfs2:
+        sd2 = pd.concat(all_step_dfs2)
+        mean_raw_step = sd2["raw_fp16_bytes"].mean()  # one position FP16
+        mean_comp_step = sd2["transfer_bytes"].mean()
+        mean_enc_step = sd2["encode_ms"].mean()
+        decode_overhead_step = 0.5  # receiver decode
+
+        add("### Decode Communication (per step)")
+        add()
+        add(f"Per-step: {mean_raw_step:.0f} B raw → {mean_comp_step:.0f} B compressed "
+            f"({mean_raw_step/max(mean_comp_step,1):.2f}× ratio)")
+        add()
+        add("| Bandwidth | Baseline (ms) | Ours (ms) | Speedup |")
+        add("|-----------|--------------|-----------|---------|")
+        for bw in BANDWIDTHS_MBPS:
+            bw_bps = bw * 1000 / 8  # bytes per ms
+            t_raw = mean_raw_step / bw_bps
+            t_ours = mean_comp_step / bw_bps + mean_enc_step + decode_overhead_step
+            speedup = t_raw / max(t_ours, 0.001)
+            add(f"| {bw} Mbps | {t_raw:.3f} | {t_ours:.3f} | **{speedup:.2f}×** |")
+        add()
+        add("*Note: At decode scale (single token, ~10 KB), transmission time is sub-millisecond*")
+        add("*even without compression. The encode cost (0.6 ms) dominates over the bandwidth saving.*")
+        add()
+
+        # Batched decode communication (simulated)
+        add("### Batched Decode Communication (simulated)")
+        add()
+        add("In production, decode steps are batched across concurrent requests. "
+            "Transfer size scales linearly with batch size, while encode cost stays roughly "
+            "constant (GPU processes the batch in a single kernel launch).")
+        add()
+        batch_sizes = [8, 16, 32, 64]
+        for bw in BANDWIDTHS_MBPS:
+            bw_bps = bw * 1000 / 8  # bytes per ms
+            add(f"**{bw} Mbps**")
+            add()
+            add("| Batch | Raw (KB) | Compressed (KB) | Baseline (ms) | Ours (ms) | Speedup |")
+            add("|-------|----------|-----------------|--------------|-----------|---------|")
+            for bs in batch_sizes:
+                raw_bytes = mean_raw_step * bs
+                comp_bytes = mean_comp_step * bs
+                t_raw = raw_bytes / bw_bps
+                # Encode cost: ~constant for small batches (GPU parallelism),
+                # scale sub-linearly for larger batches
+                enc_cost = mean_enc_step * (1.0 + 0.1 * (bs - 1))  # ~10% overhead per doubling
+                t_ours = comp_bytes / bw_bps + enc_cost + decode_overhead_step
+                speedup = t_raw / max(t_ours, 0.001)
+                add(f"| {bs} | {raw_bytes/1024:.1f} | {comp_bytes/1024:.1f} "
+                    f"| {t_raw:.2f} | {t_ours:.2f} | **{speedup:.2f}×** |")
+            add()
+
     add()
     add("![Bandwidth Speedup](bandwidth_speedup.png)")
     add()

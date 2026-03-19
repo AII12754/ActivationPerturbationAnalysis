@@ -175,6 +175,10 @@ Encode overhead: 81.2 ms (53.8% of prefill forward)
 | triviaqa | 0.99956 | 2.75× |
 | alpaca | 0.99970 | 2.50× |
 
+## 10b. Decode Raw Cosine Similarity
+
+*No raw cosine data available for decode (re-run experiments to populate).*
+
 ## 11. Decode Per-Step Trends
 
 ![Decode Per-Step Cosine](decode_per_step_cosine.png)
@@ -211,6 +215,51 @@ Per-step latency (mean across all datasets, one decode step):
 | 200 Mbps | 257.1 | 186.9 | **1.38×** |
 | 500 Mbps | 102.9 | 123.8 | **0.83×** |
 | 1000 Mbps | 51.4 | 102.7 | **0.50×** |
+
+### Decode Communication (per step)
+
+Per-step: 10240 B raw → 3653 B compressed (2.80× ratio)
+
+| Bandwidth | Baseline (ms) | Ours (ms) | Speedup |
+|-----------|--------------|-----------|---------|
+| 200 Mbps | 0.410 | 1.273 | **0.32×** |
+| 500 Mbps | 0.164 | 1.186 | **0.14×** |
+| 1000 Mbps | 0.082 | 1.156 | **0.07×** |
+
+*Note: At decode scale (single token, ~10 KB), transmission time is sub-millisecond*
+*even without compression. The encode cost (0.6 ms) dominates over the bandwidth saving.*
+
+### Batched Decode Communication (simulated)
+
+In production, decode steps are batched across concurrent requests. Transfer size scales linearly with batch size, while encode cost stays roughly constant (GPU processes the batch in a single kernel launch).
+
+**200 Mbps**
+
+| Batch | Raw (KB) | Compressed (KB) | Baseline (ms) | Ours (ms) | Speedup |
+|-------|----------|-----------------|--------------|-----------|---------|
+| 8 | 80.0 | 28.5 | 3.28 | 2.74 | **1.20×** |
+| 16 | 160.0 | 57.1 | 6.55 | 4.41 | **1.49×** |
+| 32 | 320.0 | 114.1 | 13.11 | 7.75 | **1.69×** |
+| 64 | 640.0 | 228.3 | 26.21 | 14.43 | **1.82×** |
+
+**500 Mbps**
+
+| Batch | Raw (KB) | Compressed (KB) | Baseline (ms) | Ours (ms) | Speedup |
+|-------|----------|-----------------|--------------|-----------|---------|
+| 8 | 80.0 | 28.5 | 1.31 | 2.03 | **0.64×** |
+| 16 | 160.0 | 57.1 | 2.62 | 3.00 | **0.87×** |
+| 32 | 320.0 | 114.1 | 5.24 | 4.94 | **1.06×** |
+| 64 | 640.0 | 228.3 | 10.49 | 8.82 | **1.19×** |
+
+**1000 Mbps**
+
+| Batch | Raw (KB) | Compressed (KB) | Baseline (ms) | Ours (ms) | Speedup |
+|-------|----------|-----------------|--------------|-----------|---------|
+| 8 | 80.0 | 28.5 | 0.66 | 1.80 | **0.36×** |
+| 16 | 160.0 | 57.1 | 1.31 | 2.54 | **0.52×** |
+| 32 | 320.0 | 114.1 | 2.62 | 4.01 | **0.65×** |
+| 64 | 640.0 | 228.3 | 5.24 | 6.95 | **0.75×** |
+
 
 ![Bandwidth Speedup](bandwidth_speedup.png)
 

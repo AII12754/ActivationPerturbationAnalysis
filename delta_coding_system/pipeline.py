@@ -516,6 +516,11 @@ class OverlappedPipeline:
             recon_cos = F.cosine_similarity(
                 real_h_2d.float(), recon.float(), dim=-1,
             ).item()
+            # Compute raw cosine (ref vs real) for non-unigram tiers
+            if ref_h is not None:
+                raw_cos = F.cosine_similarity(
+                    real_h_2d.float(), ref_h.float(), dim=-1,
+                ).item()
             raw_fp16_bytes = self.hidden_dim * 2
 
             # Store reconstructed for self-ref
