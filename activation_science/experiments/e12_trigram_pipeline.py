@@ -200,6 +200,13 @@ class TrigramPipelineExperiment(BaseExperiment):
             passage_target_chars=8_000,
         )
 
+        # GPU warmup: run a dummy forward pass to trigger CUDA lazy init,
+        # JIT compilation, and memory pool allocation before timing begins.
+        _warmup_ids = torch.tensor([[0, 1, 2]], dtype=torch.long, device=device)
+        _ = model(_warmup_ids, output_hidden_states=True, use_cache=False)
+        del _warmup_ids, _
+        torch.cuda.synchronize()
+
         for req_idx in range(num_prompts):
             t_total_start = time.perf_counter()
 
@@ -222,14 +229,14 @@ class TrigramPipelineExperiment(BaseExperiment):
             )
 
             # Phase 1: Prefill on GPU (main thread) — runs concurrently with classify
+            torch.cuda.synchronize()
             t_prefill_start = time.perf_counter()
             batch = prefill(model, input_tensor, use_cache=False)
+            torch.cuda.synchronize()
             layer_idx = min(layer_boundary, batch.num_layers)
             real_acts = batch.hidden_states[layer_idx].squeeze(0).to(act_dtype)  # (seq_len, hidden_dim)
 
             del batch
-            gc.collect()
-            torch.cuda.empty_cache()
 
             t_prefill_ms = (time.perf_counter() - t_prefill_start) * 1000.0
 
@@ -272,6 +279,7 @@ class TrigramPipelineExperiment(BaseExperiment):
             # ===========================================================
             # Phase 3a: Encode TRIGRAM + BIGRAM positions (batched)
             # ===========================================================
+            torch.cuda.synchronize()
             t_encode_delta_start = time.perf_counter()
 
             delta_indices = trigram_indices + bigram_indices
@@ -311,6 +319,7 @@ class TrigramPipelineExperiment(BaseExperiment):
                     transfer_bytes_by_tier["trigram"] = int(per_pos * n_tri)
                     transfer_bytes_by_tier["bigram"] = int(per_pos * n_bi)
 
+            torch.cuda.synchronize()
             t_encode_delta_ms = (time.perf_counter() - t_encode_delta_start) * 1000.0
 
             # ===========================================================
@@ -330,6 +339,7 @@ class TrigramPipelineExperiment(BaseExperiment):
 
                 reconstructed[idx_u] = recon_uni
 
+            torch.cuda.synchronize()
             t_encode_unigram_ms = (time.perf_counter() - t_encode_unigram_start) * 1000.0
 
             # ===========================================================
@@ -373,6 +383,7 @@ class TrigramPipelineExperiment(BaseExperiment):
                 )
                 transfer_bytes_by_tier["self_ref"] = compute_transfer_size(pkt)
 
+            torch.cuda.synchronize()
             t_encode_self_ref_ms = (time.perf_counter() - t_encode_self_ref_start) * 1000.0
 
             # ===========================================================
@@ -549,10 +560,10 @@ class TrigramPipelineExperiment(BaseExperiment):
                 tbl_stats["num_trigrams"], tbl_stats["num_bigrams"],
             )
 
-            # Cleanup between requests
+            # Cleanup between requests — avoid gc.collect()/empty_cache() per
+            # iteration as they introduce unpredictable stalls (10–200 ms).
+            # The CUDA allocator reuses freed blocks without explicit cache flush.
             del real_acts, reconstructed, ref_acts
-            gc.collect()
-            torch.cuda.empty_cache()
 
         executor.shutdown(wait=False)
 
