@@ -283,14 +283,23 @@ def process_request(
     total_raw_bytes = 0
 
     for step in range(decode_tokens):
+        # --- Time: model forward pass ---
+        torch.cuda.synchronize()
+        t_fwd_start = time.perf_counter()
         dbatch = decode_step(model, next_tok, past_kv)
+        torch.cuda.synchronize()
+        t_fwd_end = time.perf_counter()
+        decode_fwd_ms = (t_fwd_end - t_fwd_start) * 1000
+
         h = dbatch.hidden_states[layer_idx][0, 0].to(torch.float16)  # (hidden_dim,)
         tok_id = next_tok.item()
         running_token_ids.append(tok_id)
         decode_pos = len(running_token_ids) - 1  # absolute position
         decode_hidden_by_pos[decode_pos] = h
 
-        # Classify this decode position
+        # --- Time: classify ---
+        t_classify_start = time.perf_counter()
+
         tier = "unigram"
         ref_h = None
         raw_cos = 0.0
@@ -331,19 +340,29 @@ def process_request(
         if ref_h is not None:
             raw_cos = F.cosine_similarity(real_h_2d.float(), ref_h.float(), dim=-1).item()
 
-        # Encode / decode
+        t_classify_end = time.perf_counter()
+        classify_ms = (t_classify_end - t_classify_start) * 1000
+
+        # --- Time: encode / decode ---
+        torch.cuda.synchronize()
+        t_encode_start = time.perf_counter()
         recon, xfer_bytes = encode_decode_single(
             real_h_2d, ref_h, tier,
             group_size, top_k, int8_group_size, int8_outlier_top_k,
             hidden_dim, device,
         )
+        torch.cuda.synchronize()
+        t_encode_end = time.perf_counter()
+        encode_ms = (t_encode_end - t_encode_start) * 1000
+
         recon_cos = F.cosine_similarity(real_h_2d.float(), recon.float(), dim=-1).item()
         raw_fp16_bytes = hidden_dim * 2  # single position
 
         # Store reconstructed for self-ref
         reconstructed_hiddens[decode_pos] = recon.squeeze(0)
 
-        # Online table update for this step
+        # --- Time: online table update ---
+        t_table_start = time.perf_counter()
         if len(running_token_ids) >= 3:
             a = running_token_ids[-3]
             b = running_token_ids[-2]
@@ -361,6 +380,8 @@ def process_request(
                 if c not in node.suffixes:
                     node.suffixes[c] = h.to(ngram_table.dtype).detach()
                     ngram_table._num_trigrams += 1
+        t_table_end = time.perf_counter()
+        table_update_ms = (t_table_end - t_table_start) * 1000
 
         # Record metrics
         tier_counts[tier] += 1
@@ -380,6 +401,10 @@ def process_request(
                 "recon_cosine": recon_cos,
                 "transfer_bytes": xfer_bytes,
                 "raw_fp16_bytes": raw_fp16_bytes,
+                "decode_forward_ms": decode_fwd_ms,
+                "classify_ms": classify_ms,
+                "encode_ms": encode_ms,
+                "table_update_ms": table_update_ms,
             })
 
         past_kv = dbatch.past_key_values

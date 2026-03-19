@@ -1,0 +1,297 @@
+"""Delta-coding encode/decode primitives for pipeline-parallel activation transfer.
+
+Implements the encode/decode pipeline:
+  Sender:  reference lookup -> affine transform -> delta -> Int4 quantize + top-k outliers
+  Receiver: dequantize + outlier overlay -> affine reference -> reconstruct
+
+For unigram (no-reference) positions:
+  Int8 group quantization + top-k FP16 outliers
+
+All operations are GPU-native.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Tuple
+
+import torch
+
+
+# ===================================================================
+# Dataclasses
+# ===================================================================
+@dataclass
+class DeltaPacket:
+    """Packed delta-coded activation for inter-stage transfer."""
+    quantized_data: torch.Tensor    # (batch, hidden_dim // 2) uint8
+    scales: torch.Tensor            # (batch, num_groups) float16
+    zero_points: torch.Tensor       # (batch, num_groups) float16
+    topk_values: torch.Tensor       # (batch, num_groups, k) float16
+    topk_indices: torch.Tensor      # (batch, num_groups, k) uint8
+    affine_scale: torch.Tensor      # (batch,) float16
+    affine_bias: torch.Tensor       # (batch,) float16
+    ref_indices: torch.Tensor       # (batch,) int64
+    group_size: int
+    top_k: int
+
+
+@dataclass
+class Int8OutlierPacket:
+    """Packed Int8-quantized activation with top-k fp16 outlier extraction."""
+    quantized: torch.Tensor             # (batch, hidden_dim) uint8
+    scales: torch.Tensor                # (batch, num_groups) float16
+    zero_points: torch.Tensor           # (batch, num_groups) float16
+    topk_values: torch.Tensor           # (batch, num_groups, top_k) float16
+    topk_indices: torch.Tensor          # (batch, num_groups, top_k) uint8
+    group_size: int
+    top_k: int
+
+
+# ===================================================================
+# Core Operations
+# ===================================================================
+def compute_affine_params(
+    new_acts: torch.Tensor,
+    ref_acts: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Compute affine transform parameters: scale and bias.
+
+    ``scale = dot(new, ref) / dot(ref, ref)``
+    ``bias = mean(new - scale * ref)``
+    """
+    new_f = new_acts.float()
+    ref_f = ref_acts.float()
+    dot_nr = (new_f * ref_f).sum(dim=-1)
+    dot_rr = (ref_f * ref_f).sum(dim=-1)
+    scale = dot_nr / (dot_rr + 1e-8)
+    bias = (new_f - scale.unsqueeze(-1) * ref_f).mean(dim=-1)
+    return scale, bias
+
+
+def apply_affine(
+    ref_acts: torch.Tensor,
+    scale: torch.Tensor,
+    bias: torch.Tensor,
+) -> torch.Tensor:
+    """Apply affine transform: ``scale * ref + bias``."""
+    return scale.unsqueeze(-1) * ref_acts + bias.unsqueeze(-1)
+
+
+def compute_delta(
+    new_acts: torch.Tensor,
+    ref_transformed: torch.Tensor,
+) -> torch.Tensor:
+    """Compute delta: ``new - ref_transformed``."""
+    return new_acts - ref_transformed
+
+
+def groupwise_int4_quantize_topk(
+    delta: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Group-wise Int4 quantization with top-k fp16 outlier extraction."""
+    batch, hidden_dim = delta.shape
+    num_groups = hidden_dim // group_size
+
+    grouped = delta.reshape(batch, num_groups, group_size)
+
+    abs_grouped = grouped.abs()
+    topk_vals_abs, topk_idx = torch.topk(abs_grouped, top_k, dim=-1)
+    topk_values = grouped.gather(-1, topk_idx).to(torch.float16)
+    topk_indices = topk_idx.to(torch.uint8)
+
+    grouped_zeroed = grouped.clone()
+    grouped_zeroed.scatter_(-1, topk_idx, 0.0)
+
+    g_min = grouped_zeroed.min(dim=-1).values
+    g_max = grouped_zeroed.max(dim=-1).values
+    scales = ((g_max - g_min) / 15.0).to(torch.float16)
+    zero_points = g_min.to(torch.float16)
+
+    scales_f = scales.float().unsqueeze(-1)
+    zeros_f = zero_points.float().unsqueeze(-1)
+    q = torch.clamp(
+        torch.round((grouped_zeroed - zeros_f) / (scales_f + 1e-10)),
+        0, 15,
+    ).to(torch.uint8)
+
+    q_flat = q.reshape(batch, hidden_dim)
+    even = q_flat[:, 0::2]
+    odd = q_flat[:, 1::2]
+    packed = (even << 4) | odd
+
+    return packed, scales, zero_points, topk_values, topk_indices
+
+
+def groupwise_int4_dequantize_topk(
+    packed: torch.Tensor,
+    scales: torch.Tensor,
+    zero_points: torch.Tensor,
+    topk_values: torch.Tensor,
+    topk_indices: torch.Tensor,
+    group_size: int,
+    hidden_dim: int,
+) -> torch.Tensor:
+    """Dequantize Int4 groups and overlay top-k fp16 outliers."""
+    batch = packed.shape[0]
+    num_groups = hidden_dim // group_size
+
+    even = (packed >> 4).to(torch.uint8)
+    odd = (packed & 0x0F).to(torch.uint8)
+
+    q_flat = torch.zeros(batch, hidden_dim, dtype=torch.uint8, device=packed.device)
+    q_flat[:, 0::2] = even
+    q_flat[:, 1::2] = odd
+
+    q_grouped = q_flat.reshape(batch, num_groups, group_size)
+
+    scales_f = scales.float().unsqueeze(-1)
+    zeros_f = zero_points.float().unsqueeze(-1)
+    dequant = q_grouped.float() * scales_f + zeros_f
+
+    topk_idx_long = topk_indices.long()
+    dequant.scatter_(-1, topk_idx_long, topk_values.float())
+
+    return dequant.reshape(batch, hidden_dim).to(torch.float16)
+
+
+def groupwise_int8_quantize_topk(
+    tensor: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Int8OutlierPacket:
+    """Group-wise Int8 quantization with top-k fp16 outlier extraction."""
+    batch, hidden_dim = tensor.shape
+    num_groups = hidden_dim // group_size
+
+    grouped = tensor.float().reshape(batch, num_groups, group_size)
+
+    abs_vals = grouped.abs()
+    _, tk_idx = abs_vals.topk(top_k, dim=-1)
+    tk_vals = torch.gather(grouped, -1, tk_idx)
+
+    masked = grouped.clone()
+    masked.scatter_(-1, tk_idx, 0.0)
+
+    g_min = masked.min(dim=-1).values
+    g_max = masked.max(dim=-1).values
+    scales = ((g_max - g_min) / 255.0).to(torch.float16)
+    zero_points = g_min.to(torch.float16)
+
+    scales_f = scales.float().unsqueeze(-1)
+    zeros_f = zero_points.float().unsqueeze(-1)
+    q = torch.clamp(
+        torch.round((masked - zeros_f) / (scales_f + 1e-10)),
+        0, 255,
+    ).to(torch.uint8)
+
+    quantized = q.reshape(batch, hidden_dim)
+
+    return Int8OutlierPacket(
+        quantized=quantized,
+        scales=scales,
+        zero_points=zero_points,
+        topk_values=tk_vals.to(torch.float16),
+        topk_indices=tk_idx.to(torch.uint8),
+        group_size=group_size,
+        top_k=top_k,
+    )
+
+
+def groupwise_int8_dequantize_topk(packet: Int8OutlierPacket) -> torch.Tensor:
+    """Dequantize Int8 + overlay top-k outliers."""
+    hidden_dim = packet.quantized.shape[1]
+    batch = packet.quantized.shape[0]
+    num_groups = hidden_dim // packet.group_size
+
+    q_grouped = packet.quantized.reshape(batch, num_groups, packet.group_size)
+    scales_f = packet.scales.float().unsqueeze(-1)
+    zeros_f = packet.zero_points.float().unsqueeze(-1)
+    dequant = q_grouped.float() * scales_f + zeros_f
+
+    tk_idx = packet.topk_indices.long()
+    tk_vals = packet.topk_values.float()
+    dequant.scatter_(-1, tk_idx, tk_vals)
+
+    return dequant.reshape(batch, hidden_dim).to(torch.float16)
+
+
+def reconstruct_activation(
+    dequant_delta: torch.Tensor,
+    ref_acts: torch.Tensor,
+    scale: torch.Tensor,
+    bias: torch.Tensor,
+) -> torch.Tensor:
+    """Reconstruct activation: ``affine(ref) + dequantized_delta``."""
+    ref_transformed = apply_affine(ref_acts, scale, bias)
+    return ref_transformed + dequant_delta
+
+
+def compute_transfer_size(packet: DeltaPacket) -> int:
+    """Compute total transfer size in bytes for a DeltaPacket."""
+    total = 0
+    total += packet.quantized_data.nelement() * packet.quantized_data.element_size()
+    total += packet.scales.nelement() * packet.scales.element_size()
+    total += packet.zero_points.nelement() * packet.zero_points.element_size()
+    total += packet.topk_values.nelement() * packet.topk_values.element_size()
+    total += packet.topk_indices.nelement() * packet.topk_indices.element_size()
+    total += packet.affine_scale.nelement() * packet.affine_scale.element_size()
+    total += packet.affine_bias.nelement() * packet.affine_bias.element_size()
+    total += packet.ref_indices.nelement() * packet.ref_indices.element_size()
+    return total
+
+
+def compute_transfer_size_int8_outlier(packet: Int8OutlierPacket) -> int:
+    """Compute total transfer size in bytes for an Int8OutlierPacket."""
+    total = 0
+    total += packet.quantized.nelement() * packet.quantized.element_size()
+    total += packet.scales.nelement() * packet.scales.element_size()
+    total += packet.zero_points.nelement() * packet.zero_points.element_size()
+    total += packet.topk_values.nelement() * packet.topk_values.element_size()
+    total += packet.topk_indices.nelement() * packet.topk_indices.element_size()
+    return total
+
+
+# ===================================================================
+# High-level encode/decode helper
+# ===================================================================
+def encode_decode_single(
+    real_h: torch.Tensor,      # (1, hidden_dim)
+    ref_h: torch.Tensor,       # (1, hidden_dim) or None
+    tier: str,
+    group_size: int,
+    top_k: int,
+    int8_group_size: int,
+    int8_outlier_top_k: int,
+    hidden_dim: int,
+    device: torch.device,
+) -> Tuple[torch.Tensor, int]:
+    """Encode and decode a single position. Returns (reconstructed, transfer_bytes)."""
+
+    if tier in ("trigram", "bigram", "self_ref") and ref_h is not None:
+        # Affine + Int4 delta
+        scale, bias = compute_affine_params(real_h, ref_h)
+        ref_t = apply_affine(ref_h, scale, bias)
+        delta = compute_delta(real_h, ref_t)
+        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(delta, group_size, top_k)
+        dequant = groupwise_int4_dequantize_topk(packed, scales, zeros, tv, ti, group_size, hidden_dim)
+        recon = reconstruct_activation(dequant, ref_h, scale, bias).to(torch.float16)
+
+        pkt = DeltaPacket(
+            quantized_data=packed, scales=scales, zero_points=zeros,
+            topk_values=tv, topk_indices=ti,
+            affine_scale=scale.to(torch.float16),
+            affine_bias=bias.to(torch.float16),
+            ref_indices=torch.zeros(1, dtype=torch.long, device=device),
+            group_size=group_size, top_k=top_k,
+        )
+        transfer_bytes = compute_transfer_size(pkt)
+        return recon, transfer_bytes
+    else:
+        # Int8 + outlier (unigram)
+        int8_pkt = groupwise_int8_quantize_topk(real_h, int8_group_size, int8_outlier_top_k)
+        recon = groupwise_int8_dequantize_topk(int8_pkt)
+        transfer_bytes = compute_transfer_size_int8_outlier(int8_pkt)
+        return recon, transfer_bytes
