@@ -371,6 +371,7 @@ def main():
     logger.info("Config: %s", json.dumps(cfg, indent=2))
 
     device = torch.device(f"cuda:{args.gpu}")
+    torch.cuda.set_device(device)
     logger.info("Loading model %s on %s...", args.model, device)
 
     from transformers import AutoModelForCausalLM, AutoTokenizer

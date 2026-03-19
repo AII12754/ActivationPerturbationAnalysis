@@ -219,9 +219,12 @@ class NgramTable:
         """
         seq_len = len(token_ids)
         tiers: List[str] = []
-        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.device, dtype=torch.float16)
         self_ref_sources: List[Optional[int]] = []
         first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
+
+        # Collect (position, raw_tensor) pairs to batch FP8→FP16 conversion
+        ref_positions: List[int] = []
+        ref_tensors: List[torch.Tensor] = []
 
         for i in range(seq_len):
             trigram = None
@@ -235,7 +238,8 @@ class NgramTable:
                     node_ab.hit_count += 1
                     node_ab.last_access = self._request_counter
                     tiers.append("trigram")
-                    ref_acts[i] = node_ab.suffixes[c].to(torch.float16)
+                    ref_positions.append(i)
+                    ref_tensors.append(node_ab.suffixes[c])
                     self_ref_sources.append(None)
                     first_occurrence_map.setdefault(trigram, i)
                     continue
@@ -254,7 +258,8 @@ class NgramTable:
                     node_bc.hit_count += 1
                     node_bc.last_access = self._request_counter
                     tiers.append("bigram")
-                    ref_acts[i] = node_bc.bigram_hidden.to(torch.float16)
+                    ref_positions.append(i)
+                    ref_tensors.append(node_bc.bigram_hidden)
                     self_ref_sources.append(None)
                     if trigram is not None:
                         first_occurrence_map.setdefault(trigram, i)
@@ -265,6 +270,14 @@ class NgramTable:
             self_ref_sources.append(None)
             if trigram is not None:
                 first_occurrence_map.setdefault(trigram, i)
+
+        # Batch FP8→FP16 conversion: single stack + cast instead of per-element loop
+        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.device, dtype=torch.float16)
+        if ref_tensors:
+            stacked = torch.stack(ref_tensors)  # (N, hidden_dim) in storage dtype
+            converted = stacked.to(torch.float16)  # single batch conversion
+            idx = torch.tensor(ref_positions, dtype=torch.long, device=self.device)
+            ref_acts[idx] = converted
 
         return tiers, ref_acts, self_ref_sources, first_occurrence_map
 
