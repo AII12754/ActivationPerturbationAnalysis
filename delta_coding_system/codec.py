@@ -102,18 +102,18 @@ def groupwise_int4_quantize_topk(
     topk_values = grouped.gather(-1, topk_idx).to(torch.float16)
     topk_indices = topk_idx.to(torch.uint8)
 
-    grouped_zeroed = grouped.clone()
-    grouped_zeroed.scatter_(-1, topk_idx, 0.0)
+    # Zero out top-k positions in-place (topk_values already saved above)
+    grouped.scatter_(-1, topk_idx, 0.0)
 
-    g_min = grouped_zeroed.min(dim=-1).values
-    g_max = grouped_zeroed.max(dim=-1).values
+    g_min = grouped.min(dim=-1).values
+    g_max = grouped.max(dim=-1).values
     scales = ((g_max - g_min) / 15.0).to(torch.float16)
     zero_points = g_min.to(torch.float16)
 
     scales_f = scales.float().unsqueeze(-1)
     zeros_f = zero_points.float().unsqueeze(-1)
     q = torch.clamp(
-        torch.round((grouped_zeroed - zeros_f) / (scales_f + 1e-10)),
+        torch.round((grouped - zeros_f) / (scales_f + 1e-10)),
         0, 15,
     ).to(torch.uint8)
 
@@ -141,9 +141,8 @@ def groupwise_int4_dequantize_topk(
     even = (packed >> 4).to(torch.uint8)
     odd = (packed & 0x0F).to(torch.uint8)
 
-    q_flat = torch.zeros(batch, hidden_dim, dtype=torch.uint8, device=packed.device)
-    q_flat[:, 0::2] = even
-    q_flat[:, 1::2] = odd
+    # Interleave even/odd via stack+reshape to avoid zeros allocation
+    q_flat = torch.stack([even, odd], dim=-1).reshape(batch, hidden_dim)
 
     q_grouped = q_flat.reshape(batch, num_groups, group_size)
 
@@ -172,18 +171,18 @@ def groupwise_int8_quantize_topk(
     _, tk_idx = abs_vals.topk(top_k, dim=-1)
     tk_vals = torch.gather(grouped, -1, tk_idx)
 
-    masked = grouped.clone()
-    masked.scatter_(-1, tk_idx, 0.0)
+    # Zero out top-k positions in-place (tk_vals already saved above)
+    grouped.scatter_(-1, tk_idx, 0.0)
 
-    g_min = masked.min(dim=-1).values
-    g_max = masked.max(dim=-1).values
+    g_min = grouped.min(dim=-1).values
+    g_max = grouped.max(dim=-1).values
     scales = ((g_max - g_min) / 255.0).to(torch.float16)
     zero_points = g_min.to(torch.float16)
 
     scales_f = scales.float().unsqueeze(-1)
     zeros_f = zero_points.float().unsqueeze(-1)
     q = torch.clamp(
-        torch.round((masked - zeros_f) / (scales_f + 1e-10)),
+        torch.round((grouped - zeros_f) / (scales_f + 1e-10)),
         0, 255,
     ).to(torch.uint8)
 

@@ -160,7 +160,8 @@ class OverlappedPipeline:
             dtype=table_dtype,
             max_entries=max_table_entries,
         )
-        self.executor = ThreadPoolExecutor(max_workers=1)
+        self.classify_executor = ThreadPoolExecutor(max_workers=1)
+        self.update_executor = ThreadPoolExecutor(max_workers=1)
 
         # Import extraction helpers
         from activation_science.core.extraction import (
@@ -174,8 +175,9 @@ class OverlappedPipeline:
         self._select_next_token = select_next_token
 
     def shutdown(self):
-        """Shutdown the thread pool executor."""
-        self.executor.shutdown(wait=False)
+        """Shutdown the thread pool executors."""
+        self.classify_executor.shutdown(wait=False)
+        self.update_executor.shutdown(wait=False)
 
     # ------------------------------------------------------------------
     # Prefill phase
@@ -212,7 +214,7 @@ class OverlappedPipeline:
         # 1. Launch classify async (CPU) — only needs token_ids
         classify_future = None
         if is_test:
-            classify_future = self.executor.submit(
+            classify_future = self.classify_executor.submit(
                 self.table.classify_and_build_refs,
                 input_ids, self.hidden_dim,
             )
@@ -424,7 +426,7 @@ class OverlappedPipeline:
 
         # 5. Table update (async — not on critical path)
         t_upd_start = time.perf_counter()
-        update_future = self.executor.submit(
+        update_future = self.update_executor.submit(
             self.table.update_from_hidden_states,
             input_ids, prefill_hidden,
         )
@@ -489,7 +491,7 @@ class OverlappedPipeline:
             decode_pos = len(running_token_ids) - 1
 
             # Launch classify (CPU, concurrent with forward)
-            classify_future = self.executor.submit(
+            classify_future = self.classify_executor.submit(
                 self._classify_decode_step,
                 running_token_ids, decode_pos, first_occ_map, reconstructed_hiddens,
             )
@@ -544,7 +546,7 @@ class OverlappedPipeline:
 
             # Table update (async, after send)
             t_table_start = time.perf_counter()
-            pending_table_update = self.executor.submit(
+            pending_table_update = self.update_executor.submit(
                 self._update_table_step,
                 running_token_ids, decode_pos, h,
                 prefill_hidden, input_ids, decode_hidden_by_pos,
