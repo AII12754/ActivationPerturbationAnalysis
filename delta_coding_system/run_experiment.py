@@ -183,11 +183,14 @@ def run_dataset(pipeline: OverlappedPipeline, dataset_name: str, cfg: Dict[str, 
     test_texts = texts[warmup_n:warmup_n + test_n]
 
     # Reset table for each dataset
-    pipeline.table = type(pipeline.table)(
-        device=pipeline.device,
-        dtype=pipeline.table.dtype,
-        max_entries=pipeline.table.max_entries,
-    )
+    if pipeline.domain_aware:
+        pipeline.select_domain(dataset_name)
+    else:
+        pipeline.table = type(pipeline.table)(
+            device=pipeline.device,
+            dtype=pipeline.table.dtype,
+            max_entries=pipeline.table.max_entries,
+        )
 
     prefill_records: List[Dict] = []
     decode_step_records: List[Dict] = []
@@ -323,6 +326,10 @@ def run_dataset(pipeline: OverlappedPipeline, dataset_name: str, cfg: Dict[str, 
 
     logger.info("Results saved to %s", out_dir)
 
+    # Release domain hint (domain-aware mode)
+    if pipeline.domain_aware:
+        pipeline.release_domain()
+
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -343,6 +350,10 @@ def main():
     parser.add_argument("--max-seq-len", type=int, default=DEFAULTS["max_seq_len"])
     parser.add_argument("--table-dtype", default=DEFAULTS["table_dtype"])
     parser.add_argument("--max-table-entries", type=int, default=DEFAULTS["max_table_entries"])
+    parser.add_argument("--domain-aware", action="store_true",
+                        help="Use per-dataset domain-aware tables with GPU/CPU tiering")
+    parser.add_argument("--max-gpu-tables", type=int, default=3,
+                        help="Max domain tables to keep on GPU (domain-aware mode)")
     parser.add_argument("--seed", type=int, default=DEFAULTS["seed"])
     parser.add_argument("--output-dir", default=DEFAULTS["output_dir"])
     parser.add_argument("--datasets", nargs="+", default=ALL_DATASETS)
@@ -403,6 +414,8 @@ def main():
         decode_tokens=args.decode_tokens,
         max_seq_len=args.max_seq_len,
         device=device,
+        domain_aware=args.domain_aware,
+        max_gpu_tables=args.max_gpu_tables,
     )
 
     for ds_name in args.datasets:

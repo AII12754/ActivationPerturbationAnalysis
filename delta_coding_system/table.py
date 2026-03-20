@@ -356,6 +356,26 @@ class NgramTable:
 
         return evicted
 
+    # ------------------------------------------------------------------
+    # Device transfer (GPU ↔ CPU offload)
+    # ------------------------------------------------------------------
+    def to_device(self, device: torch.device) -> "NgramTable":
+        """Move all stored tensors to *device* and update self.device.
+
+        Returns self for chaining.
+        """
+        if device == self.device:
+            return self
+        for level_b in self._dag.values():
+            for node in level_b.values():
+                node.bigram_hidden = node.bigram_hidden.to(device, non_blocking=True)
+                node.suffixes = {
+                    c: h.to(device, non_blocking=True)
+                    for c, h in node.suffixes.items()
+                }
+        self.device = device
+        return self
+
     @property
     def stats(self) -> Dict[str, Any]:
         """Return table statistics."""
@@ -375,4 +395,146 @@ class NgramTable:
             "num_trigrams": self._num_trigrams,
             "num_bigrams": self._num_bigrams,
             "memory_bytes": memory_bytes,
+            "device": str(self.device),
         }
+
+
+# ======================================================================
+# DomainTableManager — domain-aware table pool with GPU/CPU tiering
+# ======================================================================
+class DomainTableManager:
+    """Manages multiple NgramTables keyed by domain/task.
+
+    Active tables live on *gpu_device* for fast lookups.
+    When the number of GPU-resident tables exceeds *max_gpu_tables*,
+    the least-recently-used table is offloaded to CPU memory.
+    Accessing a CPU-resident table transparently promotes it back to GPU.
+
+    Usage::
+
+        mgr = DomainTableManager(gpu_device=torch.device("cuda:0"))
+        tbl = mgr.get("gsm8k")          # creates or activates
+        tbl.classify_and_build_refs(...)  # runs on GPU
+        mgr.release("gsm8k")            # optional hint: done for now
+    """
+
+    def __init__(
+        self,
+        gpu_device: torch.device,
+        table_dtype: torch.dtype = torch.float16,
+        max_entries_per_table: int = 0,
+        max_gpu_tables: int = 3,
+    ):
+        self.gpu_device = gpu_device
+        self.cpu_device = torch.device("cpu")
+        self.table_dtype = table_dtype
+        self.max_entries_per_table = max_entries_per_table
+        self.max_gpu_tables = max(max_gpu_tables, 1)
+
+        # domain_key → NgramTable
+        self._tables: Dict[str, NgramTable] = {}
+        # Ordered list of domain keys on GPU (most-recently-used last)
+        self._gpu_lru: List[str] = []
+        self._access_counter = 0
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+    def get(self, domain: str) -> NgramTable:
+        """Return the NgramTable for *domain*, creating or promoting as needed.
+
+        If the table is on CPU it is moved to GPU first.
+        If GPU budget is exceeded the LRU table is offloaded to CPU.
+        """
+        tbl = self._tables.get(domain)
+        already_on_gpu = domain in self._gpu_lru
+
+        if tbl is None:
+            # Brand-new domain — needs a GPU slot
+            self._evict_one_if_full()
+            tbl = NgramTable(
+                device=self.gpu_device,
+                dtype=self.table_dtype,
+                max_entries=self.max_entries_per_table,
+            )
+            self._tables[domain] = tbl
+            self._gpu_lru.append(domain)
+        elif not already_on_gpu:
+            # Promote from CPU → GPU
+            self._evict_one_if_full()
+            tbl.to_device(self.gpu_device)
+            self._gpu_lru.append(domain)
+        else:
+            # Already on GPU — just refresh LRU position
+            self._gpu_lru.remove(domain)
+            self._gpu_lru.append(domain)
+
+        self._access_counter += 1
+        return tbl
+
+    def release(self, domain: str) -> None:
+        """Optional hint that *domain* is not immediately needed.
+
+        Does NOT offload eagerly — just deprioritizes in LRU.
+        """
+        if domain in self._gpu_lru:
+            self._gpu_lru.remove(domain)
+            self._gpu_lru.insert(0, domain)  # move to front (oldest)
+
+    def offload(self, domain: str) -> None:
+        """Explicitly offload *domain* table to CPU."""
+        if domain in self._gpu_lru:
+            tbl = self._tables.get(domain)
+            if tbl is not None:
+                tbl.to_device(self.cpu_device)
+            self._gpu_lru.remove(domain)
+
+    def offload_all(self) -> None:
+        """Move every table to CPU."""
+        for domain in list(self._gpu_lru):
+            self.offload(domain)
+
+    def delete(self, domain: str) -> None:
+        """Permanently remove a domain table."""
+        self._tables.pop(domain, None)
+        if domain in self._gpu_lru:
+            self._gpu_lru.remove(domain)
+
+    def domains(self) -> List[str]:
+        """Return all registered domain keys."""
+        return list(self._tables.keys())
+
+    def gpu_domains(self) -> List[str]:
+        """Return domain keys currently on GPU (LRU order, oldest first)."""
+        return list(self._gpu_lru)
+
+    def cpu_domains(self) -> List[str]:
+        """Return domain keys currently on CPU."""
+        return [d for d in self._tables if d not in self._gpu_lru]
+
+    @property
+    def stats(self) -> Dict[str, Any]:
+        per_domain = {}
+        for d, tbl in self._tables.items():
+            s = tbl.stats
+            s["on_gpu"] = (d in self._gpu_lru)
+            per_domain[d] = s
+        return {
+            "num_domains": len(self._tables),
+            "gpu_resident": len(self._gpu_lru),
+            "max_gpu_tables": self.max_gpu_tables,
+            "per_domain": per_domain,
+        }
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _evict_one_if_full(self) -> None:
+        """Offload the LRU GPU table if at capacity (to free one slot)."""
+        if len(self._gpu_lru) >= self.max_gpu_tables:
+            victim = self._gpu_lru.pop(0)
+            victim_tbl = self._tables.get(victim)
+            if victim_tbl is not None:
+                logger.info("Offloading domain '%s' table to CPU (%d tri, %d bi)",
+                            victim, victim_tbl._num_trigrams, victim_tbl._num_bigrams)
+                victim_tbl.to_device(self.cpu_device)

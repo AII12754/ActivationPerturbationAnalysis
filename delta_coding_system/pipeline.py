@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 import torch.nn.functional as F
 
-from delta_coding_system.table import NgramTable
+from delta_coding_system.table import DomainTableManager, NgramTable
 from delta_coding_system.codec import (
     DeltaPacket,
     compute_affine_params,
@@ -139,6 +139,8 @@ class OverlappedPipeline:
         decode_tokens: int = 128,
         max_seq_len: int = 4096,
         device: torch.device = None,
+        domain_aware: bool = False,
+        max_gpu_tables: int = 3,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -155,11 +157,27 @@ class OverlappedPipeline:
             device = next(model.parameters()).device
         self.device = device
 
-        self.table = NgramTable(
-            device=device,
-            dtype=table_dtype,
-            max_entries=max_table_entries,
-        )
+        # Domain-aware mode: multiple tables with GPU/CPU tiering
+        self.domain_aware = domain_aware
+        self._table_dtype = table_dtype
+        self._max_table_entries = max_table_entries
+        if domain_aware:
+            self.table_manager = DomainTableManager(
+                gpu_device=device,
+                table_dtype=table_dtype,
+                max_entries_per_table=max_table_entries,
+                max_gpu_tables=max_gpu_tables,
+            )
+            self.table = None  # set per-request via select_domain()
+            self._current_domain: Optional[str] = None
+        else:
+            self.table_manager = None
+            self._current_domain = None
+            self.table = NgramTable(
+                device=device,
+                dtype=table_dtype,
+                max_entries=max_table_entries,
+            )
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
 
@@ -174,10 +192,29 @@ class OverlappedPipeline:
         self._decode_step = decode_step
         self._select_next_token = select_next_token
 
+    def select_domain(self, domain: str) -> NgramTable:
+        """Activate the table for *domain* (domain-aware mode only).
+
+        In non-domain-aware mode this is a no-op returning the single table.
+        """
+        if not self.domain_aware:
+            return self.table
+        self.table = self.table_manager.get(domain)
+        self._current_domain = domain
+        return self.table
+
+    def release_domain(self) -> None:
+        """Hint that the current domain is done (domain-aware mode)."""
+        if self.domain_aware and self._current_domain is not None:
+            self.table_manager.release(self._current_domain)
+            self._current_domain = None
+
     def shutdown(self):
         """Shutdown the thread pool executors."""
         self.classify_executor.shutdown(wait=False)
         self.update_executor.shutdown(wait=False)
+        if self.domain_aware and self.table_manager is not None:
+            self.table_manager.offload_all()
 
     # ------------------------------------------------------------------
     # Prefill phase
@@ -696,5 +733,8 @@ class OverlappedPipeline:
 
         table_stats = self.table.stats
         table_stats["last_evicted"] = self.table._last_evicted
+        if self.domain_aware:
+            table_stats["domain"] = self._current_domain
+            table_stats["manager"] = self.table_manager.stats
 
         return prefill_result, decode_result, table_stats
