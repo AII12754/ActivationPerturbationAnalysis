@@ -1,0 +1,233 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-20 09:04:45,291 INFO compress_v2: Loading model on GPU 1...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:09<02:35,  9.74s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:18<02:20,  9.34s/it]Loading checkpoint shards:  18%|█▊        | 3/17 [00:23<01:44,  7.43s/it]Loading checkpoint shards:  24%|██▎       | 4/17 [00:32<01:40,  7.70s/it]Loading checkpoint shards:  29%|██▉       | 5/17 [00:33<01:04,  5.35s/it]Loading checkpoint shards:  35%|███▌      | 6/17 [00:34<00:41,  3.80s/it]Loading checkpoint shards:  41%|████      | 7/17 [00:34<00:28,  2.81s/it]Loading checkpoint shards:  47%|████▋     | 8/17 [00:35<00:19,  2.19s/it]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:36<00:14,  1.76s/it]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:37<00:10,  1.47s/it]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:38<00:07,  1.27s/it]Loading checkpoint shards:  71%|███████   | 12/17 [00:38<00:05,  1.12s/it]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:39<00:04,  1.01s/it]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:40<00:02,  1.05it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:41<00:01,  1.11it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:42<00:00,  1.12it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:42<00:00,  1.24it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:42<00:00,  2.51s/it]
+2026-03-20 09:05:31,624 INFO compress_v2: Model loaded. hidden_dim=5120
+2026-03-20 09:05:32,879 INFO compress_v2: ============================================================
+2026-03-20 09:05:32,879 INFO compress_v2: Dataset: wikitext2
+2026-03-20 09:05:33,187 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:05:34,415 INFO compress_v2:   warmup 10/30
+2026-03-20 09:05:35,457 INFO compress_v2:   warmup 20/30
+2026-03-20 09:05:36,252 INFO compress_v2:   warmup 30/30
+2026-03-20 09:05:36,252 INFO compress_v2: Warmup done. Table: 2796 bi
+2026-03-20 09:05:36,252 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:05:43,016 INFO compress_v2:   Test 5/30 baseline=2.18x seq=11
+2026-03-20 09:05:47,019 INFO compress_v2:   Test 10/30 baseline=2.43x seq=163
+2026-03-20 09:05:52,801 INFO compress_v2:   Test 15/30 baseline=2.05x seq=84
+2026-03-20 09:05:55,790 INFO compress_v2:   Test 20/30 baseline=2.65x seq=15
+2026-03-20 09:05:59,589 INFO compress_v2:   Test 25/30 baseline=2.52x seq=93
+2026-03-20 09:06:06,379 INFO compress_v2:   Test 30/30 baseline=2.18x seq=103
+2026-03-20 09:06:06,575 INFO compress_v2: ============================================================
+2026-03-20 09:06:06,575 INFO compress_v2: Dataset: sharegpt
+2026-03-20 09:06:10,214 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:06:12,249 INFO compress_v2:   warmup 10/30
+2026-03-20 09:06:14,259 INFO compress_v2:   warmup 20/30
+2026-03-20 09:06:16,198 INFO compress_v2:   warmup 30/30
+2026-03-20 09:06:16,198 INFO compress_v2: Warmup done. Table: 8373 bi
+2026-03-20 09:06:16,198 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:06:36,287 INFO compress_v2:   Test 5/30 baseline=2.01x seq=512
+2026-03-20 09:06:52,623 INFO compress_v2:   Test 10/30 baseline=2.08x seq=512
+2026-03-20 09:07:07,352 INFO compress_v2:   Test 15/30 baseline=2.29x seq=232
+2026-03-20 09:07:27,576 INFO compress_v2:   Test 20/30 baseline=2.03x seq=512
+2026-03-20 09:07:43,214 INFO compress_v2:   Test 25/30 baseline=2.13x seq=339
+2026-03-20 09:07:56,640 INFO compress_v2:   Test 30/30 baseline=2.04x seq=286
+2026-03-20 09:07:56,966 INFO compress_v2: ============================================================
+2026-03-20 09:07:56,966 INFO compress_v2: Dataset: gsm8k
+2026-03-20 09:07:57,205 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:07:58,801 INFO compress_v2:   warmup 10/30
+2026-03-20 09:07:59,918 INFO compress_v2:   warmup 20/30
+2026-03-20 09:08:00,842 INFO compress_v2:   warmup 30/30
+2026-03-20 09:08:00,842 INFO compress_v2: Warmup done. Table: 2082 bi
+2026-03-20 09:08:00,842 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:08:05,832 INFO compress_v2:   Test 5/30 baseline=2.93x seq=182
+2026-03-20 09:08:13,318 INFO compress_v2:   Test 10/30 baseline=2.61x seq=280
+2026-03-20 09:08:21,165 INFO compress_v2:   Test 15/30 baseline=2.49x seq=213
+2026-03-20 09:08:26,199 INFO compress_v2:   Test 20/30 baseline=2.38x seq=145
+2026-03-20 09:08:32,290 INFO compress_v2:   Test 25/30 baseline=2.62x seq=208
+2026-03-20 09:08:37,511 INFO compress_v2:   Test 30/30 baseline=2.39x seq=174
+2026-03-20 09:08:38,120 INFO compress_v2: ============================================================
+2026-03-20 09:08:38,120 INFO compress_v2: Dataset: cnn_dm
+2026-03-20 09:08:42,980 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:08:45,201 INFO compress_v2:   warmup 10/30
+2026-03-20 09:08:47,405 INFO compress_v2:   warmup 20/30
+2026-03-20 09:08:49,589 INFO compress_v2:   warmup 30/30
+2026-03-20 09:08:49,589 INFO compress_v2: Warmup done. Table: 10825 bi
+2026-03-20 09:08:49,589 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:09:09,678 INFO compress_v2:   Test 5/30 baseline=2.21x seq=512
+2026-03-20 09:09:29,953 INFO compress_v2:   Test 10/30 baseline=2.23x seq=512
+2026-03-20 09:09:49,695 INFO compress_v2:   Test 15/30 baseline=2.13x seq=512
+2026-03-20 09:10:08,706 INFO compress_v2:   Test 20/30 baseline=2.15x seq=512
+2026-03-20 09:10:28,376 INFO compress_v2:   Test 25/30 baseline=2.27x seq=512
+2026-03-20 09:10:45,014 INFO compress_v2:   Test 30/30 baseline=2.19x seq=512
+2026-03-20 09:10:45,658 INFO compress_v2: ============================================================
+2026-03-20 09:10:45,658 INFO compress_v2: Dataset: alpaca
+2026-03-20 09:10:46,498 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:10:47,849 INFO compress_v2:   warmup 10/30
+2026-03-20 09:10:49,036 INFO compress_v2:   warmup 20/30
+2026-03-20 09:10:50,156 INFO compress_v2:   warmup 30/30
+2026-03-20 09:10:50,156 INFO compress_v2: Warmup done. Table: 1801 bi
+2026-03-20 09:10:50,156 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:10:53,769 INFO compress_v2:   Test 5/30 baseline=2.03x seq=93
+2026-03-20 09:10:56,000 INFO compress_v2:   Test 10/30 baseline=1.94x seq=19
+2026-03-20 09:10:57,743 INFO compress_v2:   Test 15/30 baseline=2.12x seq=40
+2026-03-20 09:11:01,993 INFO compress_v2:   Test 20/30 baseline=2.14x seq=173
+2026-03-20 09:11:04,688 INFO compress_v2:   Test 25/30 baseline=1.99x seq=52
+2026-03-20 09:11:09,858 INFO compress_v2:   Test 30/30 baseline=2.02x seq=90
+2026-03-20 09:11:09,991 INFO compress_v2: ============================================================
+2026-03-20 09:11:09,991 INFO compress_v2: Dataset: triviaqa
+2026-03-20 09:11:14,346 INFO compress_v2: Warmup: 30 requests...
+2026-03-20 09:11:16,464 INFO compress_v2:   warmup 10/30
+2026-03-20 09:11:18,498 INFO compress_v2:   warmup 20/30
+2026-03-20 09:11:20,837 INFO compress_v2:   warmup 30/30
+2026-03-20 09:11:20,837 INFO compress_v2: Warmup done. Table: 10421 bi
+2026-03-20 09:11:20,837 INFO compress_v2: Test: 30 requests...
+2026-03-20 09:11:37,158 INFO compress_v2:   Test 5/30 baseline=2.25x seq=512
+2026-03-20 09:11:56,976 INFO compress_v2:   Test 10/30 baseline=2.28x seq=512
+2026-03-20 09:12:12,822 INFO compress_v2:   Test 15/30 baseline=2.30x seq=512
+2026-03-20 09:12:24,765 INFO compress_v2:   Test 20/30 baseline=2.34x seq=15
+2026-03-20 09:12:44,588 INFO compress_v2:   Test 25/30 baseline=2.16x seq=512
+2026-03-20 09:13:04,346 INFO compress_v2:   Test 30/30 baseline=2.14x seq=512
+2026-03-20 09:13:04,616 INFO compress_v2: Saved 1980 records
+2026-03-20 09:13:04,740 INFO compress_v2: Done!
+
+================================================================================
+ROUND 2: REFINED COMPRESSION STRATEGIES
+================================================================================
+
+Strategy                     Ratio  vs Base   Cos Mean    Cos Min
+-----------------------------------------------------------------
+prev_int2_k4               4.567x  +105.3%   0.954177   0.027531
+ultra_compress             4.255x   +91.3%   0.963250   0.028488
+prev_int2_k8               3.971x   +78.5%   0.965285   0.027531
+prev_gs256                 3.621x   +62.8%   0.979633   0.027531
+prev_int4_k1               3.552x   +59.7%   0.980305   0.027531
+best_sparse                3.459x   +55.5%   0.981436   0.027531
+best_combined              3.454x   +55.2%   0.981436   0.027531
+prev_int4_k2               3.454x   +55.2%   0.981436   0.027531
+mean_pool                  3.454x   +55.2%   0.981527   0.027531
+prev_int4_k4               3.273x   +47.1%   0.982235   0.027531
+baseline                   2.225x    +0.0%   0.983473   0.027531
+
+
+Per-Dataset:
+
+--- wikitext2 ---
+  prev_int2_k4                 4.523x  cos=0.946661
+  ultra_compress               4.256x  cos=0.955471
+  prev_int2_k8                 3.933x  cos=0.957842
+  prev_gs256                   3.587x  cos=0.973111
+  prev_int4_k1                 3.519x  cos=0.973769
+  best_sparse                  3.449x  cos=0.974896
+  best_combined                3.421x  cos=0.974896
+  prev_int4_k2                 3.421x  cos=0.974896
+  mean_pool                    3.421x  cos=0.974927
+  prev_int4_k4                 3.242x  cos=0.975694
+  baseline                     2.205x  cos=0.976981
+
+--- sharegpt ---
+  prev_int2_k4                 4.686x  cos=0.932812
+  ultra_compress               4.257x  cos=0.943203
+  prev_int2_k8                 4.001x  cos=0.944889
+  prev_gs256                   3.608x  cos=0.959989
+  prev_int4_k1                 3.532x  cos=0.960740
+  best_combined                3.423x  cos=0.961964
+  mean_pool                    3.423x  cos=0.962084
+  prev_int4_k2                 3.423x  cos=0.961964
+  best_sparse                  3.422x  cos=0.961964
+  prev_int4_k4                 3.224x  cos=0.962836
+  baseline                     2.119x  cos=0.964156
+
+--- gsm8k ---
+  ultra_compress               4.252x  cos=0.980116
+  prev_int2_k4                 4.166x  cos=0.975778
+  prev_int2_k8                 3.835x  cos=0.982842
+  prev_gs256                   3.620x  cos=0.991252
+  prev_int4_k1                 3.575x  cos=0.991667
+  best_combined                3.511x  cos=0.992379
+  mean_pool                    3.511x  cos=0.992470
+  prev_int4_k2                 3.511x  cos=0.992379
+  best_sparse                  3.508x  cos=0.992379
+  prev_int4_k4                 3.388x  cos=0.992887
+  baseline                     2.574x  cos=0.993637
+
+--- cnn_dm ---
+  prev_int2_k4                 4.658x  cos=0.966231
+  ultra_compress               4.255x  cos=0.976290
+  prev_int2_k8                 4.032x  cos=0.978266
+  prev_gs256                   3.664x  cos=0.993548
+  prev_int4_k1                 3.591x  cos=0.994282
+  best_sparse                  3.491x  cos=0.995527
+  best_combined                3.487x  cos=0.995527
+  prev_int4_k2                 3.487x  cos=0.995527
+  mean_pool                    3.487x  cos=0.995642
+  prev_int4_k4                 3.296x  cos=0.996403
+  baseline                     2.197x  cos=0.997736
+
+--- alpaca ---
+  prev_int2_k4                 4.774x  cos=0.945067
+  ultra_compress               4.257x  cos=0.956600
+  prev_int2_k8                 4.033x  cos=0.957824
+  prev_gs256                   3.613x  cos=0.974491
+  prev_int4_k1                 3.531x  cos=0.975249
+  best_sparse                  3.423x  cos=0.976555
+  best_combined                3.416x  cos=0.976555
+  prev_int4_k2                 3.416x  cos=0.976555
+  mean_pool                    3.416x  cos=0.976671
+  prev_int4_k4                 3.206x  cos=0.977468
+  baseline                     2.054x  cos=0.978895
+
+--- triviaqa ---
+  prev_int2_k4                 4.598x  cos=0.958514
+  ultra_compress               4.256x  cos=0.967822
+  prev_int2_k8                 3.994x  cos=0.970049
+  prev_gs256                   3.637x  cos=0.985409
+  prev_int4_k1                 3.566x  cos=0.986124
+  best_combined                3.465x  cos=0.987294
+  mean_pool                    3.465x  cos=0.987366
+  prev_int4_k2                 3.465x  cos=0.987294
+  best_sparse                  3.464x  cos=0.987294
+  prev_int4_k4                 3.279x  cos=0.988125
+  baseline                     2.201x  cos=0.989435
+
+
+Per-Tier Quality (Position-level):
+
+  --- trigram ---
+    ultra_compress            bytes=   2412  cos=0.994116  cos_min=0.970583
+    baseline                  bytes=   2852  cos=0.999395  cos_min=0.996253
+    mean_pool                 bytes=   2852  cos=0.999395  cos_min=0.996253
+    best_combined             bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_int2_k8              bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_int2_k4              bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_int4_k1              bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_gs256                bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_int4_k4              bytes=   2852  cos=0.999395  cos_min=0.996253
+    prev_int4_k2              bytes=   2852  cos=0.999395  cos_min=0.996253
+    best_sparse               bytes=   2857  cos=0.999395  cos_min=0.996255
+
+  --- bigram ---
+    ultra_compress            bytes=   2412  cos=0.991062  cos_min=0.964287
+    best_sparse               bytes=   2848  cos=0.999035  cos_min=0.995895
+    best_combined             bytes=   2852  cos=0.999035  cos_min=0.995895
+    baseline                  bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_gs256                bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_int2_k4              bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_int2_k8              bytes=   2852  cos=0.999035  cos_min=0.995895
+    mean_pool                 bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_int4_k1              bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_int4_k2              bytes=   2852  cos=0.999035  cos_min=0.995895
+    prev_int4_k4              bytes=   2852  cos=0.999035  cos_min=0.995895
+
+  --- unigram ---
+    prev_int2_k4              bytes=   1939  cos=0.953622  cos_min=0.020659
+    ultra_compress            bytes=   2404  cos=0.969769  cos_min=0.021193
+    prev_int2_k8              bytes=   2417  cos=0.969764  cos_min=0.020659
+    prev_gs256                bytes=   2776  cos=0.990134  cos_min=0.020659
+    prev_int4_k1              bytes=   2855  cos=0.991121  cos_min=0.020659
+    best_sparse               bytes=   2975  cos=0.992789  cos_min=0.020659
+    best_combined             bytes=   2975  cos=0.992789  cos_min=0.020659
+    mean_pool                 bytes=   2975  cos=0.992927  cos_min=0.020659
+    prev_int4_k2              bytes=   2975  cos=0.992789  cos_min=0.020659
+    prev_int4_k4              bytes=   3214  cos=0.993962  cos_min=0.020659
+    baseline                  bytes=   5400  cos=0.995738  cos_min=0.020659

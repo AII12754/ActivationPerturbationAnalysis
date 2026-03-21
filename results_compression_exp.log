@@ -1,0 +1,211 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-20 08:46:06,913 INFO compress_exp: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:14<03:55, 14.71s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:23<02:50, 11.40s/it]Loading checkpoint shards:  18%|█▊        | 3/17 [00:32<02:23, 10.25s/it]Loading checkpoint shards:  24%|██▎       | 4/17 [00:41<02:06,  9.76s/it]Loading checkpoint shards:  29%|██▉       | 5/17 [00:50<01:54,  9.52s/it]Loading checkpoint shards:  35%|███▌      | 6/17 [00:59<01:42,  9.31s/it]Loading checkpoint shards:  41%|████      | 7/17 [01:15<01:53, 11.39s/it]Loading checkpoint shards:  47%|████▋     | 8/17 [01:24<01:35, 10.60s/it]Loading checkpoint shards:  53%|█████▎    | 9/17 [01:33<01:20, 10.07s/it]Loading checkpoint shards:  59%|█████▉    | 10/17 [01:42<01:07,  9.71s/it]Loading checkpoint shards:  65%|██████▍   | 11/17 [01:50<00:56,  9.46s/it]Loading checkpoint shards:  71%|███████   | 12/17 [01:59<00:46,  9.29s/it]Loading checkpoint shards:  76%|███████▋  | 13/17 [02:08<00:36,  9.23s/it]Loading checkpoint shards:  82%|████████▏ | 14/17 [02:23<00:32, 10.96s/it]Loading checkpoint shards:  88%|████████▊ | 15/17 [02:36<00:22, 11.41s/it]Loading checkpoint shards:  94%|█████████▍| 16/17 [02:47<00:11, 11.40s/it]Loading checkpoint shards: 100%|██████████| 17/17 [02:57<00:00, 10.99s/it]Loading checkpoint shards: 100%|██████████| 17/17 [02:57<00:00, 10.46s/it]
+2026-03-20 08:49:08,539 INFO compress_exp: Model loaded. hidden_dim=5120
+2026-03-20 08:49:09,172 INFO compress_exp: Datasets: ['wikitext2', 'sharegpt', 'gsm8k', 'cnn_dm', 'alpaca', 'triviaqa']
+2026-03-20 08:49:09,172 INFO compress_exp: ============================================================
+2026-03-20 08:49:09,173 INFO compress_exp: Dataset: wikitext2
+2026-03-20 08:49:09,173 INFO compress_exp: ============================================================
+2026-03-20 08:49:09,660 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:49:10,887 INFO compress_exp:   warmup 10/30  table: 0 tri, 815 bi
+2026-03-20 08:49:12,098 INFO compress_exp:   warmup 20/30  table: 0 tri, 2068 bi
+2026-03-20 08:49:12,952 INFO compress_exp:   warmup 30/30  table: 0 tri, 2796 bi
+2026-03-20 08:49:12,952 INFO compress_exp: Warmup done. Table: 0 tri, 2796 bi
+2026-03-20 08:49:12,952 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:49:19,636 INFO compress_exp:   Test 5/30  baseline_ratio=2.18x  seq_len=11
+2026-03-20 08:49:19,707 INFO compress_exp:   Training linear predictor with 215 pairs...
+2026-03-20 08:49:24,277 INFO compress_exp:   Test 10/30  baseline_ratio=2.43x  seq_len=163
+2026-03-20 08:49:29,909 INFO compress_exp:   Test 15/30  baseline_ratio=2.05x  seq_len=84
+2026-03-20 08:49:32,980 INFO compress_exp:   Test 20/30  baseline_ratio=2.65x  seq_len=15
+2026-03-20 08:49:36,872 INFO compress_exp:   Test 25/30  baseline_ratio=2.52x  seq_len=93
+2026-03-20 08:49:44,125 INFO compress_exp:   Test 30/30  baseline_ratio=2.18x  seq_len=103
+2026-03-20 08:49:44,855 INFO compress_exp: ============================================================
+2026-03-20 08:49:44,856 INFO compress_exp: Dataset: sharegpt
+2026-03-20 08:49:44,856 INFO compress_exp: ============================================================
+2026-03-20 08:49:49,377 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:49:51,416 INFO compress_exp:   warmup 10/30  table: 0 tri, 3043 bi
+2026-03-20 08:49:53,405 INFO compress_exp:   warmup 20/30  table: 0 tri, 5817 bi
+2026-03-20 08:49:55,326 INFO compress_exp:   warmup 30/30  table: 0 tri, 8373 bi
+2026-03-20 08:49:55,327 INFO compress_exp: Warmup done. Table: 0 tri, 8373 bi
+2026-03-20 08:49:55,327 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:50:13,400 INFO compress_exp:   Test 5/30  baseline_ratio=2.01x  seq_len=512
+2026-03-20 08:50:13,514 INFO compress_exp:   Training linear predictor with 426 pairs...
+2026-03-20 08:50:29,730 INFO compress_exp:   Test 10/30  baseline_ratio=2.08x  seq_len=512
+2026-03-20 08:50:44,748 INFO compress_exp:   Test 15/30  baseline_ratio=2.29x  seq_len=232
+2026-03-20 08:51:04,429 INFO compress_exp:   Test 20/30  baseline_ratio=2.03x  seq_len=512
+2026-03-20 08:51:19,111 INFO compress_exp:   Test 25/30  baseline_ratio=2.13x  seq_len=339
+2026-03-20 08:51:32,999 INFO compress_exp:   Test 30/30  baseline_ratio=2.04x  seq_len=286
+2026-03-20 08:51:33,265 INFO compress_exp: ============================================================
+2026-03-20 08:51:33,265 INFO compress_exp: Dataset: gsm8k
+2026-03-20 08:51:33,265 INFO compress_exp: ============================================================
+2026-03-20 08:51:33,342 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:51:34,632 INFO compress_exp:   warmup 10/30  table: 0 tri, 739 bi
+2026-03-20 08:51:35,736 INFO compress_exp:   warmup 20/30  table: 0 tri, 1441 bi
+2026-03-20 08:51:36,647 INFO compress_exp:   warmup 30/30  table: 0 tri, 2082 bi
+2026-03-20 08:51:36,648 INFO compress_exp: Warmup done. Table: 0 tri, 2082 bi
+2026-03-20 08:51:36,648 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:51:42,596 INFO compress_exp:   Test 5/30  baseline_ratio=2.93x  seq_len=182
+2026-03-20 08:51:42,695 INFO compress_exp:   Training linear predictor with 421 pairs...
+2026-03-20 08:51:52,361 INFO compress_exp:   Test 10/30  baseline_ratio=2.61x  seq_len=280
+2026-03-20 08:52:02,316 INFO compress_exp:   Test 15/30  baseline_ratio=2.49x  seq_len=213
+2026-03-20 08:52:08,439 INFO compress_exp:   Test 20/30  baseline_ratio=2.38x  seq_len=145
+2026-03-20 08:52:16,208 INFO compress_exp:   Test 25/30  baseline_ratio=2.62x  seq_len=208
+2026-03-20 08:52:22,571 INFO compress_exp:   Test 30/30  baseline_ratio=2.39x  seq_len=174
+2026-03-20 08:52:23,484 INFO compress_exp: ============================================================
+2026-03-20 08:52:23,484 INFO compress_exp: Dataset: cnn_dm
+2026-03-20 08:52:23,484 INFO compress_exp: ============================================================
+2026-03-20 08:52:29,157 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:52:31,330 INFO compress_exp:   warmup 10/30  table: 0 tri, 3974 bi
+2026-03-20 08:52:33,517 INFO compress_exp:   warmup 20/30  table: 0 tri, 7588 bi
+2026-03-20 08:52:35,695 INFO compress_exp:   warmup 30/30  table: 0 tri, 10825 bi
+2026-03-20 08:52:35,695 INFO compress_exp: Warmup done. Table: 0 tri, 10825 bi
+2026-03-20 08:52:35,696 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:52:54,269 INFO compress_exp:   Test 5/30  baseline_ratio=2.21x  seq_len=512
+2026-03-20 08:52:54,492 INFO compress_exp:   Training linear predictor with 724 pairs...
+2026-03-20 08:53:14,114 INFO compress_exp:   Test 10/30  baseline_ratio=2.23x  seq_len=512
+2026-03-20 08:53:33,434 INFO compress_exp:   Test 15/30  baseline_ratio=2.13x  seq_len=512
+2026-03-20 08:53:52,690 INFO compress_exp:   Test 20/30  baseline_ratio=2.15x  seq_len=512
+2026-03-20 08:54:13,420 INFO compress_exp:   Test 25/30  baseline_ratio=2.27x  seq_len=512
+2026-03-20 08:54:31,073 INFO compress_exp:   Test 30/30  baseline_ratio=2.19x  seq_len=512
+2026-03-20 08:54:31,536 INFO compress_exp: ============================================================
+2026-03-20 08:54:31,536 INFO compress_exp: Dataset: alpaca
+2026-03-20 08:54:31,536 INFO compress_exp: ============================================================
+2026-03-20 08:54:32,616 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:54:33,747 INFO compress_exp:   warmup 10/30  table: 0 tri, 553 bi
+2026-03-20 08:54:35,030 INFO compress_exp:   warmup 20/30  table: 0 tri, 1222 bi
+2026-03-20 08:54:36,027 INFO compress_exp:   warmup 30/30  table: 0 tri, 1801 bi
+2026-03-20 08:54:36,027 INFO compress_exp: Warmup done. Table: 0 tri, 1801 bi
+2026-03-20 08:54:36,028 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:54:39,150 INFO compress_exp:   Test 5/30  baseline_ratio=2.03x  seq_len=93
+2026-03-20 08:54:39,444 INFO compress_exp:   Training linear predictor with 63 pairs...
+2026-03-20 08:54:41,497 INFO compress_exp:   Test 10/30  baseline_ratio=1.94x  seq_len=19
+2026-03-20 08:54:43,148 INFO compress_exp:   Test 15/30  baseline_ratio=2.12x  seq_len=40
+2026-03-20 08:54:47,188 INFO compress_exp:   Test 20/30  baseline_ratio=2.14x  seq_len=173
+2026-03-20 08:54:49,160 INFO compress_exp:   Test 25/30  baseline_ratio=1.99x  seq_len=52
+2026-03-20 08:54:53,827 INFO compress_exp:   Test 30/30  baseline_ratio=2.02x  seq_len=90
+2026-03-20 08:54:53,987 INFO compress_exp: ============================================================
+2026-03-20 08:54:53,987 INFO compress_exp: Dataset: triviaqa
+2026-03-20 08:54:53,987 INFO compress_exp: ============================================================
+2026-03-20 08:55:01,044 INFO compress_exp: Warmup: 30 requests...
+2026-03-20 08:55:03,128 INFO compress_exp:   warmup 10/30  table: 0 tri, 3672 bi
+2026-03-20 08:55:05,146 INFO compress_exp:   warmup 20/30  table: 0 tri, 6873 bi
+2026-03-20 08:55:07,428 INFO compress_exp:   warmup 30/30  table: 0 tri, 10421 bi
+2026-03-20 08:55:07,428 INFO compress_exp: Warmup done. Table: 0 tri, 10421 bi
+2026-03-20 08:55:07,428 INFO compress_exp: Test: 30 requests...
+2026-03-20 08:55:22,619 INFO compress_exp:   Test 5/30  baseline_ratio=2.25x  seq_len=512
+2026-03-20 08:55:22,836 INFO compress_exp:   Training linear predictor with 554 pairs...
+2026-03-20 08:55:42,692 INFO compress_exp:   Test 10/30  baseline_ratio=2.28x  seq_len=512
+2026-03-20 08:55:59,096 INFO compress_exp:   Test 15/30  baseline_ratio=2.30x  seq_len=512
+2026-03-20 08:56:11,513 INFO compress_exp:   Test 20/30  baseline_ratio=2.34x  seq_len=15
+2026-03-20 08:56:31,667 INFO compress_exp:   Test 25/30  baseline_ratio=2.16x  seq_len=512
+2026-03-20 08:56:51,858 INFO compress_exp:   Test 30/30  baseline_ratio=2.14x  seq_len=512
+2026-03-20 08:56:52,082 INFO compress_exp: Saved 2130 records to results_compression_exp/compression_strategies.parquet
+2026-03-20 08:56:52,107 INFO compress_exp: Done!
+
+================================================================================
+COMPRESSION STRATEGY COMPARISON
+================================================================================
+
+Strategy                   Compression  Cosine Mean   Cosine Min
+-----------------------------------------------------------------
+combined                       3.736x     0.994636     0.897129
+sparse_prev                    3.560x     0.997260     0.991703
+prev_token                     3.552x     0.997277     0.993488
+unigram_int4_k4                3.309x     0.716527     0.028207
+unigram_int4_k8                2.988x     0.861401     0.700137
+int2_topk4                     2.387x     0.995793     0.945697
+int2_topk8                     2.298x     0.997348     0.969479
+adaptive_bw                    2.286x     0.998691     0.966104
+sparse_010                     2.229x     0.999578     0.992019
+sparse_005                     2.229x     0.999594     0.993803
+linear_pred                    2.229x     0.999565     0.993842
+baseline                       2.225x     0.999596     0.993804
+
+
+Per-Dataset Breakdown:
+
+--- wikitext2 ---
+  combined                     3.783x  cos=0.993462
+  sparse_prev                  3.556x  cos=0.997183
+  prev_token                   3.519x  cos=0.997220
+  unigram_int4_k4              3.303x  cos=0.719525
+  unigram_int4_k8              2.977x  cos=0.861045
+  int2_topk4                   2.352x  cos=0.995312
+  int2_topk8                   2.272x  cos=0.996980
+  adaptive_bw                  2.267x  cos=0.998227
+  sparse_010                   2.227x  cos=0.999512
+  sparse_005                   2.226x  cos=0.999539
+  baseline                     2.205x  cos=0.999549
+  linear_pred                  2.201x  cos=0.999326
+
+--- sharegpt ---
+  combined                     3.643x  cos=0.992824
+  prev_token                   3.532x  cos=0.997091
+  sparse_prev                  3.532x  cos=0.997077
+  unigram_int4_k4              3.278x  cos=0.664752
+  unigram_int4_k8              2.928x  cos=0.841701
+  int2_topk4                   2.216x  cos=0.996414
+  int2_topk8                   2.164x  cos=0.997790
+  adaptive_bw                  2.141x  cos=0.999143
+  linear_pred                  2.132x  cos=0.999638
+  baseline                     2.119x  cos=0.999626
+  sparse_010                   2.119x  cos=0.999612
+  sparse_005                   2.119x  cos=0.999626
+
+--- gsm8k ---
+  combined                     3.985x  cos=0.995474
+  prev_token                   3.575x  cos=0.997999
+  sparse_prev                  3.574x  cos=0.997976
+  unigram_int4_k4              3.406x  cos=0.808602
+  unigram_int4_k8              3.180x  cos=0.910246
+  int2_topk4                   2.962x  cos=0.994470
+  adaptive_bw                  2.776x  cos=0.997636
+  int2_topk8                   2.745x  cos=0.996501
+  baseline                     2.574x  cos=0.999496
+  sparse_010                   2.573x  cos=0.999473
+  sparse_005                   2.573x  cos=0.999496
+  linear_pred                  2.571x  cos=0.999508
+
+--- cnn_dm ---
+  combined                     3.689x  cos=0.996238
+  sparse_prev                  3.595x  cos=0.997152
+  prev_token                   3.591x  cos=0.997161
+  unigram_int4_k4              3.304x  cos=0.725448
+  unigram_int4_k8              2.976x  cos=0.860014
+  int2_topk4                   2.331x  cos=0.995693
+  int2_topk8                   2.259x  cos=0.997333
+  adaptive_bw                  2.230x  cos=0.998888
+  linear_pred                  2.199x  cos=0.999595
+  sparse_010                   2.198x  cos=0.999569
+  sparse_005                   2.198x  cos=0.999578
+  baseline                     2.197x  cos=0.999578
+
+--- alpaca ---
+  combined                     3.621x  cos=0.994552
+  sparse_prev                  3.540x  cos=0.996963
+  prev_token                   3.531x  cos=0.996976
+  unigram_int4_k4              3.257x  cos=0.652039
+  unigram_int4_k8              2.888x  cos=0.834175
+  int2_topk4                   2.119x  cos=0.997385
+  int2_topk8                   2.085x  cos=0.998369
+  adaptive_bw                  2.062x  cos=0.999538
+  linear_pred                  2.059x  cos=0.999728
+  sparse_010                   2.057x  cos=0.999730
+  sparse_005                   2.057x  cos=0.999743
+  baseline                     2.054x  cos=0.999743
+
+--- triviaqa ---
+  combined                     3.696x  cos=0.995264
+  prev_token                   3.566x  cos=0.997217
+  sparse_prev                  3.566x  cos=0.997209
+  unigram_int4_k4              3.305x  cos=0.728797
+  unigram_int4_k8              2.978x  cos=0.861227
+  int2_topk4                   2.340x  cos=0.995483
+  int2_topk8                   2.265x  cos=0.997116
+  adaptive_bw                  2.241x  cos=0.998714
+  linear_pred                  2.211x  cos=0.999593
+  baseline                     2.201x  cos=0.999582
+  sparse_010                   2.201x  cos=0.999574
+  sparse_005                   2.201x  cos=0.999582
