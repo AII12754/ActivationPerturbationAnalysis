@@ -1,0 +1,54 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 11:02:21,721 INFO compress_comprehensive: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:01<00:21,  1.36s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:02<00:14,  1.01it/s]Loading checkpoint shards:  18%|█▊        | 3/17 [00:02<00:11,  1.19it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:03<00:10,  1.28it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:04<00:08,  1.33it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.39it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:05<00:07,  1.43it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:06<00:06,  1.37it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:07<00:05,  1.35it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:05,  1.33it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:08<00:04,  1.33it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:09<00:03,  1.32it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:10<00:03,  1.32it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:10<00:02,  1.32it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:11<00:01,  1.33it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:12<00:00,  1.23it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:13<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:13<00:00,  1.30it/s]
+2026-03-21 11:02:38,141 INFO compress_comprehensive: ============================================================
+2026-03-21 11:02:38,142 INFO compress_comprehensive: Dataset: wikitext2
+2026-03-21 11:02:38,432 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:02:41,870 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:02:55,478 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:03:09,031 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:03:27,857 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:03:40,167 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:03:40,531 INFO compress_comprehensive: ============================================================
+2026-03-21 11:03:40,531 INFO compress_comprehensive: Dataset: sharegpt
+2026-03-21 11:03:44,146 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:03:47,787 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:04:36,559 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:05:11,715 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:05:54,395 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:06:33,156 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:06:33,301 INFO compress_comprehensive: ============================================================
+2026-03-21 11:06:33,301 INFO compress_comprehensive: Dataset: gsm8k
+2026-03-21 11:06:33,363 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:06:36,061 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:06:57,835 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:07:14,825 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:07:31,207 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:07:56,144 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:07:56,710 INFO compress_comprehensive: ============================================================
+2026-03-21 11:07:56,710 INFO compress_comprehensive: Dataset: cnn_dm
+2026-03-21 11:07:58,396 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:08:01,785 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:08:54,071 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:09:37,796 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:10:21,294 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:11:04,514 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:11:04,888 INFO compress_comprehensive: ============================================================
+2026-03-21 11:11:04,888 INFO compress_comprehensive: Dataset: alpaca
+2026-03-21 11:11:05,529 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:11:07,879 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:11:18,234 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:11:29,450 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:11:39,491 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:11:45,598 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:11:45,802 INFO compress_comprehensive: ============================================================
+2026-03-21 11:11:45,807 INFO compress_comprehensive: Dataset: triviaqa
+2026-03-21 11:11:48,454 INFO compress_comprehensive: Warmup: 20 requests...
+2026-03-21 11:11:51,704 INFO compress_comprehensive: Test: 20 requests...
+2026-03-21 11:12:45,543 INFO compress_comprehensive:   Test 5/20 complete
+2026-03-21 11:13:29,414 INFO compress_comprehensive:   Test 10/20 complete
+2026-03-21 11:14:05,888 INFO compress_comprehensive:   Test 15/20 complete
+2026-03-21 11:14:50,495 INFO compress_comprehensive:   Test 20/20 complete
+2026-03-21 11:14:51,273 INFO compress_comprehensive: Saved 2640 request records, 396 drift records, 61930 position records
