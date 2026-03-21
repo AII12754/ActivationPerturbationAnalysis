@@ -1,0 +1,95 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 06:40:51,495 INFO compress_v3: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:05<01:29,  5.58s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:06<00:41,  2.79s/it]Loading checkpoint shards:  18%|█▊        | 3/17 [00:07<00:25,  1.81s/it]Loading checkpoint shards:  24%|██▎       | 4/17 [00:07<00:17,  1.37s/it]Loading checkpoint shards:  29%|██▉       | 5/17 [00:08<00:13,  1.14s/it]Loading checkpoint shards:  35%|███▌      | 6/17 [00:09<00:10,  1.00it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:09<00:08,  1.11it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:10<00:07,  1.17it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:11<00:06,  1.22it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:12<00:05,  1.26it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:12<00:04,  1.30it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:13<00:03,  1.33it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:14<00:02,  1.36it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:15<00:02,  1.36it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:15<00:01,  1.38it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:16<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:17<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:17<00:00,  1.01s/it]
+2026-03-21 06:41:12,285 INFO compress_v3: Model loaded. hidden_dim=5120
+2026-03-21 06:41:12,286 INFO compress_v3: ============================================================
+2026-03-21 06:41:12,286 INFO compress_v3: Dataset: wikitext2
+2026-03-21 06:41:12,724 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:41:17,392 INFO compress_v3: Warmup done. Table: 2796 bi
+2026-03-21 06:41:17,392 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:41:25,354 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:41:30,067 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:41:36,119 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:41:39,279 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:41:43,277 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:41:50,438 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:41:51,525 INFO compress_v3: ============================================================
+2026-03-21 06:41:51,526 INFO compress_v3: Dataset: sharegpt
+2026-03-21 06:41:56,203 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:42:02,151 INFO compress_v3: Warmup done. Table: 8373 bi
+2026-03-21 06:42:02,152 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:42:22,392 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:42:39,211 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:42:54,612 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:43:14,839 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:43:30,069 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:43:44,402 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:43:44,660 INFO compress_v3: ============================================================
+2026-03-21 06:43:44,660 INFO compress_v3: Dataset: gsm8k
+2026-03-21 06:43:44,743 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:43:48,555 INFO compress_v3: Warmup done. Table: 2082 bi
+2026-03-21 06:43:48,556 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:43:54,949 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:44:04,537 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:44:14,441 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:44:20,596 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:44:28,560 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:44:34,918 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:44:35,841 INFO compress_v3: ============================================================
+2026-03-21 06:44:35,841 INFO compress_v3: Dataset: cnn_dm
+2026-03-21 06:44:37,790 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:44:44,314 INFO compress_v3: Warmup done. Table: 10825 bi
+2026-03-21 06:44:44,314 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:45:05,134 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:45:25,852 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:45:45,979 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:46:05,872 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:46:26,707 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:46:44,539 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:46:45,266 INFO compress_v3: ============================================================
+2026-03-21 06:46:45,266 INFO compress_v3: Dataset: alpaca
+2026-03-21 06:46:45,924 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:46:49,420 INFO compress_v3: Warmup done. Table: 1801 bi
+2026-03-21 06:46:49,420 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:46:52,904 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:46:55,203 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:46:56,910 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:47:01,113 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:47:03,151 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:47:08,050 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:47:08,179 INFO compress_v3: ============================================================
+2026-03-21 06:47:08,179 INFO compress_v3: Dataset: triviaqa
+2026-03-21 06:47:10,686 INFO compress_v3: Warmup: 30 requests...
+2026-03-21 06:47:17,104 INFO compress_v3: Warmup done. Table: 10421 bi
+2026-03-21 06:47:17,104 INFO compress_v3: Test: 30 requests...
+2026-03-21 06:47:33,934 INFO compress_v3:   Test 5/30 complete
+2026-03-21 06:47:54,591 INFO compress_v3:   Test 10/30 complete
+2026-03-21 06:48:11,474 INFO compress_v3:   Test 15/30 complete
+2026-03-21 06:48:24,422 INFO compress_v3:   Test 20/30 complete
+2026-03-21 06:48:45,339 INFO compress_v3:   Test 25/30 complete
+2026-03-21 06:49:06,145 INFO compress_v3:   Test 30/30 complete
+2026-03-21 06:49:06,565 INFO compress_v3: Saved 2700 request records
+
+==========================================================================================
+ROUND 3: RAW REFERENCE / SPARSE DELTA EXPERIMENTS
+==========================================================================================
+
+Strategy                  Ratio       Cos    RawCos    AffCos  EnergyRed   Active
+------------------------------------------------------------------------------------------
+prev_gs256_k2            5.528x  0.994496  0.501003  0.501165     0.2854    136.0
+ema_prev4_int4_k2        5.166x  0.997240  0.562453  0.562593     0.1436    155.6
+prev2_blend_int4_k2      5.121x  0.997257  0.504087  0.562118     0.3294    211.2
+prev_int4_k2             3.454x  0.997702  0.623445  0.623564     0.2203    127.1
+hybrid_sparse_prev       3.415x  0.997280  0.550095  0.550238     0.2525    127.1
+delta_top8_groups        2.699x  0.981886  0.892488  0.892506     0.0725   3588.3
+delta_top16_groups       2.553x  0.987338  0.892488  0.892506     0.0725   3590.7
+delta_top512_ch          2.362x  0.988950  0.892488  0.892506     0.0725   3739.3
+delta_int2_top8          2.298x  0.997685  0.892488  0.892506     0.0725   5120.0
+delta_sparse_thr_20      2.231x  0.999239  0.892488  0.892506     0.0725   3597.7
+delta_sparse_thr_10      2.227x  0.999512  0.892488  0.892506     0.0725   3597.8
+delta_sparse_thr_05      2.226x  0.999578  0.892488  0.892506     0.0725   3597.8
+baseline                 2.225x  0.999740  0.892488  0.892506     0.0725   3597.9
+delta_struct2of8         2.079x  0.993504  0.892488  0.892506     0.0725   3969.4
+delta_top1024_ch         2.046x  0.993281  0.892488  0.892506     0.0725   3892.7
