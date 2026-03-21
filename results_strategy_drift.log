@@ -1,0 +1,54 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 10:18:59,653 INFO strategy_drift: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:00<00:14,  1.13it/s]Loading checkpoint shards:  12%|█▏        | 2/17 [00:01<00:12,  1.24it/s]Loading checkpoint shards:  18%|█▊        | 3/17 [00:02<00:10,  1.38it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:02<00:09,  1.43it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:03<00:08,  1.41it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.42it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:05<00:06,  1.45it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:05<00:06,  1.43it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:06<00:05,  1.43it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:04,  1.44it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:07<00:04,  1.45it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:08<00:03,  1.47it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:09<00:02,  1.50it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:09<00:02,  1.48it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:10<00:01,  1.49it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:11<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.57it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.46it/s]
+2026-03-21 10:19:14,187 INFO strategy_drift: ============================================================
+2026-03-21 10:19:14,188 INFO strategy_drift: Dataset: wikitext2
+2026-03-21 10:19:14,472 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:19:18,312 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:19:27,795 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:19:37,631 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:19:50,931 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:19:59,380 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:19:59,947 INFO strategy_drift: ============================================================
+2026-03-21 10:19:59,948 INFO strategy_drift: Dataset: sharegpt
+2026-03-21 10:20:03,397 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:20:07,242 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:20:40,199 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:21:05,274 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:21:36,279 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:22:04,082 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:22:04,566 INFO strategy_drift: ============================================================
+2026-03-21 10:22:04,566 INFO strategy_drift: Dataset: gsm8k
+2026-03-21 10:22:04,626 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:22:07,801 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:22:21,625 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:22:32,948 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:22:43,547 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:22:59,542 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:23:00,380 INFO strategy_drift: ============================================================
+2026-03-21 10:23:00,380 INFO strategy_drift: Dataset: cnn_dm
+2026-03-21 10:23:02,051 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:23:05,446 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:23:40,434 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:24:10,538 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:24:40,735 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:25:11,938 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:25:12,752 INFO strategy_drift: ============================================================
+2026-03-21 10:25:12,752 INFO strategy_drift: Dataset: alpaca
+2026-03-21 10:25:13,415 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:25:16,043 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:25:23,112 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:25:31,500 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:25:39,007 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:25:44,405 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:25:44,730 INFO strategy_drift: ============================================================
+2026-03-21 10:25:44,734 INFO strategy_drift: Dataset: triviaqa
+2026-03-21 10:25:47,176 INFO strategy_drift: Warmup: 20 requests...
+2026-03-21 10:25:50,395 INFO strategy_drift: Test: 20 requests...
+2026-03-21 10:26:25,787 INFO strategy_drift:   Test 5/20 complete
+2026-03-21 10:26:56,306 INFO strategy_drift:   Test 10/20 complete
+2026-03-21 10:27:21,668 INFO strategy_drift:   Test 15/20 complete
+2026-03-21 10:27:51,664 INFO strategy_drift:   Test 20/20 complete
+2026-03-21 10:27:52,147 INFO strategy_drift: Saved 1440 request records and 216 drift records

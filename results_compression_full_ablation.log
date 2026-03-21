@@ -1,0 +1,127 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 08:09:50,376 INFO compress_full_ablation: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:01<00:29,  1.86s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:02<00:17,  1.15s/it]Loading checkpoint shards:  18%|█▊        | 3/17 [00:03<00:12,  1.09it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:03<00:10,  1.25it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:04<00:08,  1.36it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.46it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:05<00:06,  1.54it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:06<00:06,  1.44it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:07<00:05,  1.42it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:05,  1.37it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:08<00:04,  1.35it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:09<00:03,  1.35it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:10<00:02,  1.36it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:10<00:02,  1.35it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:11<00:01,  1.35it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:12<00:00,  1.29it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:13<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:13<00:00,  1.31it/s]
+2026-03-21 08:10:06,439 INFO compress_full_ablation: Model loaded. hidden_dim=5120
+2026-03-21 08:10:06,440 INFO compress_full_ablation: ============================================================
+2026-03-21 08:10:06,441 INFO compress_full_ablation: Dataset: wikitext2
+2026-03-21 08:10:06,733 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:10:11,314 INFO compress_full_ablation: Warmup done. Table: 2796 bi
+2026-03-21 08:10:11,314 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:10:33,868 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:10:33,941 INFO compress_full_ablation:   Training linear predictor with 215 pairs...
+2026-03-21 08:10:48,747 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:11:06,191 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:11:15,550 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:11:27,983 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:11:49,785 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:11:50,935 INFO compress_full_ablation: ============================================================
+2026-03-21 08:11:50,935 INFO compress_full_ablation: Dataset: sharegpt
+2026-03-21 08:11:54,261 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:12:00,241 INFO compress_full_ablation: Warmup done. Table: 8373 bi
+2026-03-21 08:12:00,242 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:13:00,997 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:13:01,104 INFO compress_full_ablation:   Training linear predictor with 426 pairs...
+2026-03-21 08:13:52,399 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:14:39,622 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:15:41,033 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:16:27,461 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:17:12,132 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:17:12,391 INFO compress_full_ablation: ============================================================
+2026-03-21 08:17:12,391 INFO compress_full_ablation: Dataset: gsm8k
+2026-03-21 08:17:12,460 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:17:16,793 INFO compress_full_ablation: Warmup done. Table: 2082 bi
+2026-03-21 08:17:16,794 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:17:37,213 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:17:37,313 INFO compress_full_ablation:   Training linear predictor with 421 pairs...
+2026-03-21 08:18:09,290 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:18:42,604 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:19:02,905 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:19:28,913 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:19:49,979 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:19:50,208 INFO compress_full_ablation: ============================================================
+2026-03-21 08:19:50,209 INFO compress_full_ablation: Dataset: cnn_dm
+2026-03-21 08:19:52,070 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:19:58,868 INFO compress_full_ablation: Warmup done. Table: 10825 bi
+2026-03-21 08:19:58,870 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:21:03,690 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:21:03,909 INFO compress_full_ablation:   Training linear predictor with 724 pairs...
+2026-03-21 08:22:08,623 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:23:11,606 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:24:14,202 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:25:19,769 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:26:15,860 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:26:16,446 INFO compress_full_ablation: ============================================================
+2026-03-21 08:26:16,446 INFO compress_full_ablation: Dataset: alpaca
+2026-03-21 08:26:17,122 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:26:21,280 INFO compress_full_ablation: Warmup done. Table: 1801 bi
+2026-03-21 08:26:21,281 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:26:31,475 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:26:31,616 INFO compress_full_ablation:   Training linear predictor with 63 pairs...
+2026-03-21 08:26:37,778 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:26:42,487 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:26:54,857 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:27:00,547 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:27:14,925 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:27:15,099 INFO compress_full_ablation: ============================================================
+2026-03-21 08:27:15,099 INFO compress_full_ablation: Dataset: triviaqa
+2026-03-21 08:27:17,591 INFO compress_full_ablation: Warmup: 30 requests...
+2026-03-21 08:27:24,060 INFO compress_full_ablation: Warmup done. Table: 10421 bi
+2026-03-21 08:27:24,060 INFO compress_full_ablation: Test: 30 requests...
+2026-03-21 08:28:15,572 INFO compress_full_ablation:   Test 5/30 complete
+2026-03-21 08:28:15,783 INFO compress_full_ablation:   Training linear predictor with 554 pairs...
+2026-03-21 08:29:20,464 INFO compress_full_ablation:   Test 10/30 complete
+2026-03-21 08:30:13,705 INFO compress_full_ablation:   Test 15/30 complete
+2026-03-21 08:30:54,091 INFO compress_full_ablation:   Test 20/30 complete
+2026-03-21 08:32:00,784 INFO compress_full_ablation:   Test 25/30 complete
+2026-03-21 08:33:06,816 INFO compress_full_ablation:   Test 30/30 complete
+2026-03-21 08:33:07,775 INFO compress_full_ablation: Saved 7380 request records
+
+==============================================================================================================
+FULL COMPRESSION RERUN WITH ABLATIONS
+==============================================================================================================
+
+Strategy                        Ratio       Cos      RawE   AffineE    ReconE   ResGain   ResLoss
+--------------------------------------------------------------------------------------------------------------
+ablate_prev_raw_ref           13.749x  0.402916 -11.711387  0.256040 -10.578307 -11.788632 11.578307
+ablate_prev_affine_only       13.674x  0.404187 -11.711387  0.256040  0.338539  0.068871  0.661461
+prev_int2_k4                   4.567x  0.937763 -11.711387  0.256040  0.893366  0.630476  0.106634
+prev_int2_k8                   3.971x  0.946070 -11.711387  0.256040  0.914410  0.651773  0.085590
+ablate_prev_affine_int4_k0     3.657x  0.980702 -11.711387  0.256040  0.994071  0.732404  0.005929
+prev_gs256_k2                  3.621x  0.980699 -11.711387  0.256040  0.994066  0.732398  0.005934
+prev_int4_k1                   3.552x  0.980923 -11.711387  0.256040  0.994518  0.732856  0.005482
+ablate_prev_affine_int4_k1     3.552x  0.980923 -11.711387  0.256040  0.994518  0.732856  0.005482
+sparse_prev                    3.552x  0.980923 -11.711387  0.256040  0.994518  0.732856  0.005482
+prev_int4_k2                   3.454x  0.981085 -11.711387  0.256040  0.994844  0.733186  0.005156
+mean_pool                      3.454x  0.981097 -6.727189  0.251390  0.994869  0.737861  0.005131
+hybrid_sparse_prev             3.454x  0.981085 -11.711387  0.256040  0.994844  0.733186  0.005156
+ema_prev4_int4_k2              3.454x  0.981107 -5.301254  0.254990  0.994889  0.734282  0.005111
+ablate_prev_affine_int4_k2     3.454x  0.981085 -11.711387  0.256040  0.994844  0.733186  0.005156
+best_combined                  3.454x  0.981085 -11.711387  0.256040  0.994844  0.733186  0.005156
+prev2_blend_int4_k2            3.432x  0.977862 -11.286193  0.262818  0.994947  0.726469  0.005053
+unigram_int4_k4                3.309x  0.636738  0.516886  0.745426 -22.886024  0.235169 23.886024
+prev_int4_k4                   3.273x  0.981341 -11.711387  0.256040  0.995362  0.733710  0.004638
+unigram_int4_k8                2.988x  0.861401  0.516886  0.745426  0.608480  0.235169  0.391520
+ablate_delta_raw_ref           2.879x  0.594824  0.516886  0.745426  0.830966 -0.228540  0.169034
+ablate_delta_affine_only       2.878x  0.594837  0.516886  0.745426  0.931200  0.000000  0.068800
+delta_top8_groups              2.699x  0.615672  0.516886  0.745426  0.958255  0.092833  0.041745
+delta_top16_groups             2.553x  0.622938  0.516886  0.745426  0.971177  0.137811  0.028823
+int2_topk4                     2.387x  0.633706  0.516886  0.745426  0.991108  0.207085  0.008892
+delta_top512_ch                2.362x  0.626670  0.516886  0.745426  0.978004  0.161549  0.021996
+combined                       2.313x  0.633113  0.516886  0.745426  0.990937  0.207999  0.009063
+delta_int2_top8                2.298x  0.635262  0.516886  0.745426  0.994534  0.219007  0.005466
+int2_topk8                     2.298x  0.635262  0.516886  0.745426  0.994534  0.219007  0.005466
+adaptive_bw                    2.286x  0.636598  0.516886  0.745426  0.997276  0.229609  0.002724
+delta_sparse_thr_20            2.267x  0.630424  0.516886  0.745426  0.986785  0.192206  0.013215
+delta_sparse_thr_10            2.252x  0.633948  0.516886  0.745426  0.992660  0.213048  0.007340
+sparse_010                     2.252x  0.633948  0.516886  0.745426  0.992660  0.213048  0.007340
+ablate_delta_affine_int4_k0    2.244x  0.636932  0.516886  0.745426  0.997994  0.231089  0.002006
+sparse_005                     2.239x  0.636162  0.516886  0.745426  0.996622  0.226818  0.003378
+best_sparse                    2.239x  0.636162  0.516886  0.745426  0.996622  0.226818  0.003378
+delta_sparse_thr_05            2.239x  0.636162  0.516886  0.745426  0.996622  0.226818  0.003378
+linear_pred                    2.226x  0.637501  0.516886  0.730212  0.999165  0.250382  0.000835
+ablate_delta_affine_int4_k1    2.225x  0.637509  0.516886  0.745426  0.999187  0.235169  0.000813
+baseline                       2.225x  0.637509  0.516886  0.745426  0.999187  0.235169  0.000813
+delta_struct2of8               2.079x  0.631302  0.516886  0.745426  0.986942  0.192620  0.013058
+delta_top1024_ch               2.046x  0.631134  0.516886  0.745426  0.986613  0.191485  0.013387

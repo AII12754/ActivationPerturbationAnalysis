@@ -1,0 +1,90 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 08:47:18,298 INFO delta_quant_entropy: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:00<00:15,  1.05it/s]Loading checkpoint shards:  12%|█▏        | 2/17 [00:01<00:12,  1.21it/s]Loading checkpoint shards:  18%|█▊        | 3/17 [00:02<00:10,  1.36it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:02<00:09,  1.42it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:03<00:08,  1.41it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.42it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:05<00:06,  1.45it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:05<00:06,  1.44it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:06<00:05,  1.44it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:04,  1.45it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:07<00:04,  1.46it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:08<00:03,  1.48it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:09<00:02,  1.50it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:09<00:02,  1.49it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:10<00:01,  1.49it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:11<00:00,  1.45it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.57it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.45it/s]
+2026-03-21 08:47:32,963 INFO delta_quant_entropy: Model loaded. hidden_dim=5120
+2026-03-21 08:47:32,964 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:47:32,964 INFO delta_quant_entropy: Dataset: wikitext2
+2026-03-21 08:47:33,249 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:47:37,939 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:47:44,931 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:47:51,491 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:47:55,487 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:47:58,274 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:48:02,914 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:48:09,147 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:48:09,330 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:48:09,330 INFO delta_quant_entropy: Dataset: sharegpt
+2026-03-21 08:48:12,655 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:48:18,643 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:48:32,345 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:48:45,834 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:48:59,532 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:49:14,999 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:49:27,714 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:49:44,974 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:49:45,233 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:49:45,233 INFO delta_quant_entropy: Dataset: gsm8k
+2026-03-21 08:49:45,303 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:49:49,014 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:50:01,754 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:50:21,085 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:50:40,235 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:50:51,574 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:51:07,159 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:51:18,788 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:51:19,396 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:51:19,397 INFO delta_quant_entropy: Dataset: cnn_dm
+2026-03-21 08:51:21,018 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:51:27,642 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:51:50,682 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:52:12,244 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:52:32,608 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:52:55,226 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:53:19,656 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:53:41,184 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:53:42,096 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:53:42,096 INFO delta_quant_entropy: Dataset: alpaca
+2026-03-21 08:53:42,753 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:53:46,849 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:53:49,169 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:53:51,193 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:53:52,478 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:53:55,867 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:53:57,460 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:54:00,672 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:54:01,562 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:54:01,563 INFO delta_quant_entropy: Dataset: triviaqa
+2026-03-21 08:54:03,479 INFO delta_quant_entropy: Warmup: 30 requests...
+2026-03-21 08:54:09,935 INFO delta_quant_entropy: Test: 30 requests...
+2026-03-21 08:54:27,736 INFO delta_quant_entropy:   Test 5/30 complete
+2026-03-21 08:54:51,410 INFO delta_quant_entropy:   Test 10/30 complete
+2026-03-21 08:55:12,164 INFO delta_quant_entropy:   Test 15/30 complete
+2026-03-21 08:55:28,313 INFO delta_quant_entropy:   Test 20/30 complete
+2026-03-21 08:55:53,471 INFO delta_quant_entropy:   Test 25/30 complete
+2026-03-21 08:56:18,653 INFO delta_quant_entropy:   Test 30/30 complete
+2026-03-21 08:56:18,933 INFO delta_quant_entropy: Saved 2832 request records
+
+==============================================================================================================
+DELTA QUANTIZATION / OUTLIER / ENTROPY ABLATION
+==============================================================================================================
+
+Strategy                 CR   CR-zlib  CR-ideal       Cos    ReconE      Loss   EntBpb
+--------------------------------------------------------------------------------------------------------------
+delta_ref_only     1280.000x  930.909x 88538395480225.984x  0.907615  0.597825  0.402175    0.000
+delta_affine_only  853.333x  678.991x 4361.033x  0.907634  0.830030  0.169970    1.567
+delta_int2_k0        7.052x    8.842x    9.896x  0.963897  0.919395  0.080605    5.737
+delta_int2_k2        6.052x    6.878x    7.518x  0.984043  0.966691  0.033309    6.476
+delta_int2_k4        5.300x    5.803x    6.238x  0.988277  0.975786  0.024214    6.830
+delta_int2_k8        4.245x    4.534x    4.780x  0.991869  0.983344  0.016656    7.134
+delta_int4_k0        3.748x    4.071x    4.276x  0.998431  0.996846  0.003154    7.039
+delta_int4_k1        3.590x    3.843x    4.020x  0.999133  0.998261  0.001739    7.171
+delta_int4_k2        3.445x    3.637x    3.796x  0.999343  0.998684  0.001316    7.286
+delta_int4_k4        3.188x    3.315x    3.444x  0.999521  0.999041  0.000959    7.430
+delta_int2_k16       3.037x    3.223x    3.341x  0.995002  0.989835  0.010165    7.292
+delta_int4_k8        2.774x    2.865x    2.956x  0.999670  0.999340  0.000660    7.528
+delta_int8_k0        1.935x    2.008x    2.051x  0.999995  0.999989  0.000011    7.563
+delta_int8_k1        1.892x    1.966x    2.006x  0.999997  0.999994  0.000006    7.562
+delta_int8_k2        1.851x    1.913x    1.951x  0.999998  0.999995  0.000005    7.608
+delta_int8_k4        1.774x    1.818x    1.853x  0.999998  0.999997  0.000003    7.676

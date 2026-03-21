@@ -1,0 +1,60 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 07:43:33,491 INFO compress_full_ablation: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:00<00:14,  1.13it/s]Loading checkpoint shards:  12%|█▏        | 2/17 [00:01<00:12,  1.23it/s]Loading checkpoint shards:  18%|█▊        | 3/17 [00:02<00:10,  1.36it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:02<00:09,  1.41it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:03<00:08,  1.39it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.40it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:05<00:07,  1.43it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:05<00:06,  1.41it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:06<00:05,  1.41it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:04,  1.42it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:07<00:04,  1.43it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:08<00:03,  1.44it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:09<00:02,  1.47it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:09<00:02,  1.45it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:10<00:01,  1.46it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:11<00:00,  1.33it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:12<00:00,  1.47it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:12<00:00,  1.41it/s]
+2026-03-21 07:43:48,479 INFO compress_full_ablation: Model loaded. hidden_dim=5120
+2026-03-21 07:43:48,480 INFO compress_full_ablation: ============================================================
+2026-03-21 07:43:48,480 INFO compress_full_ablation: Dataset: alpaca
+2026-03-21 07:43:49,319 INFO compress_full_ablation: Warmup: 2 requests...
+2026-03-21 07:43:50,323 INFO compress_full_ablation: Warmup done. Table: 133 bi
+2026-03-21 07:43:50,323 INFO compress_full_ablation: Test: 2 requests...
+2026-03-21 07:43:55,541 INFO compress_full_ablation: Saved 82 request records
+
+==============================================================================================================
+FULL COMPRESSION RERUN WITH ABLATIONS
+==============================================================================================================
+
+Strategy                        Ratio       Cos      RawE   AffineE    ReconE      Gain     QLoss
+--------------------------------------------------------------------------------------------------------------
+ablate_prev_raw_ref          155.496x  0.191446 -2.742228  0.051993 -2.663899  2.794221  2.794221
+ablate_prev_affine_only      144.222x  0.193073 -2.742228  0.051993  0.069211  2.794221  0.000000
+prev_int2_k4                   5.227x  0.918013 -2.742228  0.051993  0.851364  2.794221 -0.796630
+prev_int2_k8                   4.225x  0.930071 -2.742228  0.051993  0.881641  2.794221 -0.827464
+ablate_prev_affine_int4_k0     3.746x  0.978485 -2.742228  0.051993  0.992596  2.794221 -0.940466
+prev_gs256_k2                  3.693x  0.978505 -2.742228  0.051993  0.992635  2.794221 -0.940506
+prev_int4_k1                   3.593x  0.978815 -2.742228  0.051993  0.993262  2.794221 -0.941145
+ablate_prev_affine_int4_k1     3.593x  0.978815 -2.742228  0.051993  0.993262  2.794221 -0.941145
+sparse_prev                    3.593x  0.978815 -2.742228  0.051993  0.993262  2.794221 -0.941145
+prev_int4_k2                   3.452x  0.979068 -2.742228  0.051993  0.993771  2.794221 -0.941663
+mean_pool                      3.452x  0.979087 -2.642919  0.041582  0.993810  2.684501 -0.952113
+hybrid_sparse_prev             3.452x  0.979068 -2.742228  0.051993  0.993771  2.794221 -0.941663
+ema_prev4_int4_k2              3.452x  0.979088 -2.253877  0.047378  0.993814  2.301255 -0.946321
+ablate_prev_affine_int4_k2     3.452x  0.979068 -2.742228  0.051993  0.993771  2.794221 -0.941663
+best_combined                  3.452x  0.979068 -2.742228  0.051993  0.993771  2.794221 -0.941663
+prev2_blend_int4_k2            3.400x  0.971400 -1.356510  0.061463  0.993973  1.417973 -0.932285
+unigram_int4_k4                3.246x  0.464168  0.000000  0.000000 -25.198840  0.000000  0.000000
+prev_int4_k4                   3.202x  0.979454 -2.742228  0.051993  0.994552  2.794221 -0.942459
+unigram_int4_k8                2.822x  0.801403  0.000000  0.000000  0.438049  0.000000  0.000000
+ablate_delta_raw_ref           1.923x  0.465630  0.126076  0.126433  0.989573  0.000357  0.000357
+ablate_delta_affine_only       1.923x  0.465632  0.126076  0.126433  0.989583  0.000357  0.000000
+delta_top8_groups              1.920x  0.469484  0.126076  0.126433  0.994525  0.000357 -0.177893
+delta_sparse_thr_20            1.919x  0.469979  0.126076  0.126433  0.995315  0.000357 -0.206342
+delta_top16_groups             1.917x  0.470629  0.126076  0.126433  0.996405  0.000357 -0.245591
+int2_topk4                     1.914x  0.471659  0.126076  0.126433  0.997869  0.000357 -0.298287
+delta_top512_ch                1.913x  0.471899  0.126076  0.126433  0.998714  0.000357 -0.328699
+delta_int2_top8                1.911x  0.472142  0.126076  0.126433  0.999122  0.000357 -0.343394
+int2_topk8                     1.911x  0.472142  0.126076  0.126433  0.999122  0.000357 -0.343394
+sparse_010                     1.911x  0.472127  0.126076  0.126433  0.999150  0.000357 -0.344403
+combined                       1.911x  0.472127  0.126076  0.126433  0.999150  0.000357 -0.344403
+delta_sparse_thr_10            1.911x  0.472127  0.126076  0.126433  0.999150  0.000357 -0.344403
+ablate_delta_affine_int4_k0    1.909x  0.472313  0.126076  0.126433  0.999495  0.000357 -0.356814
+ablate_delta_affine_int4_k1    1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+adaptive_bw                    1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+baseline                       1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+linear_pred                    1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+delta_sparse_thr_05            1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+best_sparse                    1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+sparse_005                     1.909x  0.472440  0.126076  0.126433  0.999763  0.000357 -0.366481
+delta_struct2of8               1.904x  0.472161  0.126076  0.126433  0.999218  0.000357 -0.346863
+delta_top1024_ch               1.903x  0.472192  0.126076  0.126433  0.999279  0.000357 -0.349042

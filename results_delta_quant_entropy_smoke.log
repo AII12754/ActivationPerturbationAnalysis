@@ -1,0 +1,34 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-21 08:46:49,651 INFO delta_quant_entropy: Loading model on GPU 0...
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Loading checkpoint shards:   6%|▌         | 1/17 [00:00<00:14,  1.14it/s]Loading checkpoint shards:  12%|█▏        | 2/17 [00:01<00:11,  1.26it/s]Loading checkpoint shards:  18%|█▊        | 3/17 [00:02<00:10,  1.40it/s]Loading checkpoint shards:  24%|██▎       | 4/17 [00:02<00:08,  1.45it/s]Loading checkpoint shards:  29%|██▉       | 5/17 [00:03<00:08,  1.43it/s]Loading checkpoint shards:  35%|███▌      | 6/17 [00:04<00:07,  1.44it/s]Loading checkpoint shards:  41%|████      | 7/17 [00:04<00:06,  1.47it/s]Loading checkpoint shards:  47%|████▋     | 8/17 [00:05<00:06,  1.45it/s]Loading checkpoint shards:  53%|█████▎    | 9/17 [00:06<00:05,  1.46it/s]Loading checkpoint shards:  59%|█████▉    | 10/17 [00:07<00:04,  1.46it/s]Loading checkpoint shards:  65%|██████▍   | 11/17 [00:07<00:04,  1.47it/s]Loading checkpoint shards:  71%|███████   | 12/17 [00:08<00:03,  1.49it/s]Loading checkpoint shards:  76%|███████▋  | 13/17 [00:08<00:02,  1.52it/s]Loading checkpoint shards:  82%|████████▏ | 14/17 [00:09<00:01,  1.50it/s]Loading checkpoint shards:  88%|████████▊ | 15/17 [00:10<00:01,  1.50it/s]Loading checkpoint shards:  94%|█████████▍| 16/17 [00:10<00:00,  1.51it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.63it/s]Loading checkpoint shards: 100%|██████████| 17/17 [00:11<00:00,  1.48it/s]
+2026-03-21 08:47:04,069 INFO delta_quant_entropy: Model loaded. hidden_dim=5120
+2026-03-21 08:47:04,070 INFO delta_quant_entropy: ============================================================
+2026-03-21 08:47:04,070 INFO delta_quant_entropy: Dataset: alpaca
+2026-03-21 08:47:04,924 INFO delta_quant_entropy: Warmup: 2 requests...
+2026-03-21 08:47:05,683 INFO delta_quant_entropy: Test: 2 requests...
+2026-03-21 08:47:06,784 INFO delta_quant_entropy: Saved 16 request records
+
+==============================================================================================================
+DELTA QUANTIZATION / OUTLIER / ENTROPY ABLATION
+==============================================================================================================
+
+Strategy                 CR   CR-zlib  CR-ideal       Cos    ReconE      Loss   EntBpb
+--------------------------------------------------------------------------------------------------------------
+delta_ref_only     1280.000x  930.909x 1024000000000.000x  0.931803  0.867754  0.132246    0.000
+delta_affine_only  853.333x  682.667x 4307.147x  0.931815  0.868280  0.131720    1.585
+delta_int2_k0        7.052x    8.790x    9.819x  0.973953  0.945627  0.054373    5.778
+delta_int2_k2        6.052x    6.804x    7.442x  0.987268  0.973995  0.026005    6.536
+delta_int2_k4        5.300x    5.746x    6.188x  0.990674  0.981072  0.018928    6.880
+delta_int2_k8        4.245x    4.501x    4.750x  0.993222  0.986299  0.013701    7.174
+delta_int4_k0        3.748x    4.036x    4.240x  0.998904  0.997809  0.002191    7.093
+delta_int4_k1        3.590x    3.814x    3.991x  0.999329  0.998657  0.001343    7.217
+delta_int4_k2        3.445x    3.592x    3.747x  0.999481  0.998959  0.001041    7.376
+delta_int4_k4        3.188x    3.283x    3.406x  0.999619  0.999236  0.000764    7.508
+delta_int2_k16       3.037x    3.197x    3.316x  0.995877  0.991648  0.008352    7.344
+delta_int4_k8        2.774x    2.837x    2.930x  0.999731  0.999463  0.000537    7.590
+delta_int8_k0        1.935x    1.993x    2.035x  0.999996  0.999992  0.000008    7.617
+delta_int8_k1        1.892x    1.957x    1.995x  0.999998  0.999995  0.000005    7.599
+delta_int8_k2        1.851x    1.895x    1.933x  0.999998  0.999996  0.000004    7.671
+delta_int8_k4        1.774x    1.804x    1.837x  0.999999  0.999997  0.000003    7.735
