@@ -5,13 +5,13 @@
 > **测试数据集**: WikiText-2, ShareGPT, GSM8k, CNN/DM, Alpaca, TriviaQA  
 > **每数据集**: 30 warmup + 30 test requests (seq_len ≤ 512)  
 
-> 补充: 2026-03-21 已新增统一口径的全量重测与组件消融报告，见 [delta_coding_system/COMPRESSION_FULL_ABLATION_REPORT.md](delta_coding_system/COMPRESSION_FULL_ABLATION_REPORT.md)
-> 补充: 2026-03-21 已新增 delta 路径量化 / outlier / 熵编码专题报告，见 [delta_coding_system/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md](delta_coding_system/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md)
-> 补充: 2026-03-21 已新增基于真实输出漂移的策略选择专题报告，见 [delta_coding_system/COMPRESSION_STRATEGY_DRIFT_REPORT.md](delta_coding_system/COMPRESSION_STRATEGY_DRIFT_REPORT.md)
-> 补充: 2026-03-21 已新增覆盖 drift / latency / delta 去 affine / 全局建议的综合总报告，见 [delta_coding_system/COMPRESSION_COMPREHENSIVE_REPORT.md](delta_coding_system/COMPRESSION_COMPREHENSIVE_REPORT.md)
-> 补充: 2026-03-21 已新增 100 样本、prefill/decode phasewise、大样本多 GPU 重测报告，见 [delta_coding_system/COMPRESSION_PHASEWISE_LARGE_REPORT.md](delta_coding_system/COMPRESSION_PHASEWISE_LARGE_REPORT.md)
-> 补充: 2026-03-22 已新增动态 decode、KV Cache、PP 通信端到端时延口径报告，见 [delta_coding_system/COMPRESSION_PHASEWISE_PP_REPORT.md](delta_coding_system/COMPRESSION_PHASEWISE_PP_REPORT.md)
-> 补充: 2026-03-22 已新增真实 OverlappedPipeline 接入评测报告，见 [delta_coding_system/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md](delta_coding_system/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md)
+> 补充: 2026-03-21 已新增统一口径的全量重测与组件消融报告，见 [delta_coding_system/experiments/reports/COMPRESSION_FULL_ABLATION_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_FULL_ABLATION_REPORT.md)
+> 补充: 2026-03-21 已新增 delta 路径量化 / outlier / 熵编码专题报告，见 [delta_coding_system/experiments/reports/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md)
+> 补充: 2026-03-21 已新增基于真实输出漂移的策略选择专题报告，见 [delta_coding_system/experiments/reports/COMPRESSION_STRATEGY_DRIFT_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_STRATEGY_DRIFT_REPORT.md)
+> 补充: 2026-03-21 已新增覆盖 drift / latency / delta 去 affine / 全局建议的综合总报告，见 [delta_coding_system/experiments/reports/COMPRESSION_COMPREHENSIVE_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_COMPREHENSIVE_REPORT.md)
+> 补充: 2026-03-21 已新增 100 样本、prefill/decode phasewise、大样本多 GPU 重测报告，见 [delta_coding_system/experiments/reports/COMPRESSION_PHASEWISE_LARGE_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_PHASEWISE_LARGE_REPORT.md)
+> 补充: 2026-03-22 已新增动态 decode、KV Cache、PP 通信端到端时延口径报告，见 [delta_coding_system/experiments/reports/COMPRESSION_PHASEWISE_PP_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_PHASEWISE_PP_REPORT.md)
+> 补充: 2026-03-22 已新增真实 OverlappedPipeline 接入评测报告，见 [delta_coding_system/experiments/reports/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md)
 
 ---
 

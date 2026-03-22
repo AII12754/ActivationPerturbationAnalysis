@@ -18,7 +18,7 @@
 
 实验脚本:
 
-- [delta_coding_system/compression_experiment_delta_quant_entropy.py](delta_coding_system/compression_experiment_delta_quant_entropy.py)
+- [delta_coding_system/experiments/compression_experiment_delta_quant_entropy.py](delta_coding_system/experiments/compression_experiment_delta_quant_entropy.py)
 
 实验结果:
 

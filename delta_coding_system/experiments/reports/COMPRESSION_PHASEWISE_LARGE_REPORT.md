@@ -35,7 +35,7 @@
 
 新增脚本:
 
-- [delta_coding_system/compression_experiment_phasewise_large.py](delta_coding_system/compression_experiment_phasewise_large.py)
+- [delta_coding_system/experiments/compression_experiment_phasewise_large.py](delta_coding_system/experiments/compression_experiment_phasewise_large.py)
 
 结果目录:
 

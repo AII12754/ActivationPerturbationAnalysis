@@ -13,7 +13,7 @@ Tests multiple strategies to improve compression ratio beyond the baseline 2.52Ã
   9. Small linear predictor replacing affine
 
 Usage:
-  python -m delta_coding_system.compression_experiment --gpu 0
+  python -m delta_coding_system.experiments.compression_experiment --gpu 0
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ import pyarrow.parquet as pq
 import torch
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from delta_coding_system.table import NgramTable

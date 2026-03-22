@@ -19,7 +19,7 @@
 
 实验脚本:
 
-- [delta_coding_system/compression_experiment_strategy_drift.py](delta_coding_system/compression_experiment_strategy_drift.py)
+- [delta_coding_system/experiments/compression_experiment_strategy_drift.py](delta_coding_system/experiments/compression_experiment_strategy_drift.py)
 
 实验结果:
 

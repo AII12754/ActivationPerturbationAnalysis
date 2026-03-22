@@ -72,7 +72,7 @@ $$
 
 代码:
 
-- [delta_coding_system/compression_experiment_full_ablation.py](delta_coding_system/compression_experiment_full_ablation.py)
+- [delta_coding_system/experiments/compression_experiment_full_ablation.py](delta_coding_system/experiments/compression_experiment_full_ablation.py)
 
 结果文件:
 
@@ -82,7 +82,7 @@ $$
 
 补充专题实验:
 
-- [delta_coding_system/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md](delta_coding_system/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md)
+- [delta_coding_system/experiments/reports/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md](delta_coding_system/experiments/reports/COMPRESSION_DELTA_QUANT_ENTROPY_REPORT.md)
 
 ---
 

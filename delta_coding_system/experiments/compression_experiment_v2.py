@@ -13,7 +13,7 @@ Tests variations of the prev-token reference strategy:
   9. prev_token_adaptive — Int4 k2 for prev-token + Int4 k1 for delta
 
 Usage:
-  python delta_coding_system/compression_experiment_v2.py --gpu 0
+  python delta_coding_system/experiments/compression_experiment_v2.py --gpu 0
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ import pyarrow.parquet as pq
 import torch
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from delta_coding_system.table import NgramTable
@@ -46,7 +46,7 @@ from delta_coding_system.codec import (
     groupwise_int8_quantize_topk,
     groupwise_int8_dequantize_topk,
 )
-from delta_coding_system.compression_experiment import (
+from delta_coding_system.experiments.compression_experiment import (
     groupwise_int2_quantize_topk,
     groupwise_int2_dequantize_topk,
     sparse_group_encode,

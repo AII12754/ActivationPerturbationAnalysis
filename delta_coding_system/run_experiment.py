@@ -9,6 +9,7 @@ For each dataset:
 Usage:
   python -m delta_coding_system.run_experiment --gpu 1 --datasets gsm8k triviaqa
   python -m delta_coding_system.run_experiment --gpu 1  # all 6 datasets
+    python -m delta_coding_system.run_experiment --gpu 1 --datasets /path/to/my_dataset.parquet
 """
 
 from __future__ import annotations
@@ -59,6 +60,8 @@ DEFAULTS = {
     "gpu": 0,
     "seed": 42,
     "output_dir": "results_delta_system",
+    "delta_strategy": "delta_noaffine_int4_k1",
+    "unigram_strategy": "unigram_int4_k4",
 }
 
 ALL_DATASETS = ["cnn_dm", "sharegpt", "wikitext2", "gsm8k", "triviaqa", "alpaca"]
@@ -69,8 +72,99 @@ ALL_DATASETS = ["cnn_dm", "sharegpt", "wikitext2", "gsm8k", "triviaqa", "alpaca"
 DATASET_ROOT = Path("/root/share/dataset")
 
 
+def _records_to_texts(records: List[Dict[str, Any]]) -> List[str]:
+    texts: List[str] = []
+    preferred_groups = [
+        ["instruction", "input", "output"],
+        ["question", "answer"],
+        ["prompt", "completion"],
+    ]
+    preferred_single = ["text", "prompt", "content", "article", "body", "question"]
+
+    for record in records:
+        if not isinstance(record, dict):
+            if record is not None:
+                value = str(record).strip()
+                if value:
+                    texts.append(value)
+            continue
+
+        joined = None
+        for group in preferred_groups:
+            parts = [str(record[key]).strip() for key in group if record.get(key)]
+            if parts:
+                joined = "\n".join(parts)
+                break
+        if joined is None:
+            for key in preferred_single:
+                value = record.get(key)
+                if value:
+                    joined = str(value).strip()
+                    if joined:
+                        break
+        if joined is None:
+            parts = []
+            for key, value in record.items():
+                if isinstance(value, (str, int, float)) and value:
+                    parts.append(str(value).strip())
+                if len(parts) >= 4:
+                    break
+            if parts:
+                joined = "\n".join(parts)
+        if joined:
+            texts.append(joined)
+    return texts
+
+
+def _load_generic_path_texts(path_str: str) -> List[str]:
+    path = Path(path_str)
+    if not path.exists():
+        raise ValueError(f"Unknown dataset or path does not exist: {path_str}")
+
+    paths: List[Path]
+    if path.is_dir():
+        paths = sorted(
+            list(path.rglob("*.parquet"))
+            + list(path.rglob("*.jsonl"))
+            + list(path.rglob("*.json"))
+            + list(path.rglob("*.txt"))
+        )
+    else:
+        paths = [path]
+
+    texts: List[str] = []
+    for item in paths:
+        suffix = item.suffix.lower()
+        if suffix == ".parquet":
+            table = pq.read_table(item)
+            records = table.to_pylist()
+            texts.extend(_records_to_texts(records))
+        elif suffix == ".jsonl":
+            with open(item, "r") as handle:
+                records = [json.loads(line) for line in handle if line.strip()]
+            texts.extend(_records_to_texts(records))
+        elif suffix == ".json":
+            with open(item, "r") as handle:
+                payload = json.load(handle)
+            if isinstance(payload, list):
+                texts.extend(_records_to_texts(payload))
+            else:
+                texts.extend(_records_to_texts([payload]))
+        elif suffix == ".txt":
+            with open(item, "r") as handle:
+                chunks = [chunk.strip() for chunk in handle.read().split("\n\n") if chunk.strip()]
+            texts.extend(chunks)
+
+    if not texts:
+        raise ValueError(f"No usable text samples found in path: {path_str}")
+    return texts
+
+
 def load_dataset_texts(name: str) -> List[str]:
     """Load raw texts from each dataset."""
+
+    if Path(name).exists():
+        return _load_generic_path_texts(name)
 
     if name == "cnn_dm":
         files = sorted(DATASET_ROOT.glob("cnndn/3.0.0/train-*.parquet"))
@@ -377,6 +471,8 @@ def main():
         "max_table_entries": args.max_table_entries,
         "seed": args.seed,
         "output_dir": args.output_dir,
+        "delta_strategy": DEFAULTS["delta_strategy"],
+        "unigram_strategy": DEFAULTS["unigram_strategy"],
     }
 
     logger.info("Config: %s", json.dumps(cfg, indent=2))
@@ -416,6 +512,8 @@ def main():
         device=device,
         domain_aware=args.domain_aware,
         max_gpu_tables=args.max_gpu_tables,
+        delta_strategy=DEFAULTS["delta_strategy"],
+        unigram_strategy=DEFAULTS["unigram_strategy"],
     )
 
     for ds_name in args.datasets:

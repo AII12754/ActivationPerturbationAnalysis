@@ -1,115 +1,177 @@
-# Delta-Coding System for Pipeline-Parallel Activation Compression
+# Delta-Coding System
 
-Production-quality delta-coding system with overlapped CPU/GPU pipeline for compressing intermediate activations in pipeline-parallel LLM inference.
+用于 pipeline-parallel LLM 中间激活压缩的核心系统目录。
 
-## Architecture
+当前 root 目录只保留生产运行和基准评测所需的核心代码。历史探索脚本、实验报告和设计草稿已整理到 experiments 子目录。
 
+## 当前默认策略
+
+真实 pipeline 默认固定为 optimized_default:
+
+1. Delta 路径: delta_noaffine_int4_k1
+2. Unigram 路径: unigram_int4_k4
+
+`OverlappedPipeline` 默认构造参数已经切换到这套配置,后续主流程不再默认使用 baseline_current。
+
+## 核心目录
+
+```text
+delta_coding_system/
+├── __init__.py
+├── README.md
+├── table.py
+├── codec.py
+├── pipeline.py
+├── evaluation.py
+├── run_experiment.py
+├── run_pipeline_strategy_real.py
+├── analyze.py
+├── benchmarks/
+├── experiments/
+└── report/
 ```
+
+说明:
+
+1. table.py: n-gram DAG 表与缓存管理
+2. codec.py: 激活编码与重建逻辑
+3. pipeline.py: 真实 OverlappedPipeline 运行时
+4. evaluation.py: 评测辅助函数,包括 logit drift 与后半层 replay
+5. run_experiment.py: 核心系统实验入口,默认走 optimized_default
+6. run_pipeline_strategy_real.py: 真实 pipeline 基准评测入口,输出压缩率、通信时延、相似度和相对 FP16 的 drift
+7. benchmarks/: 后续任务基准说明,包括 SWE-Bench Verified 之类任务评测的建议流程
+8. experiments/: 历史探索性实验与报告归档
+
+## 架构概览
+
+```text
 Sender (PP Stage 0)                          Receiver (PP Stage 1)
 ┌─────────────────────────────────┐          ┌───────────────────────┐
 │ ① Prefill forward (GPU)        │          │                       │
-│ ② Classify (CPU, overlapped)   │ ──2.5×──→ │ ⑤ Decode + reconstruct│
-│ ③ Tiered encode (GPU)          │  smaller  │                       │
+│ ② Classify (CPU, overlapped)   │ ───────→ │ ⑤ Decode + reconstruct│
+│ ③ Tiered encode (GPU)          │          │                       │
 │ ④ Table update (CPU, async)    │          │                       │
 └─────────────────────────────────┘          └───────────────────────┘
 ```
 
-### Tier Hierarchy (cascade fallback)
+Tier fallback:
 
-| Tier | Match Condition | Encoding | Quality |
-|------|----------------|----------|---------|
-| **Trigram** | DAG exact (A,B,C) | Affine + Int4 delta | 0.9996 |
-| **Self-ref** | Same trigram in request | Affine + Int4 delta | 0.9996 |
-| **Bigram** | DAG prefix (B,C) | Affine + Int4 delta | 0.9991 |
-| **Unigram** | No match | Int8 + top-K outlier | 0.9999 |
+1. Trigram
+2. Self-ref
+3. Bigram
+4. Unigram
 
-### Key Features
+当前实现重点:
 
-- **FP8 table storage**: `float8_e4m3fn` halves memory with < 0.000005 cosine loss
-- **LRU eviction**: Frequency-weighted scoring bounds table growth
-- **CPU/GPU overlap**: Classify during forward, table update after send
-- **Both prefill and decode**: Full pipeline for both phases
+1. prefill 和 decode 均支持真实 overlap
+2. decode 使用 KV Cache
+3. 默认压缩路径已经切到 optimized_default
+4. benchmark 输出内置 FP16 通信基线字段,便于后续直接对照
 
-## Quick Start
+## 快速开始
+
+### 1. 运行核心系统实验
 
 ```bash
-# Run experiment on a single dataset (quick test)
 python -m delta_coding_system.run_experiment \
   --gpu 1 \
-  --datasets gsm8k \
-  --warmup-requests 5 \
-  --test-requests 5
-
-# Full experiment across all datasets
-python -m delta_coding_system.run_experiment --gpu 1
-
-# Generate report and plots
-python -m delta_coding_system.analyze --input-dir results_delta_system
+  --datasets gsm8k triviaqa \
+  --warmup-requests 10 \
+  --test-requests 10
 ```
 
-## Configuration
+### 2. 在新数据集上运行
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `--model` | `/root/share/models/Qwen2.5-32B-Instruct` | Model path |
-| `--gpu` | 0 | GPU index |
-| `--layer-boundary` | 6 | PP split layer |
-| `--table-dtype` | `float8_e4m3fn` | Table storage dtype |
-| `--max-table-entries` | 100000 | LRU eviction threshold (0=unlimited) |
-| `--group-size` | 128 | Int4 quantization group size |
-| `--top-k` | 1 | Outliers per group |
-| `--decode-tokens` | 128 | Tokens to generate per request |
-| `--warmup-requests` | 50 | Table warmup requests |
-| `--test-requests` | 50 | Measured test requests |
+`run_experiment.py` 和 `run_pipeline_strategy_real.py` 都支持两类数据源:
 
-## Package Structure
+1. 内置数据集名字,例如 `gsm8k`、`wikitext2`
+2. 自定义路径,例如 parquet/json/jsonl/txt 文件或目录
 
-```
-delta_coding_system/
-├── __init__.py          # Package exports
-├── table.py             # NgramTable: DAG trie with FP8, LRU
-├── codec.py             # Encode/decode: affine, Int4, Int8
-├── pipeline.py          # OverlappedPipeline: the core system
-├── run_experiment.py    # Experiment runner (6 datasets)
-├── analyze.py           # Report + plot generation
-├── README.md            # This file
-└── report/              # Generated outputs
+示例:
+
+```bash
+python -m delta_coding_system.run_experiment \
+  --gpu 1 \
+  --datasets /path/to/my_dataset.parquet
+
+python delta_coding_system/run_pipeline_strategy_real.py \
+  --gpu 1 \
+  --datasets /path/to/my_dataset.jsonl \
+  --warmup-requests 20 \
+  --test-requests 100 \
+  --max-decode-tokens 512
 ```
 
-## API Usage
+通用路径加载的文本提取启发式:
 
-```python
-from delta_coding_system.pipeline import OverlappedPipeline
+1. 优先使用 `text`、`prompt`、`content` 等单字段文本
+2. 若存在 `instruction/input/output`、`question/answer`、`prompt/completion` 等组合字段,则自动拼接
+3. txt 文件按空行切分样本
 
-pipeline = OverlappedPipeline(
-    model=model,
-    tokenizer=tokenizer,
-    layer_boundary=6,
-    table_dtype=torch.float8_e4m3fn,
-    max_table_entries=100000,
-    device=torch.device("cuda:0"),
-)
+## 真实基准评测
 
-# Process a single request (prefill + decode)
-prefill_result, decode_result, table_stats = pipeline.process_request(
-    text="What is the meaning of life?",
-    phase="test",  # or "warmup"
-)
+主入口:
 
-print(f"Prefill: cos={prefill_result.recon_cosine_mean:.4f}, "
-      f"ratio={prefill_result.compression_ratio:.2f}x")
-print(f"Decode:  cos={decode_result.recon_cosine_mean:.4f}, "
-      f"ratio={decode_result.compression_ratio:.2f}x")
+[delta_coding_system/run_pipeline_strategy_real.py](delta_coding_system/run_pipeline_strategy_real.py)
+
+这个脚本默认评测固定生产策略 optimized_default,并输出:
+
+1. request 级压缩率
+2. request 级真实 pipeline 时延
+3. 200/500/1000 Mbps 下的通信端到端时延
+4. 原生 FP16 通信基线
+5. decode 相似度
+6. 相对原模型 FP16 logits 的 drift 指标
+
+示例:
+
+```bash
+python delta_coding_system/run_pipeline_strategy_real.py \
+  --gpu 1 \
+  --datasets /path/to/my_dataset.parquet \
+  --warmup-requests 30 \
+  --test-requests 100 \
+  --max-decode-tokens 512 \
+  --output-dir results_pipeline_strategy_real_run
 ```
 
-## Output Files
+输出文件:
 
-Per dataset in `results_delta_system/{dataset}/`:
+1. `request_summary.parquet`
+2. `decode_drift.parquet`
 
-| File | Contents |
-|------|----------|
-| `prefill_quality.parquet` | Per-request prefill metrics |
-| `tier_detail.parquet` | Per-tier quality breakdown |
-| `decode_step_detail.parquet` | Per-step decode metrics |
-| `decode_aggregate.parquet` | Per-request decode aggregates |
-| `table_growth.parquet` | Table size over time |
+## 与原模型 FP16 的对比方式
+
+当前系统内置两类对比:
+
+1. 通信侧对比: 直接使用 `raw_fp16_bytes` 推导出 FP16 传输基线
+2. 模型侧对比: 使用原模型 FP16 logits 作为 drift 参考
+
+这意味着你在新数据集上测试时,不用再额外重跑一套单独的通信基线实验。
+
+## SWE-Bench Verified 等任务评测
+
+对于 SWE-Bench Verified、代码修复、问答评分等任务级基准,建议采用两层评测:
+
+1. 模型内部指标:
+   使用 `run_pipeline_strategy_real.py` 导出压缩率、通信时延、decode similarity、drift
+2. 任务分数指标:
+   使用同一批 prompt 对 compressed pipeline 和原模型 FP16 分别生成输出,再交给任务自己的评分 harness
+
+原因:
+
+1. 内部 drift 只能说明表示和 logits 的偏移程度
+2. 它不能替代 SWE-Bench Verified 这类 benchmark 的最终任务得分
+
+具体建议见:
+
+[delta_coding_system/benchmarks/README.md](delta_coding_system/benchmarks/README.md)
+
+## 历史探索归档
+
+历史探索代码与报告已移动到:
+
+1. [delta_coding_system/experiments](delta_coding_system/experiments)
+2. [delta_coding_system/experiments/reports](delta_coding_system/experiments/reports)
+
+这些文件用于追溯策略选择过程,但不再是默认生产流程的一部分。

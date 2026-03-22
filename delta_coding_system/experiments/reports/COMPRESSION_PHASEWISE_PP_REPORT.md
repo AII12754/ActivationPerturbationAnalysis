@@ -36,14 +36,14 @@
 
 新增脚本:
 
-- [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py)
+- [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py)
 
 脚本中可直接确认 KV Cache 已启用:
 
-1. prefill 调用在 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py#L251) 使用了 use_cache=True
-2. decode 循环在 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py#L266) 读取了 past_key_values
-3. decode step 在 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py#L275) 基于 past_key_values 继续推理
-4. decode 长度上限在 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py#L585) 设为 512
+1. prefill 调用在 [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py#L251) 使用了 use_cache=True
+2. decode 循环在 [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py#L266) 读取了 past_key_values
+3. decode step 在 [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py#L275) 基于 past_key_values 继续推理
+4. decode 长度上限在 [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py#L585) 设为 512
 
 结果目录:
 
@@ -117,7 +117,7 @@
    - prefill 阶段会把 classify 和 forward 并发调度
    - decode 阶段会把 classify 与单步 forward 并发调度
    - table update 走独立线程池, 试图从主 critical path 中剥离
-2. 但当前 phasewise PP 脚本 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py) 并没有真实使用这个 pipeline runtime:
+2. 但当前 phasewise PP 脚本 [delta_coding_system/experiments/compression_experiment_phasewise_pp.py](delta_coding_system/experiments/compression_experiment_phasewise_pp.py) 并没有真实使用这个 pipeline runtime:
    - prefill 的 reference 匹配发生在完整 full_out 之后
    - table update 也是请求末尾串行调用
    - 各 token 的策略评估与 drift 回放也是离线顺序执行

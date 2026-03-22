@@ -8,7 +8,7 @@ Focus areas:
 4. Try a few additional reference constructions beyond plain prev-token.
 
 Usage:
-  python -m delta_coding_system.compression_experiment_v3 --gpu 0
+  python -m delta_coding_system.experiments.compression_experiment_v3 --gpu 0
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import pyarrow.parquet as pq
 import torch
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from delta_coding_system.codec import (
@@ -39,7 +39,7 @@ from delta_coding_system.codec import (
     groupwise_int8_dequantize_topk,
     groupwise_int8_quantize_topk,
 )
-from delta_coding_system.compression_experiment import (
+from delta_coding_system.experiments.compression_experiment import (
     groupwise_int2_dequantize_topk,
     groupwise_int2_quantize_topk,
 )

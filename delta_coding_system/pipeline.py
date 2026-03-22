@@ -144,8 +144,8 @@ class OverlappedPipeline:
         device: torch.device = None,
         domain_aware: bool = False,
         max_gpu_tables: int = 3,
-        delta_strategy: str = "baseline_current",
-        unigram_strategy: str = "baseline_current",
+        delta_strategy: str = "delta_noaffine_int4_k1",
+        unigram_strategy: str = "unigram_int4_k4",
     ):
         self.model = model
         self.tokenizer = tokenizer

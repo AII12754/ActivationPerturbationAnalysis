@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""Run real overlapped pipeline experiments for shortlisted strategy configs.
+"""Run real overlapped pipeline benchmarks for the default production strategy.
 
 This script evaluates whole-pipeline behavior using the production
-OverlappedPipeline implementation rather than the phasewise analysis scripts.
-
-It compares two end-to-end configurations:
-1. baseline_current: affine Int4 delta + Int8 unigram.
-2. optimized_default: no-affine Int4 delta + direct Int4 unigram.
+OverlappedPipeline implementation with the default optimized strategy:
+1. delta_noaffine_int4_k1 for delta-coded positions.
+2. unigram_int4_k4 for unigram positions.
 
 Measured outputs:
 1. Real pipeline compression ratio.
 2. Real overlapped communication critical-path latency with bandwidth models.
-3. Decode hidden similarity.
-4. Offline decode logit drift on the generated sequence.
+3. FP16 communication baselines derived from raw activation bytes.
+4. Decode hidden similarity and decode logit drift versus the original FP16 model.
 """
 
 from __future__ import annotations
@@ -31,14 +29,13 @@ from typing import Any, Dict, List
 import pyarrow as pa
 import pyarrow.parquet as pq
 import torch
-import torch.nn.functional as F
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from delta_coding_system.evaluation import compute_logit_drift_metrics, run_remaining_layers
 from delta_coding_system.pipeline import OverlappedPipeline
 from delta_coding_system.run_experiment import load_dataset_texts
-from delta_coding_system.compression_experiment_comprehensive import _run_remaining_layers
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("pipeline_strategy_real")
@@ -46,11 +43,6 @@ logger = logging.getLogger("pipeline_strategy_real")
 BANDWIDTHS_MBPS = [200, 500, 1000]
 
 CONFIGS = [
-    {
-        "name": "baseline_current",
-        "delta_strategy": "baseline_current",
-        "unigram_strategy": "baseline_current",
-    },
     {
         "name": "optimized_default",
         "delta_strategy": "delta_noaffine_int4_k1",
@@ -61,31 +53,6 @@ CONFIGS = [
 
 def _network_ms(total_bytes: float, bandwidth_mbps: int) -> float:
     return float(total_bytes) * 8.0 / (float(bandwidth_mbps) * 1000.0)
-
-
-def _compute_drift_metrics(orig_logits: torch.Tensor, recon_logits: torch.Tensor) -> Dict[str, float]:
-    seq_len = orig_logits.shape[1]
-    logit_cos = F.cosine_similarity(orig_logits.float(), recon_logits.float(), dim=-1).squeeze(0)
-    orig_top1 = orig_logits.argmax(dim=-1).squeeze(0)
-    recon_top1 = recon_logits.argmax(dim=-1).squeeze(0)
-    mismatch = orig_top1 != recon_top1
-    first_top1 = int(torch.where(mismatch)[0][0].item()) if mismatch.any() else seq_len
-    below = logit_cos < 0.999
-    first_cos = int(torch.where(below)[0][0].item()) if below.any() else seq_len
-    kl = F.kl_div(
-        F.log_softmax(recon_logits.float(), dim=-1),
-        F.softmax(orig_logits.float(), dim=-1),
-        reduction="none",
-    ).sum(dim=-1).squeeze(0)
-    return {
-        "top1_match_rate": float((~mismatch).float().mean().item()),
-        "first_top1_drift_pos": first_top1,
-        "first_logit_cos_below_0_999": first_cos,
-        "logit_cosine_mean": float(logit_cos.mean().item()),
-        "logit_cosine_min": float(logit_cos.min().item()),
-        "kl_mean": float(kl.mean().item()),
-        "kl_max": float(kl.max().item()),
-    }
 
 
 def _save_records(records: List[Dict[str, Any]], path: Path) -> None:
@@ -220,6 +187,9 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 request_row[f"decode_comm_e2e_{bw}mbps_total_ms"] = decode_local_ms + decode_net_total
                 request_row[f"decode_network_{bw}mbps_total_ms"] = decode_net_total
                 request_row[f"decode_comm_e2e_{bw}mbps_per_token_ms"] = (decode_local_ms + decode_net_total) / max(decode_len, 1)
+                request_row[f"fp16_prefill_comm_{bw}mbps_ms"] = _network_ms(prefill_res.raw_fp16_bytes, bw)
+                request_row[f"fp16_decode_comm_{bw}mbps_total_ms"] = _network_ms(decode_res.raw_fp16_bytes, bw)
+                request_row[f"fp16_decode_comm_{bw}mbps_per_token_ms"] = _network_ms(decode_res.raw_fp16_bytes, bw) / max(decode_len, 1)
 
             request_records.append(request_row)
 
@@ -241,10 +211,10 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 recon_parts.append(decode_res.reconstructed_hidden)
             recon_full = torch.cat(recon_parts, dim=0).unsqueeze(0)
             with torch.no_grad():
-                recon_logits = _run_remaining_layers(model, recon_full, cached_full_mask if reuse_orig_logits else full_mask)
+                recon_logits = run_remaining_layers(model, recon_full, cached_full_mask if reuse_orig_logits else full_mask, start_layer=args.layer_boundary)
 
             if decode_len > 0:
-                decode_metrics = _compute_drift_metrics(orig_logits[:, prompt_len:, :], recon_logits[:, prompt_len:, :])
+                decode_metrics = compute_logit_drift_metrics(orig_logits[:, prompt_len:, :], recon_logits[:, prompt_len:, :])
             else:
                 decode_metrics = {
                     "top1_match_rate": 1.0,
@@ -332,8 +302,6 @@ def main():
         trust_remote_code=True,
     )
     model.eval()
-    _run_remaining_layers.start_layer = args.layer_boundary
-
     for dataset_name in args.datasets:
         run_dataset(model, tokenizer, device, dataset_name, args)
 

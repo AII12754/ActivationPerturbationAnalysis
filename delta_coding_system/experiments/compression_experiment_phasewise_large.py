@@ -1,28 +1,18 @@
 #!/usr/bin/env python3
-"""Large-sample phasewise evaluation with dynamic decode and PP latency model.
+"""Large-sample phasewise compression evaluation.
 
-This script keeps the shortlisted candidate strategies only, but changes two
-important aspects relative to the earlier phasewise-large experiment:
+This experiment is designed for larger-sample evaluation of the shortlisted
+strategies only. It separates:
 
-1. Decode uses KV-cache and stops at EOS or ``max_decode_tokens``.
-2. Latency is modeled as pipeline-parallel communication critical path:
-   from layer-boundary completion on the sender side to reconstructed hidden
-   state readiness on the receiver side.
+1. Delta path vs unigram path strategy changes.
+2. LLM prefill positions vs LLM decode positions.
+3. Compression / reconstruction / exact downstream drift / codec latency.
 
-The PP latency model includes:
-- Sender-side codec work.
-- Simulated transmission time under 200 / 500 / 1000 Mbps.
-- Receiver-side dequantization and reconstruction work.
-
-Important scope note:
-
-1. This script is a phasewise strategy evaluator, not the production pipeline.
-2. It does not execute a real overlapped sender/receiver runtime.
-3. Its PP latency fields are an analytical critical-path model.
-4. Token-only operations such as reference lookup and table update are treated
-    as hidden/off-critical-path when interpreting the PP numbers.
-5. For absolute system latency, use the production pipeline implementation in
-    delta_coding_system/pipeline.py rather than this script.
+Compared with the earlier comprehensive experiment, this script:
+- Removes sparse strategies.
+- Uses more test requests.
+- Supports exact phasewise drift for both prompt and generated tokens.
+- Is intended to run one dataset per GPU and be merged afterwards.
 """
 
 from __future__ import annotations
@@ -31,7 +21,6 @@ import argparse
 import gc
 import logging
 import random
-import shutil
 import sys
 import time
 from collections import defaultdict
@@ -43,11 +32,11 @@ import pyarrow.parquet as pq
 import torch
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from activation_science.core.extraction import decode_step, prefill, select_next_token
-from delta_coding_system.compression_experiment_comprehensive import (
+from delta_coding_system.experiments.compression_experiment_comprehensive import (
     _blend_two_refs,
     _cosine,
     _encode_affine_only,
@@ -61,11 +50,9 @@ from delta_coding_system.run_experiment import load_dataset_texts
 from delta_coding_system.table import NgramTable
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-logger = logging.getLogger("compress_phasewise_pp")
+logger = logging.getLogger("compress_phasewise_large")
 
-BANDWIDTHS_MBPS = [200, 500, 1000]
-
-DELTA_STRATEGIES = [
+DELTA_CANDIDATES = [
     "baseline_current",
     "delta_noaffine_int4_k1",
     "delta_int2_k8_out4",
@@ -75,7 +62,7 @@ DELTA_STRATEGIES = [
     "ablate_delta_affine_only",
 ]
 
-UNIGRAM_STRATEGIES = [
+UNIGRAM_CANDIDATES = [
     "baseline_current",
     "unigram_int4_k4",
     "prev_int4_k2",
@@ -104,8 +91,6 @@ ALL_STRATEGIES = [
     "ablate_prev_raw_ref",
     "ablate_prev_affine_only",
 ]
-
-
 def _update_table_with_sequence(table: NgramTable, token_ids: torch.Tensor, hidden: torch.Tensor) -> None:
     if token_ids.shape[0] < 3:
         return
@@ -122,14 +107,11 @@ def _update_table_with_sequence(table: NgramTable, token_ids: torch.Tensor, hidd
             node.suffixes[tri[2].item()] = hidden[tri_idx + 2].unsqueeze(0).to(torch.float16)
 
 
-def _classify_positions(
-    table: NgramTable,
-    token_ids: torch.Tensor,
-    device: torch.device,
-) -> Tuple[List[str], List[Optional[torch.Tensor]]]:
+def _classify_positions(table: NgramTable, token_ids: torch.Tensor, device: torch.device) -> Tuple[List[str], List[Optional[torch.Tensor]]]:
     tiers: List[str] = []
     refs: List[Optional[torch.Tensor]] = []
-    for pos in range(token_ids.shape[0]):
+    seq_len = token_ids.shape[0]
+    for pos in range(seq_len):
         ref = None
         tier = "unigram"
         if pos >= 2:
@@ -172,50 +154,16 @@ def _compute_drift_metrics(orig_logits: torch.Tensor, recon_logits: torch.Tensor
     }
 
 
-def _encode_int8_baseline(real_h: torch.Tensor) -> Dict[str, object]:
-    from delta_coding_system.compression_experiment_comprehensive import _encode_int8_unigram
-
-    return _encode_int8_unigram(real_h, top_k=1)
-
-
-def _network_ms(transfer_bytes: float, bandwidth_mbps: int) -> float:
-    return float(transfer_bytes) * 8.0 / (float(bandwidth_mbps) * 1000.0)
-
-
-def _sender_ms(timing: Dict[str, float]) -> float:
-    return (
-        timing.get("affine_param_ms", 0.0)
-        + timing.get("affine_apply_ms", 0.0)
-        + timing.get("delta_ms", 0.0)
-        + timing.get("pack_ms", 0.0)
-        + timing.get("outlier_ms", 0.0)
-    )
-
-
-def _receiver_ms(timing: Dict[str, float]) -> float:
-    return timing.get("decode_ms", 0.0) + timing.get("reconstruct_ms", 0.0)
-
-
-def _augment_pp_metrics(result: Dict[str, object]) -> None:
-    timing = result["timing"]
-    sender_ms = _sender_ms(timing)
-    receiver_ms = _receiver_ms(timing)
-    result["pp_sender_ms"] = sender_ms
-    result["pp_receiver_ms"] = receiver_ms
-    result["pp_total_local_ms"] = sender_ms + receiver_ms
-    for bw in BANDWIDTHS_MBPS:
-        net_ms = _network_ms(result["bytes"], bw)
-        result[f"pp_network_{bw}mbps_ms"] = net_ms
-        result[f"pp_e2e_{bw}mbps_ms"] = sender_ms + net_ms + receiver_ms
-
-
 class ShortlistStrategyRunner:
     def run_all(
         self,
         real_h: torch.Tensor,
+        tier: str,
         table_ref: Optional[torch.Tensor],
         prev_h: Optional[torch.Tensor],
         prev2_h: Optional[torch.Tensor],
+        history: List[torch.Tensor],
+        global_mean_ref: torch.Tensor,
     ) -> Dict[str, Dict[str, object]]:
         results: Dict[str, Dict[str, object]] = {}
         zero_ref = torch.zeros_like(real_h)
@@ -228,32 +176,44 @@ class ShortlistStrategyRunner:
             results["delta_int2_k8_out8_entropy"] = _encode_delta_quantized(real_h, table_ref, 2, 8, outlier_bits=8, include_ref_idx=True, use_affine=True, entropy_override=True)
             results["ablate_delta_raw_ref"] = _encode_raw_reference(real_h, table_ref, include_ref_idx=True)
             results["ablate_delta_affine_only"] = _encode_affine_only(real_h, table_ref, include_ref_idx=True)
+            baseline = results["baseline_current"]
+            for name in ALL_STRATEGIES:
+                if name not in results:
+                    results[name] = baseline
+            return results
+
+        results["baseline_current"] = _encode_int8_baseline(real_h)
+        results["unigram_int4_k4"] = _quantize_direct_int4(real_h, top_k=4)
+
+        if prev_h is not None:
+            results["prev_int4_k2"] = _encode_delta_quantized(real_h, prev_h, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=True)
+            results["prev_gs256_k2"] = _encode_delta_quantized(real_h, prev_h, 4, 2, outlier_bits=16, include_ref_idx=False, group_size=256, use_affine=True)
+            results["prev_int2_k8_out4"] = _encode_delta_quantized(real_h, prev_h, 2, 8, outlier_bits=4, include_ref_idx=False, use_affine=True)
+            results["ablate_prev_raw_ref"] = _encode_raw_reference(real_h, prev_h, include_ref_idx=False)
+            results["ablate_prev_affine_only"] = _encode_affine_only(real_h, prev_h, include_ref_idx=False)
         else:
-            results["baseline_current"] = _encode_int8_baseline(real_h)
-            results["unigram_int4_k4"] = _quantize_direct_int4(real_h, top_k=4)
-            if prev_h is not None:
-                results["prev_int4_k2"] = _encode_delta_quantized(real_h, prev_h, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=True)
-                results["prev_gs256_k2"] = _encode_delta_quantized(real_h, prev_h, 4, 2, outlier_bits=16, include_ref_idx=False, group_size=256, use_affine=True)
-                results["prev_int2_k8_out4"] = _encode_delta_quantized(real_h, prev_h, 2, 8, outlier_bits=4, include_ref_idx=False, use_affine=True)
-                results["ablate_prev_raw_ref"] = _encode_raw_reference(real_h, prev_h, include_ref_idx=False)
-                results["ablate_prev_affine_only"] = _encode_affine_only(real_h, prev_h, include_ref_idx=False)
-            else:
-                for name in ["prev_int4_k2", "prev_gs256_k2", "prev_int2_k8_out4", "ablate_prev_raw_ref", "ablate_prev_affine_only"]:
-                    results[name] = results["baseline_current"]
-            results["zero_affine_int4_k2"] = _encode_delta_quantized(real_h, zero_ref, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=True)
-            if prev_h is not None and prev2_h is not None:
-                blend_ref = _blend_two_refs(real_h, prev_h, prev2_h)
-                results["prev2_blend_int4_k2"] = _encode_delta_quantized(real_h, blend_ref, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=False)
-            else:
-                results["prev2_blend_int4_k2"] = results["baseline_current"]
+            for name in ["prev_int4_k2", "prev_gs256_k2", "prev_int2_k8_out4", "ablate_prev_raw_ref", "ablate_prev_affine_only"]:
+                results[name] = results["baseline_current"]
+
+        results["zero_affine_int4_k2"] = _encode_delta_quantized(real_h, zero_ref, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=True)
+
+        if prev_h is not None and prev2_h is not None:
+            blend_ref = _blend_two_refs(real_h, prev_h, prev2_h)
+            results["prev2_blend_int4_k2"] = _encode_delta_quantized(real_h, blend_ref, 4, 2, outlier_bits=16, include_ref_idx=False, use_affine=False)
+        else:
+            results["prev2_blend_int4_k2"] = results["baseline_current"]
 
         baseline = results["baseline_current"]
         for name in ALL_STRATEGIES:
             if name not in results:
                 results[name] = baseline
-        for result in results.values():
-            _augment_pp_metrics(result)
         return results
+
+
+def _encode_int8_baseline(real_h: torch.Tensor) -> Dict[str, object]:
+    from delta_coding_system.experiments.compression_experiment_comprehensive import _encode_int8_unigram
+
+    return _encode_int8_unigram(real_h, top_k=1)
 
 
 def _timed_prefill(model, input_ids: torch.Tensor, device: torch.device):
@@ -261,22 +221,17 @@ def _timed_prefill(model, input_ids: torch.Tensor, device: torch.device):
     t0 = time.perf_counter()
     batch = prefill(model, input_ids, use_cache=True)
     torch.cuda.synchronize(device)
-    return batch, (time.perf_counter() - t0) * 1000.0
+    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+    return batch, elapsed_ms
 
 
-def _timed_decode_generate(
-    model,
-    prefill_batch,
-    max_decode_tokens: int,
-    eos_token_id: Optional[int],
-    device: torch.device,
-) -> Tuple[List[int], float]:
+def _timed_decode_generate(model, prefill_batch, decode_tokens: int, eos_token_id: Optional[int], device: torch.device):
     generated: List[int] = []
     total_decode_ms = 0.0
     next_token = select_next_token(prefill_batch.last_logits, do_sample=False)
     past_key_values = prefill_batch.past_key_values
 
-    for _ in range(max_decode_tokens):
+    for _ in range(decode_tokens):
         token_id = int(next_token.item())
         generated.append(token_id)
         if eos_token_id is not None and token_id == eos_token_id:
@@ -290,30 +245,6 @@ def _timed_decode_generate(
         next_token = select_next_token(batch.last_logits, do_sample=False)
 
     return generated, total_decode_ms
-
-
-def _phase_accumulator() -> Dict[str, object]:
-    acc = {
-        "bytes": 0.0,
-        "raw_bytes": 0.0,
-        "zlib_bytes": 0.0,
-        "ideal_bytes": 0.0,
-        "entropy_bpb_sum": 0.0,
-        "cos_sum": 0.0,
-        "cos_min": 1.0,
-        "recon_e_sum": 0.0,
-        "count": 0,
-        "timing_sum": _init_timing(),
-        "delta_count": 0,
-        "unigram_count": 0,
-        "pp_sender_ms_sum": 0.0,
-        "pp_receiver_ms_sum": 0.0,
-        "pp_total_local_ms_sum": 0.0,
-    }
-    for bw in BANDWIDTHS_MBPS:
-        acc[f"pp_network_{bw}mbps_ms_sum"] = 0.0
-        acc[f"pp_e2e_{bw}mbps_ms_sum"] = 0.0
-    return acc
 
 
 def run_experiment(args):
@@ -335,15 +266,6 @@ def run_experiment(args):
 
     runner = ShortlistStrategyRunner()
     output_dir = Path(args.output_dir)
-    if output_dir.exists() and args.clean_output:
-        logger.info("Cleaning existing output directory: %s", output_dir)
-        shutil.rmtree(output_dir)
-    elif output_dir.exists() and any(output_dir.iterdir()):
-        logger.warning(
-            "Output directory already exists and is non-empty: %s. "
-            "Use --clean-output to avoid stale-result contamination.",
-            output_dir,
-        )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     request_records = []
@@ -362,50 +284,43 @@ def run_experiment(args):
             texts.extend(texts[: total_needed - len(texts)])
 
         table = NgramTable(device=device, dtype=torch.float16, max_entries=100000)
+        mean_sum = None
+        mean_count = 0
+
         logger.info("Warmup: %d requests...", args.warmup_requests)
         for warm_idx in range(args.warmup_requests):
-            input_ids = tokenizer(
-                texts[warm_idx],
-                return_tensors="pt",
-                truncation=True,
-                max_length=args.max_seq_len,
-            ).input_ids.to(device)
+            input_ids = tokenizer(texts[warm_idx], return_tensors="pt", truncation=True, max_length=args.max_seq_len).input_ids.to(device)
             with torch.no_grad():
                 out = model(input_ids, output_hidden_states=True, use_cache=False)
-            hidden = out.hidden_states[args.layer_boundary].squeeze(0)
-            _update_table_with_sequence(table, input_ids.squeeze(0), hidden)
-            del out, hidden
+            h = out.hidden_states[args.layer_boundary].squeeze(0)
+            token_ids = input_ids.squeeze(0)
+            mean_sum = h.sum(dim=0, keepdim=True).float() if mean_sum is None else mean_sum + h.sum(dim=0, keepdim=True).float()
+            mean_count += h.shape[0]
+            _update_table_with_sequence(table, token_ids, h)
+            del out, h
+
+        global_mean_ref = (mean_sum / max(mean_count, 1)).to(torch.float16)
 
         logger.info("Test: %d requests...", args.test_requests)
         for req_idx in range(args.test_requests):
             text = texts[args.warmup_requests + req_idx]
-            input_ids = tokenizer(
-                text,
-                return_tensors="pt",
-                truncation=True,
-                max_length=args.max_seq_len,
-            ).input_ids.to(device)
-
+            input_ids = tokenizer(text, return_tensors="pt", truncation=True, max_length=args.max_seq_len).input_ids.to(device)
             prefill_batch, prefill_forward_ms = _timed_prefill(model, input_ids, device)
             generated_tokens, decode_forward_ms = _timed_decode_generate(
                 model,
                 prefill_batch,
-                args.max_decode_tokens,
+                args.decode_tokens,
                 tokenizer.eos_token_id,
                 device,
             )
 
             prompt_len = input_ids.shape[1]
             decode_len = len(generated_tokens)
-            if decode_len == 0:
-                full_ids = input_ids
-            else:
-                full_ids = torch.cat(
-                    [input_ids, torch.tensor([generated_tokens], dtype=torch.long, device=device)],
-                    dim=1,
-                )
+            full_ids = input_ids if decode_len == 0 else torch.cat(
+                [input_ids, torch.tensor([generated_tokens], dtype=torch.long, device=device)],
+                dim=1,
+            )
             full_attention_mask = torch.ones_like(full_ids)
-
             with torch.no_grad():
                 full_out = model(full_ids, output_hidden_states=True, use_cache=False)
 
@@ -413,20 +328,47 @@ def run_experiment(args):
             full_logits = full_out.logits
             full_token_ids = full_ids.squeeze(0)
             seq_len = full_token_ids.shape[0]
-            tiers, refs = _classify_positions(table, full_token_ids, device)
 
+            tiers, refs = _classify_positions(table, full_token_ids, device)
             strategy_accum = defaultdict(lambda: {
-                "prefill": _phase_accumulator(),
-                "decode": _phase_accumulator(),
+                "prefill": {
+                    "bytes": 0,
+                    "raw_bytes": 0,
+                    "zlib_bytes": 0,
+                    "ideal_bytes": 0.0,
+                    "entropy_bpb_sum": 0.0,
+                    "cos_sum": 0.0,
+                    "cos_min": 1.0,
+                    "recon_e_sum": 0.0,
+                    "count": 0,
+                    "timing_sum": _init_timing(),
+                    "delta_count": 0,
+                    "unigram_count": 0,
+                },
+                "decode": {
+                    "bytes": 0,
+                    "raw_bytes": 0,
+                    "zlib_bytes": 0,
+                    "ideal_bytes": 0.0,
+                    "entropy_bpb_sum": 0.0,
+                    "cos_sum": 0.0,
+                    "cos_min": 1.0,
+                    "recon_e_sum": 0.0,
+                    "count": 0,
+                    "timing_sum": _init_timing(),
+                    "delta_count": 0,
+                    "unigram_count": 0,
+                },
             })
             recon_sequences = defaultdict(list)
+            history: List[torch.Tensor] = []
 
             for pos in range(seq_len):
                 phase = "prefill" if pos < prompt_len else "decode"
                 real = full_hidden[pos:pos + 1].to(torch.float16)
                 prev_h = full_hidden[pos - 1:pos].to(torch.float16) if pos > 0 else None
                 prev2_h = full_hidden[pos - 2:pos - 1].to(torch.float16) if pos > 1 else None
-                results = runner.run_all(real, refs[pos], prev_h, prev2_h)
+                results = runner.run_all(real, tiers[pos], refs[pos], prev_h, prev2_h, history, global_mean_ref.to(device))
 
                 for strategy_name, result in results.items():
                     recon = result["recon"]
@@ -450,15 +392,9 @@ def run_experiment(args):
                         acc["delta_count"] += 1
                     for key, value in result["timing"].items():
                         acc["timing_sum"][key] += value
-                    acc["pp_sender_ms_sum"] += result["pp_sender_ms"]
-                    acc["pp_receiver_ms_sum"] += result["pp_receiver_ms"]
-                    acc["pp_total_local_ms_sum"] += result["pp_total_local_ms"]
-                    for bw in BANDWIDTHS_MBPS:
-                        acc[f"pp_network_{bw}mbps_ms_sum"] += result[f"pp_network_{bw}mbps_ms"]
-                        acc[f"pp_e2e_{bw}mbps_ms_sum"] += result[f"pp_e2e_{bw}mbps_ms"]
 
                     if req_idx < args.detail_requests:
-                        row = {
+                        position_records.append({
                             "dataset": ds_name,
                             "request_index": req_idx,
                             "phase": phase,
@@ -480,15 +416,9 @@ def run_experiment(args):
                             "affine_gain": metrics["affine_gain"],
                             "recon_energy_explained": metrics["recon_energy_explained"],
                             "residual_coding_loss": metrics["residual_coding_loss"],
-                            "pp_sender_ms": result["pp_sender_ms"],
-                            "pp_receiver_ms": result["pp_receiver_ms"],
-                            "pp_total_local_ms": result["pp_total_local_ms"],
                             **{f"timing_{k}": v for k, v in result["timing"].items()},
-                        }
-                        for bw in BANDWIDTHS_MBPS:
-                            row[f"pp_network_{bw}mbps_ms"] = result[f"pp_network_{bw}mbps_ms"]
-                            row[f"pp_e2e_{bw}mbps_ms"] = result[f"pp_e2e_{bw}mbps_ms"]
-                        position_records.append(row)
+                        })
+                history.append(real)
 
             original_hidden_full = full_hidden.unsqueeze(0)
             for strategy_name in ALL_STRATEGIES:
@@ -532,7 +462,7 @@ def run_experiment(args):
                     if count == 0:
                         continue
                     raw_bytes = count * full_hidden.shape[-1] * 2
-                    row = {
+                    request_records.append({
                         "dataset": ds_name,
                         "request_index": req_idx,
                         "phase": phase_name,
@@ -558,22 +488,9 @@ def run_experiment(args):
                         "packet_entropy_bits_per_byte_mean": acc["entropy_bpb_sum"] / count,
                         "prefill_forward_ms": prefill_forward_ms,
                         "decode_forward_ms": decode_forward_ms,
-                        "decode_forward_per_token_ms": decode_forward_ms / max(decode_len, 1),
-                        "pp_sender_total_ms": acc["pp_sender_ms_sum"],
-                        "pp_sender_mean_ms": acc["pp_sender_ms_sum"] / count,
-                        "pp_receiver_total_ms": acc["pp_receiver_ms_sum"],
-                        "pp_receiver_mean_ms": acc["pp_receiver_ms_sum"] / count,
-                        "pp_local_total_ms": acc["pp_total_local_ms_sum"],
-                        "pp_local_mean_ms": acc["pp_total_local_ms_sum"] / count,
                         **{f"timing_{k}_sum": v for k, v in acc["timing_sum"].items()},
                         **{f"timing_{k}_mean": v / count for k, v in acc["timing_sum"].items()},
-                    }
-                    for bw in BANDWIDTHS_MBPS:
-                        row[f"pp_network_{bw}mbps_total_ms"] = acc[f"pp_network_{bw}mbps_ms_sum"]
-                        row[f"pp_network_{bw}mbps_mean_ms"] = acc[f"pp_network_{bw}mbps_ms_sum"] / count
-                        row[f"pp_e2e_{bw}mbps_total_ms"] = acc[f"pp_e2e_{bw}mbps_ms_sum"]
-                        row[f"pp_e2e_{bw}mbps_mean_ms"] = acc[f"pp_e2e_{bw}mbps_ms_sum"] / count
-                    request_records.append(row)
+                    })
 
             _update_table_with_sequence(table, full_token_ids, full_hidden)
             del full_out, full_hidden, full_logits
@@ -584,10 +501,10 @@ def run_experiment(args):
         gc.collect()
         torch.cuda.empty_cache()
 
-    pq.write_table(pa.Table.from_pylist(request_records), str(output_dir / "phasewise_pp_request_summary.parquet"))
-    pq.write_table(pa.Table.from_pylist(drift_records), str(output_dir / "phasewise_pp_drift.parquet"))
+    pq.write_table(pa.Table.from_pylist(request_records), str(output_dir / "phasewise_request_summary.parquet"))
+    pq.write_table(pa.Table.from_pylist(drift_records), str(output_dir / "phasewise_drift.parquet"))
     if position_records:
-        pq.write_table(pa.Table.from_pylist(position_records), str(output_dir / "phasewise_pp_position_detail.parquet"))
+        pq.write_table(pa.Table.from_pylist(position_records), str(output_dir / "phasewise_position_detail.parquet"))
     logger.info(
         "Saved %d request records, %d drift records, %d position records",
         len(request_records),
@@ -597,18 +514,17 @@ def run_experiment(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Dynamic decode phasewise PP communication evaluation")
+    parser = argparse.ArgumentParser(description="Large-sample phasewise compression evaluation")
     parser.add_argument("--model", default="/root/share/models/Qwen2.5-32B-Instruct")
     parser.add_argument("--gpu", type=int, default=1)
     parser.add_argument("--warmup-requests", type=int, default=30)
     parser.add_argument("--test-requests", type=int, default=100)
-    parser.add_argument("--max-decode-tokens", type=int, default=512)
-    parser.add_argument("--detail-requests", type=int, default=2)
+    parser.add_argument("--decode-tokens", type=int, default=64)
+    parser.add_argument("--detail-requests", type=int, default=3)
     parser.add_argument("--max-seq-len", type=int, default=384)
     parser.add_argument("--layer-boundary", type=int, default=6)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--output-dir", default="results_phasewise_pp")
-    parser.add_argument("--clean-output", action="store_true")
+    parser.add_argument("--output-dir", default="results_phasewise_large")
     parser.add_argument("--datasets", nargs="+", default=["wikitext2"])
     args = parser.parse_args()
     if args.warmup_requests < 20:
