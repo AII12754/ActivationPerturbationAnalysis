@@ -13,6 +13,16 @@ The PP latency model includes:
 - Sender-side codec work.
 - Simulated transmission time under 200 / 500 / 1000 Mbps.
 - Receiver-side dequantization and reconstruction work.
+
+Important scope note:
+
+1. This script is a phasewise strategy evaluator, not the production pipeline.
+2. It does not execute a real overlapped sender/receiver runtime.
+3. Its PP latency fields are an analytical critical-path model.
+4. Token-only operations such as reference lookup and table update are treated
+    as hidden/off-critical-path when interpreting the PP numbers.
+5. For absolute system latency, use the production pipeline implementation in
+    delta_coding_system/pipeline.py rather than this script.
 """
 
 from __future__ import annotations
@@ -21,6 +31,7 @@ import argparse
 import gc
 import logging
 import random
+import shutil
 import sys
 import time
 from collections import defaultdict
@@ -324,6 +335,15 @@ def run_experiment(args):
 
     runner = ShortlistStrategyRunner()
     output_dir = Path(args.output_dir)
+    if output_dir.exists() and args.clean_output:
+        logger.info("Cleaning existing output directory: %s", output_dir)
+        shutil.rmtree(output_dir)
+    elif output_dir.exists() and any(output_dir.iterdir()):
+        logger.warning(
+            "Output directory already exists and is non-empty: %s. "
+            "Use --clean-output to avoid stale-result contamination.",
+            output_dir,
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     request_records = []
@@ -588,6 +608,7 @@ def main():
     parser.add_argument("--layer-boundary", type=int, default=6)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output-dir", default="results_phasewise_pp")
+    parser.add_argument("--clean-output", action="store_true")
     parser.add_argument("--datasets", nargs="+", default=["wikitext2"])
     args = parser.parse_args()
     if args.warmup_requests < 20:

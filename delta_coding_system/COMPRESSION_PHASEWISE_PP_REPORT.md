@@ -103,9 +103,35 @@
 
 ---
 
-## 4. PP 通信端到端时延定义
+## 4. Overlap 实现边界
 
-本报告中的 PP 端到端时延定义为:
+这里先直接给判断:
+
+1. 当前这份 phasewise PP 实验脚本, 并没有真实执行完整 overlap runtime。
+2. 它做的是策略级 phasewise 分析, 然后用 analytical critical-path 模型去估算 PP 通信等待时间。
+3. 因此它适合比较不同策略的相对排序, 但不适合直接拿来当生产系统的绝对额外时延。
+
+具体来说:
+
+1. 生产系统里的 overlap 实现在 [delta_coding_system/pipeline.py](delta_coding_system/pipeline.py):
+   - prefill 阶段会把 classify 和 forward 并发调度
+   - decode 阶段会把 classify 与单步 forward 并发调度
+   - table update 走独立线程池, 试图从主 critical path 中剥离
+2. 但当前 phasewise PP 脚本 [delta_coding_system/compression_experiment_phasewise_pp.py](delta_coding_system/compression_experiment_phasewise_pp.py) 并没有真实使用这个 pipeline runtime:
+   - prefill 的 reference 匹配发生在完整 full_out 之后
+   - table update 也是请求末尾串行调用
+   - 各 token 的策略评估与 drift 回放也是离线顺序执行
+
+因此, 对“是否正确实现了 overlap”这个问题, 更准确的回答是:
+
+1. 生产 pipeline 有部分 overlap 实现。
+2. 当前 phasewise PP 实验没有真实执行完整 overlap, 只是把 token-only 操作视为可被掩盖, 从而不纳入 PP critical path。
+
+---
+
+## 5. PP 通信端到端时延定义
+
+本报告中的 PP 端到端时延 analytical 模型定义为:
 
 $$
 T_{pp\_e2e}(b) = T_{sender} + T_{network}(b) + T_{receiver}
@@ -133,32 +159,41 @@ $$
 
 这里的 b 分别取 200 Mbps, 500 Mbps, 1000 Mbps。
 
-也就是说, 这不是只看编码时间, 而是模拟从第 6 层 hidden 准备好, 到下一阶段拿到重建 hidden 可以继续推理之间的完整等待时间。
+这里有两个很重要的口径约束:
+
+1. prefill 阶段应看整段 prompt hidden 的总传输时延, 而不是单 token 平均值。
+2. decode 阶段才适合看单 token 平均时延, 因为 decode 本身就是 token-by-token 推进。
+
+上一版报告在这一点上写错了: 它把 prefill 网络时延写成了 per-position mean, 这会明显低估真实 prompt 级传输等待时间。
 
 ---
 
-## 5. Delta 路径结果
+## 6. Delta 路径结果
 
 ### 5.1 Prefill 阶段
 
-| 策略 | 压缩率 | sender ms | 200Mbps 网络 ms | receiver ms | 200Mbps e2e ms | 500Mbps e2e ms | 1000Mbps e2e ms | top1 match | logit cos | KL mean |
+下面的 prefill 表全部改为“单条 request 的总等待时间”。
+
+| 策略 | 压缩率 | sender total ms | 200Mbps 网络 total ms | receiver total ms | 200Mbps e2e total ms | 500Mbps e2e total ms | 1000Mbps e2e total ms | top1 match | logit cos | KL mean |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| baseline_current | 2.3325x | 0.4380 | 0.1774 | 0.1682 | 0.7837 | 0.6772 | 0.6417 | 0.996165 | 0.999903 | 0.000421 |
-| delta_noaffine_int4_k1 | 2.3334x | 0.3796 | 0.1774 | 0.1637 | 0.7207 | 0.6143 | 0.5788 | 0.995165 | 0.999861 | 0.000581 |
-| delta_int2_k8_out4 | 2.5215x | 0.6159 | 0.1659 | 0.1901 | 0.9719 | 0.8723 | 0.8391 | 0.990364 | 0.999470 | 0.001561 |
-| delta_noaffine_int2_k8_out4 | 2.5226x | 0.5580 | 0.1659 | 0.1826 | 0.9064 | 0.8069 | 0.7737 | 0.990326 | 0.999411 | 0.002097 |
-| delta_int2_k8_out8_entropy | 2.5058x | 0.5732 | 0.1668 | 0.1878 | 0.9278 | 0.8277 | 0.7943 | 0.990511 | 0.999488 | 0.001262 |
+| baseline_current | 2.3325x | 104.69 | 42.85 | 40.46 | 188.01 | 162.30 | 153.72 | 0.996165 | 0.999903 | 0.000421 |
+| delta_noaffine_int4_k1 | 2.3334x | 90.76 | 42.84 | 39.40 | 172.99 | 147.29 | 138.72 | 0.995165 | 0.999861 | 0.000581 |
+| delta_int2_k8_out4 | 2.5215x | 146.90 | 40.14 | 46.12 | 233.15 | 209.07 | 201.04 | 0.990364 | 0.999470 | 0.001561 |
+| delta_noaffine_int2_k8_out4 | 2.5226x | 133.09 | 40.13 | 43.84 | 217.06 | 192.98 | 184.96 | 0.990326 | 0.999411 | 0.002097 |
+| delta_int2_k8_out8_entropy | 2.5058x | 138.87 | 40.37 | 45.14 | 224.38 | 200.16 | 192.09 | 0.990511 | 0.999488 | 0.001262 |
 
 结论:
 
 1. delta 默认仍然应当选 delta_noaffine_int4_k1。
 2. 在 prefill 阶段, 它相比 baseline_current:
    - 压缩率几乎不变
-   - 500 Mbps 下 PP e2e 从 0.6772 ms 降到 0.6143 ms, 下降约 9.3%
+   - 500 Mbps 下整段 prompt 的 PP e2e 从 162.30 ms 降到 147.29 ms, 下降约 9.2%
    - 质量只发生很小退化
 3. Int2 系列可以继续作为压缩优先备选, 但不应默认替代 Int4。
 
 ### 5.2 Decode 阶段
+
+decode 阶段保留单 token 平均值, 因为这是 decode 的自然口径。
 
 | 策略 | 压缩率 | sender ms | 200Mbps 网络 ms | receiver ms | 200Mbps e2e ms | 500Mbps e2e ms | 1000Mbps e2e ms | top1 match | logit cos | KL mean |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -176,17 +211,17 @@ $$
 
 ---
 
-## 6. Unigram 路径结果
+## 7. Unigram 路径结果
 
 ### 6.1 Prefill 阶段
 
-| 策略 | 压缩率 | sender ms | 200Mbps 网络 ms | receiver ms | 200Mbps e2e ms | 500Mbps e2e ms | 1000Mbps e2e ms | top1 match | logit cos | KL mean |
+| 策略 | 压缩率 | sender total ms | 200Mbps 网络 total ms | receiver total ms | 200Mbps e2e total ms | 500Mbps e2e total ms | 1000Mbps e2e total ms | top1 match | logit cos | KL mean |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| unigram_int4_k4 | 3.3385x | 0.4529 | 0.1227 | 0.2057 | 0.7814 | 0.7077 | 0.6832 | 0.991584 | 0.999662 | 0.000972 |
-| prev2_blend_int4_k2 | 3.4473x | 0.5332 | 0.1191 | 0.2238 | 0.8760 | 0.8046 | 0.7808 | 0.988963 | 0.999341 | 0.003177 |
-| prev_int4_k2 | 3.4632x | 0.6299 | 0.1184 | 0.2306 | 0.9789 | 0.9079 | 0.8842 | 0.988511 | 0.999331 | 0.003436 |
-| prev_gs256_k2 | 3.6116x | 0.6281 | 0.1136 | 0.2300 | 0.9716 | 0.9035 | 0.8807 | 0.984045 | 0.998452 | 0.010661 |
-| prev_int2_k8_out4 | 4.2396x | 0.9059 | 0.0971 | 0.2613 | 1.2643 | 1.2061 | 1.1867 | 0.966533 | 0.996073 | 0.016343 |
+| unigram_int4_k4 | 3.3385x | 108.70 | 29.54 | 49.56 | 187.81 | 170.08 | 164.17 | 0.991584 | 0.999662 | 0.000972 |
+| prev2_blend_int4_k2 | 3.4473x | 128.62 | 28.25 | 54.43 | 211.30 | 194.35 | 188.70 | 0.988963 | 0.999341 | 0.003177 |
+| prev_int4_k2 | 3.4632x | 152.56 | 28.21 | 55.99 | 236.76 | 219.83 | 214.19 | 0.988511 | 0.999331 | 0.003436 |
+| prev_gs256_k2 | 3.6116x | 152.14 | 27.01 | 55.84 | 234.99 | 218.78 | 213.38 | 0.984045 | 0.998452 | 0.010661 |
+| prev_int2_k8_out4 | 4.2396x | 221.33 | 22.93 | 63.78 | 308.04 | 294.29 | 289.70 | 0.966533 | 0.996073 | 0.016343 |
 
 结论:
 
@@ -216,7 +251,7 @@ $$
 
 ---
 
-## 7. 与固定 64 Token 结果相比, 长 Decode 下发生了什么
+## 8. 与固定 64 Token 结果相比, 长 Decode 下发生了什么
 
 对比上一轮固定 64 token 结果:
 
@@ -282,13 +317,52 @@ prev_int4_k2:
 
 ---
 
-## 8. 对“高时延”的重新判断
+## 9. 为什么它看起来比旧 Pipeline 更慢
+
+你的判断是对的: 当前这份 phasewise PP 报告里的绝对额外开销, 确实明显高于之前 pipeline 系统报告。
+
+这不是模型忽然变慢了, 而是口径不同。
+
+已有 pipeline baseline 结果显示:
+
+1. 平均 prefill forward: 529.86 ms
+2. classify: 0.056 ms
+3. encode_delta: 20.76 ms
+4. encode_self_ref: 1.52 ms
+5. encode_unigram: 3.56 ms
+6. table_update: 0.007 ms
+7. total: 616.66 ms
+
+也就是说, 旧 pipeline 系统里 prefill 额外开销大约只有:
+
+$$
+20.76 + 1.52 + 3.56 + 0.056 + 0.007 \approx 25.9\text{ ms}
+$$
+
+但这份 phasewise PP 报告里, baseline_current 的 prefill 500 Mbps e2e total 却是 162.30 ms。
+
+差异来自三件事:
+
+1. 旧 pipeline 是实际系统实现, delta 路径按 tier batch 编码, 不是逐 token 单独编码。
+2. 旧 pipeline 确实包含 classify/table-update 与 forward 的 overlap 设计。
+3. 当前 phasewise PP 脚本是离线 phasewise 策略评估器, 会逐位置重建和统计, 并不等价于真实 batch pipeline。
+
+因此正确解释应该是:
+
+1. 当前 phasewise PP 结果适合比较策略相对优劣。
+2. 它不适合直接作为系统绝对额外时延。
+3. 如果要回答“真实系统会不会比旧 pipeline 更慢”, 必须把 shortlist 策略真正接入 [delta_coding_system/pipeline.py](delta_coding_system/pipeline.py) 再测一次系统级端到端 latency。
+
+---
+
+## 10. 对“高时延”的重新判断
 
 在 PP 端到端口径下, 三个结论非常明确:
 
-1. 200 Mbps 下, 网络传输已经与本地 codec 开销同量级, 不能再忽略。
-2. 500 Mbps 和 1000 Mbps 下, 发送侧编码与接收侧重建重新成为主要组成部分。
-3. 也就是说, 真正的 latency 决策已经从“单纯压 codec 微算子”变成“压缩率、发送端负载、接收端负载、网络带宽”四者共同折中。
+1. 对 prefill, 网络时延绝不能按单 token 均值解释, 必须按整段 request 总传输量解释。
+2. 对 decode, 才适合按单 token 平均值解释。
+3. 200 Mbps 下, prefill 总网络时延已经明显不可忽略。
+4. 500 Mbps 和 1000 Mbps 下, 本地 sender/receiver 负载仍然是大头。
 
 以 decode 阶段两个默认候选为例:
 
@@ -333,7 +407,7 @@ prev_int4_k2 在 500 Mbps 下:
 
 ---
 
-## 9. 最终结论
+## 11. 最终结论
 
 ### 9.1 默认策略结论保持不变
 
@@ -357,14 +431,26 @@ prev_int4_k2 在 500 Mbps 下:
 2. 本轮实验已经按这个方式运行。
 3. 如果不启用 KV Cache, decode 计算量和端到端时延都会显著失真, 不再代表真实部署。
 
+### 9.4 关于 overlap 的最终判断
+
+最终需要把两句话区分开:
+
+1. “这些 token-only 操作理论上可以在模型推理时被掩盖” 这件事是合理的。
+2. “当前 phasewise PP 实验已经真实实现并测量了这种 overlap” 这件事不成立。
+
+当前实验里, overlap 只是 analytical assumption, 不是 runtime fact。
+
 ---
 
-## 10. 工程建议
+## 12. 工程建议
 
 在你明确说“先不要改之前系统”的前提下, 当前最合理的下一步是:
 
 1. 先保持系统默认配置不变。
-2. 以本报告结论作为新默认候选的最终实验依据。
-3. 下一轮只做两类工程验证:
-   - 把这两个默认候选接进真实 pipeline, 测端到端 latency
-   - 在真实链路里替换模拟带宽为实测带宽, 验证 200 / 500 / 1000 Mbps 模型误差
+2. 把这份报告只用作 shortlist 策略排序依据, 不要直接当系统绝对时延结论。
+3. 如果下一轮要重做系统级实验, 应该:
+   - 先清理旧结果目录, 避免旧数据污染新数据
+   - 先检查 GPU 1-7 是否完全空闲, 不使用 GPU 0
+   - 将 shortlist 策略真正接进 [delta_coding_system/pipeline.py](delta_coding_system/pipeline.py)
+   - 用真实 batch encode + overlap runtime 重测端到端 latency
+4. 只有完成这一步, 才能严肃回答“新默认策略会不会让系统比旧 pipeline 更慢”。
