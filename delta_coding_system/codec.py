@@ -13,7 +13,9 @@ All operations are GPU-native.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Iterable, Optional, Tuple
+
+import zlib
 
 import torch
 
@@ -46,6 +48,25 @@ class Int8OutlierPacket:
     topk_indices: torch.Tensor          # (batch, num_groups, top_k) uint8
     group_size: int
     top_k: int
+
+
+def serialize_tensor(tensor: Optional[torch.Tensor]) -> bytes:
+    """Serialize a tensor into a contiguous raw byte payload on CPU."""
+    if tensor is None or tensor.numel() == 0:
+        return b""
+    return tensor.detach().contiguous().cpu().numpy().tobytes()
+
+
+def entropy_coded_num_bytes(tensors: Iterable[Optional[torch.Tensor]], level: int = 1) -> int:
+    """Return compressed payload size in bytes for a sequence of tensors.
+
+    This provides a real lossless entropy-coding proxy for transfer accounting.
+    It is intentionally CPU-side and should be used only for payload-size estimation.
+    """
+    payload = b"".join(serialize_tensor(tensor) for tensor in tensors)
+    if not payload:
+        return 0
+    return len(zlib.compress(payload, level=level))
 
 
 # ===================================================================
@@ -146,6 +167,76 @@ def groupwise_int4_dequantize_topk(
 
     q_grouped = q_flat.reshape(batch, num_groups, group_size)
 
+    scales_f = scales.float().unsqueeze(-1)
+    zeros_f = zero_points.float().unsqueeze(-1)
+    dequant = q_grouped.float() * scales_f + zeros_f
+
+    topk_idx_long = topk_indices.long()
+    dequant.scatter_(-1, topk_idx_long, topk_values.float())
+
+    return dequant.reshape(batch, hidden_dim).to(torch.float16)
+
+
+def groupwise_int2_quantize_topk(
+    delta: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Group-wise Int2 quantization with top-k fp16 outlier extraction."""
+    batch, hidden_dim = delta.shape
+    num_groups = hidden_dim // group_size
+    grouped = delta.reshape(batch, num_groups, group_size)
+
+    abs_grouped = grouped.abs()
+    _, topk_idx = torch.topk(abs_grouped, top_k, dim=-1)
+    topk_values = grouped.gather(-1, topk_idx).to(torch.float16)
+    topk_indices = topk_idx.to(torch.uint8)
+
+    grouped.scatter_(-1, topk_idx, 0.0)
+
+    g_min = grouped.min(dim=-1).values
+    g_max = grouped.max(dim=-1).values
+    scales = ((g_max - g_min) / 3.0).to(torch.float16)
+    zero_points = g_min.to(torch.float16)
+
+    scales_f = scales.float().unsqueeze(-1)
+    zeros_f = zero_points.float().unsqueeze(-1)
+    q = torch.clamp(
+        torch.round((grouped - zeros_f) / (scales_f + 1e-10)),
+        0, 3,
+    ).to(torch.uint8)
+
+    q_flat = q.reshape(batch, hidden_dim)
+    packed = (
+        (q_flat[:, 0::4] << 6)
+        | (q_flat[:, 1::4] << 4)
+        | (q_flat[:, 2::4] << 2)
+        | q_flat[:, 3::4]
+    )
+
+    return packed, scales, zero_points, topk_values, topk_indices
+
+
+def groupwise_int2_dequantize_topk(
+    packed: torch.Tensor,
+    scales: torch.Tensor,
+    zero_points: torch.Tensor,
+    topk_values: torch.Tensor,
+    topk_indices: torch.Tensor,
+    group_size: int,
+    hidden_dim: int,
+) -> torch.Tensor:
+    """Dequantize Int2 groups and overlay top-k fp16 outliers."""
+    batch = packed.shape[0]
+    num_groups = hidden_dim // group_size
+
+    v0 = (packed >> 6) & 0x03
+    v1 = (packed >> 4) & 0x03
+    v2 = (packed >> 2) & 0x03
+    v3 = packed & 0x03
+    q_flat = torch.stack([v0, v1, v2, v3], dim=-1).reshape(batch, hidden_dim).to(torch.uint8)
+
+    q_grouped = q_flat.reshape(batch, num_groups, group_size)
     scales_f = scales.float().unsqueeze(-1)
     zeros_f = zero_points.float().unsqueeze(-1)
     dequant = q_grouped.float() * scales_f + zeros_f

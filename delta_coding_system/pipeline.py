@@ -16,6 +16,7 @@ Decode pipeline (per token):
 from __future__ import annotations
 
 import logging
+import re
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -32,7 +33,10 @@ from delta_coding_system.codec import (
     compute_delta,
     compute_transfer_size,
     compute_transfer_size_int8_outlier,
+    entropy_coded_num_bytes,
     encode_decode_single,
+    groupwise_int2_dequantize_topk,
+    groupwise_int2_quantize_topk,
     groupwise_int4_dequantize_topk,
     groupwise_int4_quantize_topk,
     groupwise_int8_dequantize_topk,
@@ -146,6 +150,7 @@ class OverlappedPipeline:
         max_gpu_tables: int = 3,
         delta_strategy: str = "delta_noaffine_int4_k1",
         unigram_strategy: str = "unigram_int4_k4",
+        track_transfer_bytes: bool = True,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -159,6 +164,7 @@ class OverlappedPipeline:
         self.hidden_dim = model.config.hidden_size
         self.delta_strategy = delta_strategy
         self.unigram_strategy = unigram_strategy
+        self.track_transfer_bytes = track_transfer_bytes
 
         if device is None:
             device = next(model.parameters()).device
@@ -228,10 +234,27 @@ class OverlappedPipeline:
             self.table_manager.offload_all()
 
     def _delta_uses_affine(self) -> bool:
-        return self.delta_strategy != "delta_noaffine_int4_k1"
+        return "noaffine" not in self.delta_strategy
+
+    def _delta_uses_entropy(self) -> bool:
+        return "entropy" in self.delta_strategy
+
+    def _delta_params(self) -> Tuple[int, int]:
+        bits = 2 if "int2" in self.delta_strategy else 4
+        match = re.search(r"_k(\d+)", self.delta_strategy)
+        top_k = int(match.group(1)) if match is not None else self.top_k
+        return bits, top_k
 
     def _unigram_uses_direct_int4(self) -> bool:
         return self.unigram_strategy == "unigram_int4_k4"
+
+    def _unigram_uses_prev_ref(self) -> bool:
+        return self.unigram_strategy in {"prev_int4_k2", "prev_gs256_k2"}
+
+    def _unigram_prev_params(self) -> Tuple[int, int]:
+        if self.unigram_strategy == "prev_gs256_k2":
+            return 256, 2
+        return self.group_size, 2
 
     def _delta_transfer_size(
         self,
@@ -244,6 +267,24 @@ class OverlappedPipeline:
         include_affine: bool,
         include_ref_idx: bool,
     ) -> int:
+        if not self.track_transfer_bytes:
+            return 0
+
+        if self._delta_uses_entropy():
+            entropy_bytes = entropy_coded_num_bytes([
+                packed,
+                scales,
+                zeros,
+                topk_values,
+                topk_indices,
+            ])
+            if include_affine:
+                entropy_bytes += batch_size * 2
+                entropy_bytes += batch_size * 2
+            if include_ref_idx:
+                entropy_bytes += batch_size * 8
+            return entropy_bytes
+
         total = 0
         total += packed.nelement() * packed.element_size()
         total += scales.nelement() * scales.element_size()
@@ -265,6 +306,8 @@ class OverlappedPipeline:
         topk_values: torch.Tensor,
         topk_indices: torch.Tensor,
     ) -> int:
+        if not self.track_transfer_bytes:
+            return 0
         return (
             packed.nelement() * packed.element_size()
             + scales.nelement() * scales.element_size()
@@ -305,12 +348,21 @@ class OverlappedPipeline:
             bias = torch.zeros(real_batch.shape[0], dtype=torch.float16, device=self.device)
             ref_t = ref_batch
         delta = compute_delta(real_batch, ref_t)
-        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-            delta, self.group_size, self.top_k,
-        )
-        dequant = groupwise_int4_dequantize_topk(
-            packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
-        )
+        quant_bits, top_k = self._delta_params()
+        if quant_bits == 2:
+            packed, scales, zeros, tv, ti = groupwise_int2_quantize_topk(
+                delta, self.group_size, top_k,
+            )
+            dequant = groupwise_int2_dequantize_topk(
+                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
+            )
+        else:
+            packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
+                delta, self.group_size, top_k,
+            )
+            dequant = groupwise_int4_dequantize_topk(
+                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
+            )
         if use_affine:
             recon = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
         else:
@@ -334,7 +386,28 @@ class OverlappedPipeline:
             real_batch, self.int8_group_size, self.int8_outlier_top_k,
         )
         recon = groupwise_int8_dequantize_topk(int8_pkt)
-        transfer = compute_transfer_size_int8_outlier(int8_pkt)
+        transfer = compute_transfer_size_int8_outlier(int8_pkt) if self.track_transfer_bytes else 0
+        return recon, transfer
+
+    def _encode_prev_unigram_batch(
+        self,
+        real_batch: torch.Tensor,
+        ref_batch: torch.Tensor,
+    ) -> Tuple[torch.Tensor, int]:
+        group_size, top_k = self._unigram_prev_params()
+        scale, bias = compute_affine_params(real_batch, ref_batch)
+        ref_t = apply_affine(ref_batch, scale, bias)
+        delta = compute_delta(real_batch, ref_t)
+        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
+            delta, group_size, top_k,
+        )
+        dequant = groupwise_int4_dequantize_topk(
+            packed, scales, zeros, tv, ti, group_size, self.hidden_dim,
+        )
+        recon = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
+        transfer = self._delta_transfer_size(
+            packed, scales, zeros, tv, ti, real_batch.shape[0], True, False,
+        )
         return recon, transfer
 
     def _encode_decode_step(
@@ -481,10 +554,25 @@ class OverlappedPipeline:
 
         # 4b. Encode UNIGRAM (Int8 + outliers)
         if unigram_indices:
-            idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
-            real_uni = real_acts[idx_u]
-            recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
-            reconstructed[idx_u] = recon_uni
+            if self._unigram_uses_prev_ref():
+                unigram_transfer = 0
+                for pos in sorted(unigram_indices):
+                    real_uni = real_acts[pos].unsqueeze(0)
+                    if pos > 0:
+                        prev_ref = reconstructed[pos - 1].unsqueeze(0)
+                        if torch.count_nonzero(prev_ref).item() == 0:
+                            prev_ref = real_acts[pos - 1].unsqueeze(0)
+                        recon_uni, xfer = self._encode_prev_unigram_batch(real_uni, prev_ref)
+                    else:
+                        recon_uni, xfer = self._encode_unigram_batch(real_uni)
+                    reconstructed[pos] = recon_uni.squeeze(0)
+                    unigram_transfer += xfer
+                transfer_bytes_by_tier["unigram"] = unigram_transfer
+            else:
+                idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
+                real_uni = real_acts[idx_u]
+                recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
+                reconstructed[idx_u] = recon_uni
 
         evt_after_unigram.record()
 
@@ -662,8 +750,20 @@ class OverlappedPipeline:
 
             # Encode (GPU, on critical path) — CUDA events, no sync
             real_h_2d = h.unsqueeze(0)
+            if tier == "unigram" and self._unigram_uses_prev_ref():
+                if decode_pos - 1 < len(input_ids):
+                    prev_ref = prefill_hidden[decode_pos - 1].unsqueeze(0)
+                elif (decode_pos - 1) in reconstructed_hiddens:
+                    prev_ref = reconstructed_hiddens[decode_pos - 1].unsqueeze(0)
+                else:
+                    prev_ref = None
+            else:
+                prev_ref = None
             evt_enc_start.record()
-            recon, xfer_bytes = self._encode_decode_step(real_h_2d, ref_h, tier)
+            if tier == "unigram" and prev_ref is not None and self._unigram_uses_prev_ref():
+                recon, xfer_bytes = self._encode_prev_unigram_batch(real_h_2d, prev_ref)
+            else:
+                recon, xfer_bytes = self._encode_decode_step(real_h_2d, ref_h, tier)
             evt_enc_end.record()
 
             # Sync once per step to read cosine similarity .item()

@@ -13,7 +13,7 @@
 
 1. [delta_coding_system/benchmarks/run_humaneval_benchmark.py](delta_coding_system/benchmarks/run_humaneval_benchmark.py)
 
-这个脚本只输出你关心的指标:
+这个脚本只输出你关心的指标,并且现在可以一次对比多组压缩配置,包括 delta 路径和 unigram 路径策略:
 
 1. compressed system 最终分数
 2. FP16 baseline 最终分数
@@ -21,12 +21,19 @@
 4. FP16 baseline 的 prefill/decode 总通信 e2e 时延
 5. compressed system 的 prefill/decode/overall 通信量压缩百分比
 
+当前默认行为:
+1. 默认不 warmup
+2. 默认只输出最终分数
+3. 默认不跑 FP16 baseline
+4. 只有显式传 `--no-score-only` 或 `--include-fp16-baseline` 时才会回到更慢的完整统计模式
+
 示例:
 
 ```bash
 python delta_coding_system/benchmarks/run_humaneval_benchmark.py \
-	--gpu 1 \
+	--gpu 4 \
 	--bandwidth-mbps 200 \
+	--config optimized_default delta_noaffine_int2_k8_unigram_int4 prev_int4_k2 \
 	--max-samples 164 \
 	--output results_humaneval_benchmark/summary.json
 ```
@@ -63,11 +70,45 @@ python delta_coding_system/benchmarks/run_humaneval_benchmark.py \
 
 ### LongBench / InfiniteBench / LooGLE / L-eval
 
-状态: 数据现成,但还没有接入统一评分脚本
+状态: LongBench 英文可自动判分子集现已接入,其他长文本 benchmark 仍未统一接入
 
 原因:
 1. 各子任务 metric 不同,包括 EM、F1、ROUGE、检索准确率等
-2. 更适合在 HumanEval 跑通后,再做统一 task-specific scorer
+2. 当前已优先接入最容易稳定自动评分的英文子任务:
+	- `hotpotqa_e`
+	- `2wikimqa_e`
+	- `musique`
+	- `qasper`
+	- `triviaqa_e`
+	- `passage_retrieval_en_e`
+	- `passage_count_e`
+3. 现已补充可自动判分的长上下文任务:
+	- `narrativeqa` (`qa_f1`)
+	- `qmsum` (`rouge_l`)
+	- `gov_report` (`rouge_l`)
+	- `passage_count` (`count_exact`)
+4. 现在也支持把 `fp16_baseline` 当作 LongBench 对比配置直接一起跑
+
+现成脚本:
+
+1. [delta_coding_system/benchmarks/run_longbench_benchmark.py](delta_coding_system/benchmarks/run_longbench_benchmark.py)
+
+默认特点:
+1. 默认不 warmup
+2. 默认只输出最终分数
+3. 默认跑英文可自动判分子集
+4. 默认输出 overall 平均分和分 task 分数
+
+示例:
+
+```bash
+python delta_coding_system/benchmarks/run_longbench_benchmark.py \
+	--gpu 5 \
+	--config fp16_baseline delta_noaffine_int2_k2_unigram_int4 \
+	--tasks narrativeqa musique qmsum gov_report passage_count \
+	--samples-per-task 20 \
+	--output results_longbench/summary_gpu5.json
+```
 
 ## 核心 benchmark 入口
 
