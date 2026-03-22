@@ -77,6 +77,7 @@ class PrefillResult:
     encode_unigram_ms: float = 0.0
     table_update_ms: float = 0.0
     total_ms: float = 0.0
+    reconstructed_hidden: Optional[torch.Tensor] = None
 
 
 @dataclass
@@ -117,6 +118,8 @@ class DecodeResult:
     total_encode_ms: float = 0.0
     total_table_update_ms: float = 0.0
     total_ms: float = 0.0
+    generated_token_ids: List[int] = field(default_factory=list)
+    reconstructed_hidden: Optional[torch.Tensor] = None
 
 
 # ===================================================================
@@ -141,6 +144,8 @@ class OverlappedPipeline:
         device: torch.device = None,
         domain_aware: bool = False,
         max_gpu_tables: int = 3,
+        delta_strategy: str = "baseline_current",
+        unigram_strategy: str = "baseline_current",
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -152,6 +157,8 @@ class OverlappedPipeline:
         self.decode_tokens = decode_tokens
         self.max_seq_len = max_seq_len
         self.hidden_dim = model.config.hidden_size
+        self.delta_strategy = delta_strategy
+        self.unigram_strategy = unigram_strategy
 
         if device is None:
             device = next(model.parameters()).device
@@ -180,6 +187,7 @@ class OverlappedPipeline:
             )
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
+        self._pending_prefill_update: Optional[Future] = None
 
         # Import extraction helpers
         from activation_science.core.extraction import (
@@ -211,10 +219,135 @@ class OverlappedPipeline:
 
     def shutdown(self):
         """Shutdown the thread pool executors."""
+        if self._pending_prefill_update is not None:
+            self._pending_prefill_update.result()
+            self._pending_prefill_update = None
         self.classify_executor.shutdown(wait=False)
         self.update_executor.shutdown(wait=False)
         if self.domain_aware and self.table_manager is not None:
             self.table_manager.offload_all()
+
+    def _delta_uses_affine(self) -> bool:
+        return self.delta_strategy != "delta_noaffine_int4_k1"
+
+    def _unigram_uses_direct_int4(self) -> bool:
+        return self.unigram_strategy == "unigram_int4_k4"
+
+    def _delta_transfer_size(
+        self,
+        packed: torch.Tensor,
+        scales: torch.Tensor,
+        zeros: torch.Tensor,
+        topk_values: torch.Tensor,
+        topk_indices: torch.Tensor,
+        batch_size: int,
+        include_affine: bool,
+        include_ref_idx: bool,
+    ) -> int:
+        total = 0
+        total += packed.nelement() * packed.element_size()
+        total += scales.nelement() * scales.element_size()
+        total += zeros.nelement() * zeros.element_size()
+        total += topk_values.nelement() * topk_values.element_size()
+        total += topk_indices.nelement() * topk_indices.element_size()
+        if include_affine:
+            total += batch_size * 2
+            total += batch_size * 2
+        if include_ref_idx:
+            total += batch_size * 8
+        return total
+
+    def _direct_int4_transfer_size(
+        self,
+        packed: torch.Tensor,
+        scales: torch.Tensor,
+        zeros: torch.Tensor,
+        topk_values: torch.Tensor,
+        topk_indices: torch.Tensor,
+    ) -> int:
+        return (
+            packed.nelement() * packed.element_size()
+            + scales.nelement() * scales.element_size()
+            + zeros.nelement() * zeros.element_size()
+            + topk_values.nelement() * topk_values.element_size()
+            + topk_indices.nelement() * topk_indices.element_size()
+        )
+
+    def _build_local_prompt_refs(
+        self,
+        token_ids: List[int],
+        hidden_states: torch.Tensor,
+    ) -> Tuple[Dict[Tuple[int, int, int], torch.Tensor], Dict[Tuple[int, int], torch.Tensor]]:
+        trigram_refs: Dict[Tuple[int, int, int], torch.Tensor] = {}
+        bigram_refs: Dict[Tuple[int, int], torch.Tensor] = {}
+        hidden_fp = hidden_states.to(torch.float16).detach()
+        for i in range(len(token_ids)):
+            if i >= 1:
+                key_bi = (token_ids[i - 1], token_ids[i])
+                bigram_refs.setdefault(key_bi, hidden_fp[i])
+            if i >= 2:
+                key_tri = (token_ids[i - 2], token_ids[i - 1], token_ids[i])
+                trigram_refs.setdefault(key_tri, hidden_fp[i])
+        return trigram_refs, bigram_refs
+
+    def _encode_delta_batch(
+        self,
+        real_batch: torch.Tensor,
+        ref_batch: torch.Tensor,
+        include_ref_idx: bool,
+    ) -> Tuple[torch.Tensor, int]:
+        use_affine = self._delta_uses_affine()
+        if use_affine:
+            scale, bias = compute_affine_params(real_batch, ref_batch)
+            ref_t = apply_affine(ref_batch, scale, bias)
+        else:
+            scale = torch.ones(real_batch.shape[0], dtype=torch.float16, device=self.device)
+            bias = torch.zeros(real_batch.shape[0], dtype=torch.float16, device=self.device)
+            ref_t = ref_batch
+        delta = compute_delta(real_batch, ref_t)
+        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
+            delta, self.group_size, self.top_k,
+        )
+        dequant = groupwise_int4_dequantize_topk(
+            packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
+        )
+        if use_affine:
+            recon = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
+        else:
+            recon = (ref_batch + dequant).to(torch.float16)
+        transfer = self._delta_transfer_size(
+            packed, scales, zeros, tv, ti, real_batch.shape[0], use_affine, include_ref_idx,
+        )
+        return recon, transfer
+
+    def _encode_unigram_batch(self, real_batch: torch.Tensor) -> Tuple[torch.Tensor, int]:
+        if self._unigram_uses_direct_int4():
+            packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
+                real_batch.clone(), self.group_size, 4,
+            )
+            recon = groupwise_int4_dequantize_topk(
+                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
+            )
+            transfer = self._direct_int4_transfer_size(packed, scales, zeros, tv, ti)
+            return recon, transfer
+        int8_pkt = groupwise_int8_quantize_topk(
+            real_batch, self.int8_group_size, self.int8_outlier_top_k,
+        )
+        recon = groupwise_int8_dequantize_topk(int8_pkt)
+        transfer = compute_transfer_size_int8_outlier(int8_pkt)
+        return recon, transfer
+
+    def _encode_decode_step(
+        self,
+        real_h: torch.Tensor,
+        ref_h: Optional[torch.Tensor],
+        tier: str,
+    ) -> Tuple[torch.Tensor, int]:
+        if tier in ("trigram", "bigram", "self_ref") and ref_h is not None:
+            recon, transfer = self._encode_delta_batch(real_h, ref_h, include_ref_idx=True)
+            return recon, transfer
+        recon, transfer = self._encode_unigram_batch(real_h)
+        return recon, transfer
 
     # ------------------------------------------------------------------
     # Prefill phase
@@ -224,7 +357,14 @@ class OverlappedPipeline:
         self,
         text: str,
         phase: str = "test",
-    ) -> Tuple[PrefillResult, Any, torch.Tensor, List[int], torch.Tensor]:
+    ) -> Tuple[
+        PrefillResult,
+        Any,
+        torch.Tensor,
+        List[int],
+        torch.Tensor,
+        Tuple[Dict[Tuple[int, int, int], torch.Tensor], Dict[Tuple[int, int], torch.Tensor]],
+    ]:
         """Process prefill phase with overlapped classify + forward.
 
         Returns
@@ -242,6 +382,10 @@ class OverlappedPipeline:
         torch.cuda.set_device(self.device)
 
         # Tokenize
+        if self._pending_prefill_update is not None:
+            self._pending_prefill_update.result()
+            self._pending_prefill_update = None
+
         input_ids = self.tokenizer.encode(text, add_special_tokens=False)
         if len(input_ids) > self.max_seq_len:
             input_ids = input_ids[:self.max_seq_len]
@@ -277,7 +421,9 @@ class OverlappedPipeline:
             self.table.update_from_hidden_states(input_ids, prefill_hidden)
             result.table_update_ms = (time.perf_counter() - t_upd_start) * 1000.0
             result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
-            return result, past_kv, next_tok, input_ids, prefill_hidden
+            result.reconstructed_hidden = prefill_hidden
+            local_prompt_refs = self._build_local_prompt_refs(input_ids, prefill_hidden)
+            return result, past_kv, next_tok, input_ids, prefill_hidden, local_prompt_refs
 
         # 3. Collect classify result
         t_classify_start = time.perf_counter()
@@ -320,28 +466,12 @@ class OverlappedPipeline:
             real_batch = real_acts[idx_t]
             ref_batch = ref_acts[idx_t]
 
-            scale, bias = compute_affine_params(real_batch, ref_batch)
-            ref_t = apply_affine(ref_batch, scale, bias)
-            delta = compute_delta(real_batch, ref_t)
-            packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-                delta, self.group_size, self.top_k,
+            recon_batch, total_delta_bytes = self._encode_delta_batch(
+                real_batch, ref_batch, include_ref_idx=True,
             )
-            dequant = groupwise_int4_dequantize_topk(
-                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
-            )
-            recon_batch = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
             reconstructed[idx_t] = recon_batch
 
             n_delta = len(delta_indices)
-            packet = DeltaPacket(
-                quantized_data=packed, scales=scales, zero_points=zeros,
-                topk_values=tv, topk_indices=ti,
-                affine_scale=scale.to(torch.float16),
-                affine_bias=bias.to(torch.float16),
-                ref_indices=torch.zeros(n_delta, dtype=torch.long, device=self.device),
-                group_size=self.group_size, top_k=self.top_k,
-            )
-            total_delta_bytes = compute_transfer_size(packet)
             if n_delta > 0:
                 per_pos = total_delta_bytes / n_delta
                 transfer_bytes_by_tier["trigram"] = int(per_pos * len(trigram_indices))
@@ -353,11 +483,7 @@ class OverlappedPipeline:
         if unigram_indices:
             idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
             real_uni = real_acts[idx_u]
-            int8_pkt = groupwise_int8_quantize_topk(
-                real_uni, self.int8_group_size, self.int8_outlier_top_k,
-            )
-            recon_uni = groupwise_int8_dequantize_topk(int8_pkt)
-            transfer_bytes_by_tier["unigram"] = compute_transfer_size_int8_outlier(int8_pkt)
+            recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
             reconstructed[idx_u] = recon_uni
 
         evt_after_unigram.record()
@@ -373,28 +499,10 @@ class OverlappedPipeline:
             ref_sr = reconstructed[src_t]
             ref_acts[idx_sr] = ref_sr
 
-            scale, bias = compute_affine_params(real_sr, ref_sr)
-            ref_t = apply_affine(ref_sr, scale, bias)
-            delta = compute_delta(real_sr, ref_t)
-            packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-                delta, self.group_size, self.top_k,
+            recon_sr, transfer_bytes_by_tier["self_ref"] = self._encode_delta_batch(
+                real_sr, ref_sr, include_ref_idx=True,
             )
-            dequant = groupwise_int4_dequantize_topk(
-                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
-            )
-            recon_sr = reconstruct_activation(dequant, ref_sr, scale, bias).to(torch.float16)
             reconstructed[idx_sr] = recon_sr
-
-            n_sr = len(sorted_self_ref)
-            pkt = DeltaPacket(
-                quantized_data=packed, scales=scales, zero_points=zeros,
-                topk_values=tv, topk_indices=ti,
-                affine_scale=scale.to(torch.float16),
-                affine_bias=bias.to(torch.float16),
-                ref_indices=torch.zeros(n_sr, dtype=torch.long, device=self.device),
-                group_size=self.group_size, top_k=self.top_k,
-            )
-            transfer_bytes_by_tier["self_ref"] = compute_transfer_size(pkt)
 
         evt_after_self_ref.record()
 
@@ -461,18 +569,18 @@ class OverlappedPipeline:
                 "transfer_bytes": transfer_bytes_by_tier[tier_name],
             })
 
-        # 5. Table update (async — not on critical path)
+        # 5. Prefill table update: launch asynchronously and let decode hide it.
+        local_prompt_refs = self._build_local_prompt_refs(input_ids, prefill_hidden)
         t_upd_start = time.perf_counter()
-        update_future = self.update_executor.submit(
+        self._pending_prefill_update = self.update_executor.submit(
             self.table.update_from_hidden_states,
             input_ids, prefill_hidden,
         )
-        # Wait for it (in production, this would overlap with network send)
-        update_future.result()
         result.table_update_ms = (time.perf_counter() - t_upd_start) * 1000.0
 
         result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
-        return result, past_kv, next_tok, input_ids, prefill_hidden
+        result.reconstructed_hidden = reconstructed
+        return result, past_kv, next_tok, input_ids, prefill_hidden, local_prompt_refs
 
     # ------------------------------------------------------------------
     # Decode phase
@@ -484,6 +592,7 @@ class OverlappedPipeline:
         next_tok: torch.Tensor,
         input_ids: List[int],
         prefill_hidden: torch.Tensor,
+        local_prompt_refs: Tuple[Dict[Tuple[int, int, int], torch.Tensor], Dict[Tuple[int, int], torch.Tensor]],
         phase: str = "test",
     ) -> DecodeResult:
         """Process decode phase with overlapped classify + forward per step.
@@ -502,12 +611,14 @@ class OverlappedPipeline:
         # Set CUDA device so synchronize()/Event.record() target the correct GPU
         torch.cuda.set_device(self.device)
 
-        decode_result = DecodeResult(decode_tokens=self.decode_tokens)
+        decode_result = DecodeResult(decode_tokens=0)
 
         running_token_ids: List[int] = list(input_ids)
         first_occ_map: Dict[Tuple[int, int, int], int] = {}
         reconstructed_hiddens: Dict[int, torch.Tensor] = {}
         decode_hidden_by_pos: Dict[int, torch.Tensor] = {}
+        recon_sequence: List[torch.Tensor] = []
+        generated_token_ids: List[int] = []
 
         tier_counts = {"trigram": 0, "bigram": 0, "self_ref": 0, "unigram": 0}
         all_cosines: List[float] = []
@@ -515,6 +626,7 @@ class OverlappedPipeline:
         total_raw_bytes = 0
 
         pending_table_update: Optional[Future] = None
+        local_prompt_trigrams, local_prompt_bigrams = local_prompt_refs
 
         # Pre-allocate CUDA events for decode loop timing
         evt_fwd_start = torch.cuda.Event(enable_timing=True)
@@ -525,12 +637,14 @@ class OverlappedPipeline:
         for step in range(self.decode_tokens):
             tok_id = next_tok.item()
             running_token_ids.append(tok_id)
+            generated_token_ids.append(tok_id)
             decode_pos = len(running_token_ids) - 1
 
             # Launch classify (CPU, concurrent with forward)
             classify_future = self.classify_executor.submit(
                 self._classify_decode_step,
                 running_token_ids, decode_pos, first_occ_map, reconstructed_hiddens,
+                local_prompt_trigrams, local_prompt_bigrams,
             )
 
             # Model forward (GPU) — CUDA events, no sync
@@ -549,12 +663,7 @@ class OverlappedPipeline:
             # Encode (GPU, on critical path) — CUDA events, no sync
             real_h_2d = h.unsqueeze(0)
             evt_enc_start.record()
-            recon, xfer_bytes = encode_decode_single(
-                real_h_2d, ref_h, tier,
-                self.group_size, self.top_k,
-                self.int8_group_size, self.int8_outlier_top_k,
-                self.hidden_dim, self.device,
-            )
+            recon, xfer_bytes = self._encode_decode_step(real_h_2d, ref_h, tier)
             evt_enc_end.record()
 
             # Sync once per step to read cosine similarity .item()
@@ -574,21 +683,24 @@ class OverlappedPipeline:
 
             # Store reconstructed for self-ref
             reconstructed_hiddens[decode_pos] = recon.squeeze(0)
+            recon_sequence.append(recon.squeeze(0))
 
             # "Send" compressed data
 
             # Collect previous table update if pending
             if pending_table_update is not None:
+                t_wait0 = time.perf_counter()
                 pending_table_update.result()
+                table_update_ms = (time.perf_counter() - t_wait0) * 1000.0
+            else:
+                table_update_ms = 0.0
 
             # Table update (async, after send)
-            t_table_start = time.perf_counter()
             pending_table_update = self.update_executor.submit(
                 self._update_table_step,
                 running_token_ids, decode_pos, h,
                 prefill_hidden, input_ids, decode_hidden_by_pos,
             )
-            table_update_ms = 0.0  # async, measured on collection
 
             # Record metrics
             tier_counts[tier] += 1
@@ -609,9 +721,14 @@ class OverlappedPipeline:
             next_tok = self._select_next_token(dbatch.last_logits, do_sample=False)
             del dbatch
 
+            if self.tokenizer.eos_token_id is not None and tok_id == self.tokenizer.eos_token_id:
+                break
+
         # Collect final table update
         if pending_table_update is not None:
+            t_wait0 = time.perf_counter()
             pending_table_update.result()
+            decode_result.total_table_update_ms += (time.perf_counter() - t_wait0) * 1000.0
 
         del past_kv, next_tok
 
@@ -620,18 +737,23 @@ class OverlappedPipeline:
         decode_result.num_bigram = tier_counts["bigram"]
         decode_result.num_self_ref = tier_counts["self_ref"]
         decode_result.num_unigram = tier_counts["unigram"]
+        decode_result.decode_tokens = len(generated_token_ids)
+        decode_result.generated_token_ids = generated_token_ids
         decode_result.total_transfer_bytes = total_transfer_bytes
         decode_result.raw_fp16_bytes = total_raw_bytes
         decode_result.compression_ratio = total_raw_bytes / max(total_transfer_bytes, 1)
         if all_cosines:
             decode_result.recon_cosine_mean = sum(all_cosines) / len(all_cosines)
             decode_result.recon_cosine_min = min(all_cosines)
+        if recon_sequence:
+            decode_result.reconstructed_hidden = torch.stack(recon_sequence, dim=0)
 
         # Timing aggregation from step records
         if decode_result.step_records:
             decode_result.total_fwd_ms = sum(s.fwd_ms for s in decode_result.step_records)
             decode_result.total_classify_ms = sum(s.classify_ms for s in decode_result.step_records)
             decode_result.total_encode_ms = sum(s.encode_ms for s in decode_result.step_records)
+            decode_result.total_table_update_ms += sum(s.table_update_ms for s in decode_result.step_records)
         decode_result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
 
         return decode_result
@@ -645,6 +767,8 @@ class OverlappedPipeline:
         decode_pos: int,
         first_occ_map: Dict[Tuple[int, int, int], int],
         reconstructed_hiddens: Dict[int, torch.Tensor],
+        local_prompt_trigrams: Dict[Tuple[int, int, int], torch.Tensor],
+        local_prompt_bigrams: Dict[Tuple[int, int], torch.Tensor],
     ) -> Tuple[str, Optional[torch.Tensor], float]:
         """Classify a single decode position. Runs on CPU thread."""
         tier = "unigram"
@@ -663,6 +787,10 @@ class OverlappedPipeline:
                 tier = "trigram"
                 ref_h = tri_ref.unsqueeze(0).to(torch.float16)
                 first_occ_map.setdefault(trigram_key, decode_pos)
+            elif trigram_key in local_prompt_trigrams:
+                tier = "trigram"
+                ref_h = local_prompt_trigrams[trigram_key].unsqueeze(0).to(torch.float16)
+                first_occ_map.setdefault(trigram_key, decode_pos)
             # 2. Self-ref
             elif trigram_key in first_occ_map:
                 src_pos = first_occ_map[trigram_key]
@@ -678,6 +806,9 @@ class OverlappedPipeline:
                     if bi_ref is not None:
                         tier = "bigram"
                         ref_h = bi_ref.unsqueeze(0).to(torch.float16)
+                    elif (b_tok, c_tok) in local_prompt_bigrams:
+                        tier = "bigram"
+                        ref_h = local_prompt_bigrams[(b_tok, c_tok)].unsqueeze(0).to(torch.float16)
                 first_occ_map.setdefault(trigram_key, decode_pos)
 
         return tier, ref_h, raw_cos
@@ -724,11 +855,11 @@ class OverlappedPipeline:
 
         Returns (prefill_result, decode_result, table_stats).
         """
-        prefill_result, past_kv, next_tok, input_ids, prefill_hidden = \
+        prefill_result, past_kv, next_tok, input_ids, prefill_hidden, local_prompt_refs = \
             self.process_prefill(text, phase=phase)
 
         decode_result = self.process_decode(
-            past_kv, next_tok, input_ids, prefill_hidden, phase=phase,
+            past_kv, next_tok, input_ids, prefill_hidden, local_prompt_refs, phase=phase,
         )
 
         table_stats = self.table.stats

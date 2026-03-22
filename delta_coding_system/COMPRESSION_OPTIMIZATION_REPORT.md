@@ -11,6 +11,7 @@
 > 补充: 2026-03-21 已新增覆盖 drift / latency / delta 去 affine / 全局建议的综合总报告，见 [delta_coding_system/COMPRESSION_COMPREHENSIVE_REPORT.md](delta_coding_system/COMPRESSION_COMPREHENSIVE_REPORT.md)
 > 补充: 2026-03-21 已新增 100 样本、prefill/decode phasewise、大样本多 GPU 重测报告，见 [delta_coding_system/COMPRESSION_PHASEWISE_LARGE_REPORT.md](delta_coding_system/COMPRESSION_PHASEWISE_LARGE_REPORT.md)
 > 补充: 2026-03-22 已新增动态 decode、KV Cache、PP 通信端到端时延口径报告，见 [delta_coding_system/COMPRESSION_PHASEWISE_PP_REPORT.md](delta_coding_system/COMPRESSION_PHASEWISE_PP_REPORT.md)
+> 补充: 2026-03-22 已新增真实 OverlappedPipeline 接入评测报告，见 [delta_coding_system/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md](delta_coding_system/COMPRESSION_PIPELINE_STRATEGY_REAL_REPORT.md)
 
 ---
 
