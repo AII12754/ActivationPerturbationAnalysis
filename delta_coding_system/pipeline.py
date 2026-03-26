@@ -151,6 +151,10 @@ class OverlappedPipeline:
         domain_aware: bool = False,
         max_gpu_tables: int = 3,
         max_active_tables_per_request: int = 4,
+        table_placement: str = "cpu",
+        pin_cpu_output_copy: bool = True,
+        enable_async_cpu_output_copy: bool = True,
+        gpu_hot_cache_entries: int = 4096,
         auto_topic_routing: bool = True,
         topic_keywords: Optional[Dict[str, Sequence[str]]] = None,
         delta_strategy: str = "delta_noaffine_int4_k1",
@@ -179,6 +183,10 @@ class OverlappedPipeline:
         self.low_latency_multidomain_classify = low_latency_multidomain_classify
         self.extra_stop_token_ids: Set[int] = set(extra_stop_token_ids or [])
         self.max_active_tables_per_request = max(1, max_active_tables_per_request)
+        self.table_placement = table_placement
+        self.pin_cpu_output_copy = pin_cpu_output_copy
+        self.enable_async_cpu_output_copy = enable_async_cpu_output_copy
+        self.gpu_hot_cache_entries = max(0, gpu_hot_cache_entries)
         self.auto_topic_routing = auto_topic_routing
         self.topic_keywords = {
             domain: tuple(keywords)
@@ -207,6 +215,10 @@ class OverlappedPipeline:
                 table_storage_format="int8",
                 int8_group_size=int8_group_size,
                 int8_top_k=int8_outlier_top_k,
+                table_placement=table_placement,
+                pin_cpu_output_copy=pin_cpu_output_copy,
+                enable_async_cpu_output_copy=enable_async_cpu_output_copy,
+                gpu_hot_cache_entries=gpu_hot_cache_entries,
             )
             self.table = None  # set per-request via select_domains()
             self._current_domains: List[str] = []
@@ -230,12 +242,16 @@ class OverlappedPipeline:
             self._last_routing_decision = None
             self._last_request_domain_hits = {}
             self.table = NgramTable(
-                device=device,
+                device=torch.device("cpu") if table_placement == "cpu" else device,
                 dtype=table_dtype,
                 max_entries=max_table_entries,
                 storage_format="int8",
                 int8_group_size=int8_group_size,
                 int8_top_k=int8_outlier_top_k,
+                pin_cpu_output_copy=pin_cpu_output_copy,
+                enable_async_cpu_output_copy=enable_async_cpu_output_copy,
+                gpu_hot_cache_entries=gpu_hot_cache_entries if table_placement == "cpu" else 0,
+                gpu_hot_cache_device=device if table_placement == "cpu" and gpu_hot_cache_entries > 0 else None,
             )
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
@@ -406,14 +422,26 @@ class OverlappedPipeline:
 
     def _materialize_stored_hidden(self, stored_hidden: Any) -> torch.Tensor:
         if isinstance(stored_hidden, torch.Tensor):
-            return stored_hidden.to(device=self.device, dtype=torch.float16)
+            non_blocking = bool(
+                stored_hidden.device.type == "cpu"
+                and stored_hidden.is_pinned()
+                and self.device.type == "cuda"
+                and self.enable_async_cpu_output_copy
+            )
+            return stored_hidden.to(device=self.device, dtype=torch.float16, non_blocking=non_blocking)
         packet = stored_hidden
+        non_blocking = bool(
+            packet.quantized.device.type == "cpu"
+            and packet.quantized.is_pinned()
+            and self.device.type == "cuda"
+            and self.enable_async_cpu_output_copy
+        )
         packet = type(packet)(
-            quantized=packet.quantized.to(self.device, non_blocking=True),
-            scales=packet.scales.to(self.device, non_blocking=True),
-            zero_points=packet.zero_points.to(self.device, non_blocking=True),
-            topk_values=packet.topk_values.to(self.device, non_blocking=True),
-            topk_indices=packet.topk_indices.to(self.device, non_blocking=True),
+            quantized=packet.quantized.to(self.device, non_blocking=non_blocking),
+            scales=packet.scales.to(self.device, non_blocking=non_blocking),
+            zero_points=packet.zero_points.to(self.device, non_blocking=non_blocking),
+            topk_values=packet.topk_values.to(self.device, non_blocking=non_blocking),
+            topk_indices=packet.topk_indices.to(self.device, non_blocking=non_blocking),
             group_size=packet.group_size,
             top_k=packet.top_k,
         )
@@ -813,6 +841,7 @@ class OverlappedPipeline:
                     self.table.classify_and_build_refs,
                     input_ids,
                     self.hidden_dim,
+                    self.device,
                 )
 
         # 2. Prefill forward (GPU, concurrent with classify)

@@ -149,6 +149,10 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             domain_aware=args.domain_aware,
             max_gpu_tables=args.max_gpu_tables,
             max_active_tables_per_request=args.max_active_tables_per_request,
+            table_placement=args.table_placement,
+            pin_cpu_output_copy=not args.disable_pinned_cpu_table_copy,
+            enable_async_cpu_output_copy=not args.disable_async_cpu_table_copy,
+            gpu_hot_cache_entries=args.gpu_hot_cache_entries,
             auto_topic_routing=not args.disable_auto_topic_routing,
             delta_strategy=cfg["delta_strategy"],
             unigram_strategy=cfg["unigram_strategy"],
@@ -206,6 +210,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 "dataset_name": dataset_name,
                 "config_name": cfg["name"],
                 "domain_aware": bool(args.domain_aware),
+                "table_placement": args.table_placement,
                 "request_domains": json.dumps(args.request_domains or [], ensure_ascii=False),
                 "decode_use_raw_fp16": not args.enable_decode_quantization,
                 "prefill_use_raw_fp16": args.disable_prefill_quantization,
@@ -251,6 +256,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 request_row["manager_gpu_resident"] = manager_stats.get("gpu_resident", 0)
                 request_row["manager_num_domains"] = manager_stats.get("num_domains", 0)
                 request_row["manager_storage_format"] = manager_stats.get("storage_format", "")
+                request_row["manager_table_placement"] = manager_stats.get("table_placement", "")
 
             for bw in args.bandwidths_mbps:
                 prefill_net = _network_ms(prefill_res.total_transfer_bytes, bw)
@@ -366,6 +372,10 @@ def main():
     parser.add_argument("--domain-aware", action="store_true")
     parser.add_argument("--max-gpu-tables", type=int, default=3)
     parser.add_argument("--max-active-tables-per-request", type=int, default=4)
+    parser.add_argument("--table-placement", choices=["cpu", "gpu"], default="cpu")
+    parser.add_argument("--disable-pinned-cpu-table-copy", action="store_true")
+    parser.add_argument("--disable-async-cpu-table-copy", action="store_true")
+    parser.add_argument("--gpu-hot-cache-entries", type=int, default=4096)
     parser.add_argument("--disable-auto-topic-routing", action="store_true")
     parser.add_argument("--bandwidths-mbps", nargs="+", type=int, default=BANDWIDTHS_MBPS)
     parser.add_argument("--request-domains", nargs="*", default=None)
