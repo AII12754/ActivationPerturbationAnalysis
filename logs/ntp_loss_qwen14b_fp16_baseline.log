@@ -1,0 +1,16 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:11,  1.67s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.13s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:03<00:04,  1.09it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.23it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.34it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.41it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.46it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.66it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.32it/s]
+2026-03-24 06:09:43,971 INFO ntp_loss_benchmark: Test 100 sequences for config=fp16_baseline dataset=wikitext2
+2026-03-24 06:09:45,460 INFO ntp_loss_benchmark: Config=fp16_baseline progress=10/100 running_mean_ntp_loss=2.086342
+2026-03-24 06:09:46,458 INFO ntp_loss_benchmark: Config=fp16_baseline progress=20/100 running_mean_ntp_loss=2.220092
+2026-03-24 06:09:47,460 INFO ntp_loss_benchmark: Config=fp16_baseline progress=30/100 running_mean_ntp_loss=2.221421
+2026-03-24 06:09:48,460 INFO ntp_loss_benchmark: Config=fp16_baseline progress=40/100 running_mean_ntp_loss=2.183962
+2026-03-24 06:09:49,463 INFO ntp_loss_benchmark: Config=fp16_baseline progress=50/100 running_mean_ntp_loss=2.165697
+2026-03-24 06:09:50,470 INFO ntp_loss_benchmark: Config=fp16_baseline progress=60/100 running_mean_ntp_loss=2.154879
+2026-03-24 06:09:51,474 INFO ntp_loss_benchmark: Config=fp16_baseline progress=70/100 running_mean_ntp_loss=2.179338
+2026-03-24 06:09:52,479 INFO ntp_loss_benchmark: Config=fp16_baseline progress=80/100 running_mean_ntp_loss=2.133222
+2026-03-24 06:09:53,484 INFO ntp_loss_benchmark: Config=fp16_baseline progress=90/100 running_mean_ntp_loss=2.098304
+2026-03-24 06:09:54,489 INFO ntp_loss_benchmark: Config=fp16_baseline progress=100/100 running_mean_ntp_loss=2.114652
+2026-03-24 06:09:54,491 INFO ntp_loss_benchmark: Saved NTP loss summary to results_ntp_loss_qwen14b/fp16_baseline.json

@@ -3,7 +3,7 @@
 Stores pre-computed hidden states from n-gram forward passes and supports:
   - Batch table construction from a corpus
   - Online updates from new requests
-  - Tiered classification: trigram -> self-ref -> bigram -> unigram
+  - Tiered classification: trigram → self-ref → bigram → unigram
 
 DAG storage:
   Hidden states are organized as a two-level trie (DAG):
@@ -16,9 +16,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
-import math
 import time
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 
@@ -31,9 +30,17 @@ StoredHidden = Union[torch.Tensor, Int8OutlierPacket]
 
 
 @dataclass
-class MultiTableRefStats:
-    matched_domains: List[Optional[str]]
-    domain_hits: Dict[str, int]
+class SparseReferenceBatch:
+    positions: List[int]
+    refs: torch.Tensor
+    position_to_offset: Dict[int, int]
+
+    def gather(self, positions: List[int]) -> torch.Tensor:
+        if not positions:
+            return self.refs[:0]
+        offsets = [self.position_to_offset[pos] for pos in positions]
+        idx = torch.tensor(offsets, dtype=torch.long, device=self.refs.device)
+        return self.refs[idx]
 
 
 class _BigramNode:
@@ -55,7 +62,7 @@ class NgramTable:
     """Persistent trigram/bigram activation table for a single PP boundary layer.
 
     Internal storage is a two-level DAG (trie):
-      ``_dag[token_A][token_B]`` -> ``_BigramNode``
+      ``_dag[token_A][token_B]`` → ``_BigramNode``
         - ``.bigram_hidden``: hidden state at position B from a 3-token forward
         - ``.suffixes[token_C]``: hidden state at position C (trigram)
     """
@@ -65,16 +72,10 @@ class NgramTable:
         device: torch.device,
         dtype: torch.dtype = torch.float16,
         max_entries: int = 0,
-        storage_format: str = "int8",
-        int8_group_size: int = 128,
-        int8_top_k: int = 4,
     ):
         self.device = device
         self.dtype = dtype
         self.max_entries = max_entries  # 0 = unlimited (backward compat)
-        self.storage_format = storage_format
-        self.int8_group_size = int8_group_size
-        self.int8_top_k = int8_top_k
         self._request_counter = 0
         self._last_evicted = 0
         # Two-level trie: A -> B -> _BigramNode
@@ -82,6 +83,14 @@ class NgramTable:
         # Counts for fast stats
         self._num_trigrams = 0
         self._num_bigrams = 0
+        self._last_classify_stats: Dict[str, Any] = {}
+        self.pin_cpu_output_copy = False
+        self.enable_async_cpu_output_copy = False
+        self._output_copy_streams: Dict[str, torch.cuda.Stream] = {}
+        self.gpu_hot_cache: Optional[NgramTable] = None
+        self.storage_format = "raw"
+        self.int8_group_size = 128
+        self.int8_top_k = 4
 
     def enable_int8_storage(self, group_size: int = 128, top_k: int = 4) -> None:
         self.storage_format = "int8"
@@ -101,13 +110,13 @@ class NgramTable:
         return total
 
     def _slice_int8_packet(self, packet: Int8OutlierPacket, idx: int) -> Int8OutlierPacket:
-        batch_slice = slice(idx, idx + 1)
+        sl = slice(idx, idx + 1)
         return Int8OutlierPacket(
-            quantized=packet.quantized[batch_slice].clone(),
-            scales=packet.scales[batch_slice].clone(),
-            zero_points=packet.zero_points[batch_slice].clone(),
-            topk_values=packet.topk_values[batch_slice].clone(),
-            topk_indices=packet.topk_indices[batch_slice].clone(),
+            quantized=packet.quantized[sl].clone(),
+            scales=packet.scales[sl].clone(),
+            zero_points=packet.zero_points[sl].clone(),
+            topk_values=packet.topk_values[sl].clone(),
+            topk_indices=packet.topk_indices[sl].clone(),
             group_size=packet.group_size,
             top_k=packet.top_k,
         )
@@ -124,42 +133,78 @@ class NgramTable:
             top_k=first.top_k,
         )
 
-    def _encode_hidden_batch_for_storage(self, hidden_states: torch.Tensor) -> List[StoredHidden]:
-        hidden_states = hidden_states.to(device=self.device, dtype=torch.float16)
-        if self.storage_format != "int8":
-            return [hidden_states[i].to(dtype=self.dtype).detach() for i in range(hidden_states.shape[0])]
+    def _pin_int8_packet(self, packet: Int8OutlierPacket) -> Int8OutlierPacket:
+        return Int8OutlierPacket(
+            quantized=packet.quantized.pin_memory(),
+            scales=packet.scales.pin_memory(),
+            zero_points=packet.zero_points.pin_memory(),
+            topk_values=packet.topk_values.pin_memory(),
+            topk_indices=packet.topk_indices.pin_memory(),
+            group_size=packet.group_size,
+            top_k=packet.top_k,
+        )
 
+    def _move_int8_packet(
+        self,
+        packet: Int8OutlierPacket,
+        device: torch.device,
+        non_blocking: bool,
+    ) -> Int8OutlierPacket:
+        return Int8OutlierPacket(
+            quantized=packet.quantized.to(device, non_blocking=non_blocking),
+            scales=packet.scales.to(device, non_blocking=non_blocking),
+            zero_points=packet.zero_points.to(device, non_blocking=non_blocking),
+            topk_values=packet.topk_values.to(device, non_blocking=non_blocking),
+            topk_indices=packet.topk_indices.to(device, non_blocking=non_blocking),
+            group_size=packet.group_size,
+            top_k=packet.top_k,
+        )
+
+    def _encode_hidden_batch_for_storage(self, hidden_states: torch.Tensor) -> List[StoredHidden]:
+        if self.storage_format != "int8":
+            return [hidden_states[i].to(device=self.device, dtype=self.dtype).detach() for i in range(hidden_states.shape[0])]
         packet = groupwise_int8_quantize_topk(
-            hidden_states,
+            hidden_states.to(device=self.device, dtype=torch.float16),
             self.int8_group_size,
             self.int8_top_k,
         )
         return [self._slice_int8_packet(packet, i) for i in range(hidden_states.shape[0])]
 
-    def _decode_stored_batch(self, stored_batch: List[StoredHidden], output_device: torch.device) -> torch.Tensor:
+    def _decode_stored_batch(
+        self,
+        stored_batch: List[StoredHidden],
+        output_device: torch.device,
+    ) -> torch.Tensor:
         if not stored_batch:
             raise ValueError("stored_batch must be non-empty")
-
         first = stored_batch[0]
         if isinstance(first, torch.Tensor):
-            tensor_batch = [item for item in stored_batch if isinstance(item, torch.Tensor)]
-            stacked = torch.stack(tensor_batch).to(torch.float16)
+            stacked = torch.stack(stored_batch).to(torch.float16)
             if stacked.device != output_device:
-                stacked = stacked.to(output_device, non_blocking=True)
+                stacked = stacked.to(output_device, non_blocking=False)
             return stacked
 
-        packet_batch = [item for item in stored_batch if isinstance(item, Int8OutlierPacket)]
-        packet = self._merge_int8_packets(packet_batch)
-        packet = Int8OutlierPacket(
-            quantized=packet.quantized.to(output_device, non_blocking=True),
-            scales=packet.scales.to(output_device, non_blocking=True),
-            zero_points=packet.zero_points.to(output_device, non_blocking=True),
-            topk_values=packet.topk_values.to(output_device, non_blocking=True),
-            topk_indices=packet.topk_indices.to(output_device, non_blocking=True),
-            group_size=packet.group_size,
-            top_k=packet.top_k,
-        )
+        packet = self._merge_int8_packets(stored_batch)
+        packet = self._move_int8_packet(packet, output_device, non_blocking=False)
         return groupwise_int8_dequantize_topk(packet)
+
+    def enable_gpu_hot_cache(self, device: torch.device, max_entries: int) -> None:
+        self.gpu_hot_cache = NgramTable(
+            device=device,
+            dtype=self.dtype,
+            max_entries=max_entries,
+        )
+
+    def disable_gpu_hot_cache(self) -> None:
+        self.gpu_hot_cache = None
+
+    def _get_output_copy_stream(self, device: torch.device) -> torch.cuda.Stream:
+        key = str(device)
+        stream = self._output_copy_streams.get(key)
+        if stream is None:
+            stream = torch.cuda.Stream(device=device)
+            self._output_copy_streams[key] = stream
+        return stream
 
     # ------------------------------------------------------------------
     # DAG access helpers
@@ -188,13 +233,13 @@ class NgramTable:
         node = self._get_node(a, b)
         return node is not None and c in node.suffixes
 
-    def get_trigram(self, a: int, b: int, c: int) -> Optional[StoredHidden]:
+    def get_trigram(self, a: int, b: int, c: int) -> Optional[torch.Tensor]:
         node = self._get_node(a, b)
         if node is None:
             return None
         return node.suffixes.get(c)
 
-    def get_bigram(self, a: int, b: int) -> Optional[StoredHidden]:
+    def get_bigram(self, a: int, b: int) -> Optional[torch.Tensor]:
         node = self._get_node(a, b)
         if node is None:
             return None
@@ -302,26 +347,34 @@ class NgramTable:
         self,
         token_ids: List[int],
         hidden_dim: int,
-    ) -> Tuple[List[str], torch.Tensor, List[Optional[int]], Dict[Tuple, int]]:
+        output_device: Optional[torch.device] = None,
+    ) -> Tuple[List[str], SparseReferenceBatch, List[Optional[int]], Dict[Tuple, int]]:
         """Classify each position into tier and return reference info.
 
         Uses DAG trie for efficient prefix-shared lookups.
 
         Returns
         -------
-        tiers : list[str] - "trigram"|"bigram"|"self_ref"|"unigram" per position
-        ref_acts : (seq_len, hidden_dim) - reference activation per position
-        self_ref_sources : list[Optional[int]] - source position index for self_ref tier
-        first_occurrence_map : dict - trigram -> first position
+        tiers : list[str] — "trigram"|"bigram"|"self_ref"|"unigram" per position
+        sparse_refs : matched positions + decoded references on output_device
+        self_ref_sources : list[Optional[int]] — source position index for self_ref tier
+        first_occurrence_map : dict — trigram → first position
         """
+        if output_device is None:
+            output_device = self.device
+
         seq_len = len(token_ids)
         tiers: List[str] = []
         self_ref_sources: List[Optional[int]] = []
         first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
+        lookup_start = time.perf_counter()
 
-        # Collect matched references and decode in one batch.
-        ref_positions: List[int] = []
-        ref_tensors: List[StoredHidden] = []
+        # Collect (position, raw_tensor) pairs to batch FP8→FP16 conversion
+        ref_positions_gpu: List[int] = []
+        ref_tensors_gpu: List[StoredHidden] = []
+        ref_positions_cpu: List[int] = []
+        ref_tensors_cpu: List[StoredHidden] = []
+        gpu_hot_hits = 0
 
         for i in range(seq_len):
             trigram = None
@@ -329,14 +382,30 @@ class NgramTable:
                 a, b, c = token_ids[i - 2], token_ids[i - 1], token_ids[i]
                 trigram = (a, b, c)
 
+                hot_cache = self.gpu_hot_cache
+                if hot_cache is not None and output_device.type == "cuda":
+                    hot_tri_ref = hot_cache.get_trigram(a, b, c)
+                    if hot_tri_ref is not None:
+                        tiers.append("trigram")
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(hot_tri_ref)
+                        self_ref_sources.append(None)
+                        first_occurrence_map.setdefault(trigram, i)
+                        gpu_hot_hits += 1
+                        continue
+
                 # 1. Trigram table lookup (highest priority)
                 node_ab = self._get_node(a, b)
                 if node_ab is not None and c in node_ab.suffixes:
                     node_ab.hit_count += 1
                     node_ab.last_access = self._request_counter
                     tiers.append("trigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(node_ab.suffixes[c])
+                    if output_device == self.device:
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(node_ab.suffixes[c])
+                    else:
+                        ref_positions_cpu.append(i)
+                        ref_tensors_cpu.append(node_ab.suffixes[c])
                     self_ref_sources.append(None)
                     first_occurrence_map.setdefault(trigram, i)
                     continue
@@ -350,13 +419,29 @@ class NgramTable:
             # 3. Bigram lookup: _dag[B][C].bigram_hidden
             if i >= 1:
                 b_tok, c_tok = token_ids[i - 1], token_ids[i]
+                hot_cache = self.gpu_hot_cache
+                if hot_cache is not None and output_device.type == "cuda":
+                    hot_bi_ref = hot_cache.get_bigram(b_tok, c_tok)
+                    if hot_bi_ref is not None:
+                        tiers.append("bigram")
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(hot_bi_ref)
+                        self_ref_sources.append(None)
+                        if trigram is not None:
+                            first_occurrence_map.setdefault(trigram, i)
+                        gpu_hot_hits += 1
+                        continue
                 node_bc = self._get_node(b_tok, c_tok)
                 if node_bc is not None:
                     node_bc.hit_count += 1
                     node_bc.last_access = self._request_counter
                     tiers.append("bigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(node_bc.bigram_hidden)
+                    if output_device == self.device:
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(node_bc.bigram_hidden)
+                    else:
+                        ref_positions_cpu.append(i)
+                        ref_tensors_cpu.append(node_bc.bigram_hidden)
                     self_ref_sources.append(None)
                     if trigram is not None:
                         first_occurrence_map.setdefault(trigram, i)
@@ -368,14 +453,98 @@ class NgramTable:
             if trigram is not None:
                 first_occurrence_map.setdefault(trigram, i)
 
-        # Decode all matched references in one batch.
-        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.device, dtype=torch.float16)
-        if ref_tensors:
-            converted = self._decode_stored_batch(ref_tensors, self.device)
-            idx = torch.tensor(ref_positions, dtype=torch.long, device=self.device)
-            ref_acts[idx] = converted
+        lookup_ms = (time.perf_counter() - lookup_start) * 1000.0
 
-        return tiers, ref_acts, self_ref_sources, first_occurrence_map
+        # Batch FP8→FP16 conversion: single stack + cast instead of per-element loop
+        materialize_start = time.perf_counter()
+        matched_positions: List[int] = []
+        matched_refs: List[torch.Tensor] = []
+        output_copy_ms = 0.0
+        pin_memory_ms = 0.0
+        used_async_copy = False
+        if ref_tensors_gpu:
+            stacked_gpu = self._decode_stored_batch(ref_tensors_gpu, output_device)
+            matched_positions.extend(ref_positions_gpu)
+            matched_refs.append(stacked_gpu)
+        if ref_tensors_cpu:
+            cpu_first = ref_tensors_cpu[0]
+            if isinstance(cpu_first, Int8OutlierPacket) and output_device.type == "cuda":
+                packet = self._merge_int8_packets(ref_tensors_cpu)
+                if self.pin_cpu_output_copy and packet.quantized.device.type == "cpu":
+                    pin_start = time.perf_counter()
+                    packet = self._pin_int8_packet(packet)
+                    pin_memory_ms = (time.perf_counter() - pin_start) * 1000.0
+                copy_start = time.perf_counter()
+                non_blocking = bool(packet.quantized.device.type == "cpu" and packet.quantized.is_pinned())
+                if self.enable_async_cpu_output_copy:
+                    copy_stream = self._get_output_copy_stream(output_device)
+                    with torch.cuda.stream(copy_stream):
+                        packet = self._move_int8_packet(packet, output_device, non_blocking=non_blocking)
+                        converted = groupwise_int8_dequantize_topk(packet)
+                    copy_stream.synchronize()
+                    used_async_copy = True
+                else:
+                    packet = self._move_int8_packet(packet, output_device, non_blocking=non_blocking)
+                    converted = groupwise_int8_dequantize_topk(packet)
+                output_copy_ms = (time.perf_counter() - copy_start) * 1000.0
+            else:
+                decode_device = output_device if isinstance(cpu_first, Int8OutlierPacket) else self.device
+                converted = self._decode_stored_batch(ref_tensors_cpu, decode_device)
+            if converted.device != output_device:
+                if (
+                    self.pin_cpu_output_copy
+                    and converted.device.type == "cpu"
+                    and output_device.type == "cuda"
+                    and not converted.is_pinned()
+                ):
+                    pin_start = time.perf_counter()
+                    converted = converted.pin_memory()
+                    pin_memory_ms = (time.perf_counter() - pin_start) * 1000.0
+                copy_start = time.perf_counter()
+                if (
+                    self.enable_async_cpu_output_copy
+                    and converted.device.type == "cpu"
+                    and output_device.type == "cuda"
+                ):
+                    copy_stream = self._get_output_copy_stream(output_device)
+                    with torch.cuda.stream(copy_stream):
+                        converted = converted.to(output_device, non_blocking=True)
+                    used_async_copy = True
+                else:
+                    converted = converted.to(
+                        output_device,
+                        non_blocking=bool(converted.device.type == "cpu" and converted.is_pinned() and output_device.type == "cuda"),
+                    )
+                output_copy_ms = (time.perf_counter() - copy_start) * 1000.0
+            matched_positions.extend(ref_positions_cpu)
+            matched_refs.append(converted)
+
+        materialize_ms = (time.perf_counter() - materialize_start) * 1000.0
+        if matched_refs:
+            refs = torch.cat(matched_refs, dim=0)
+            position_to_offset = {pos: idx for idx, pos in enumerate(matched_positions)}
+        else:
+            refs = torch.empty((0, hidden_dim), device=output_device, dtype=torch.float16)
+            position_to_offset = {}
+        sparse_refs = SparseReferenceBatch(
+            positions=matched_positions,
+            refs=refs,
+            position_to_offset=position_to_offset,
+        )
+        self._last_classify_stats = {
+            "table_device": str(self.device),
+            "output_device": str(output_device),
+            "lookup_ms": lookup_ms,
+            "materialize_ms": materialize_ms,
+            "output_copy_ms": output_copy_ms,
+            "pin_memory_ms": pin_memory_ms,
+            "used_async_copy": used_async_copy,
+            "num_refs": len(ref_tensors_gpu) + len(ref_tensors_cpu),
+            "gpu_hot_hits": gpu_hot_hits,
+            "seq_len": seq_len,
+        }
+
+        return tiers, sparse_refs, self_ref_sources, first_occurrence_map
 
     def update_from_hidden_states(
         self,
@@ -391,6 +560,7 @@ class NgramTable:
         old_tri = self._num_trigrams
         old_bi = self._num_bigrams
 
+        # Batch dtype conversion
         hidden_list = self._encode_hidden_batch_for_storage(hidden_states)
 
         for i in range(len(token_ids)):
@@ -413,6 +583,9 @@ class NgramTable:
 
         self._request_counter += 1
         self._last_evicted = self.evict()
+
+        if self.gpu_hot_cache is not None:
+            self.gpu_hot_cache.update_from_hidden_states(token_ids, hidden_states)
 
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
         return self._num_trigrams - old_tri, self._num_bigrams - old_bi, elapsed_ms
@@ -452,7 +625,7 @@ class NgramTable:
         return evicted
 
     # ------------------------------------------------------------------
-    # Device transfer (GPU <-> CPU offload)
+    # Device transfer (GPU ↔ CPU offload)
     # ------------------------------------------------------------------
     def to_device(self, device: torch.device) -> "NgramTable":
         """Move all stored tensors to *device* and update self.device.
@@ -503,27 +676,30 @@ class NgramTable:
                 break
             if sample is not None:
                 break
-        if sample is None:
-            per_entry_bytes = 0
-        elif isinstance(sample, torch.Tensor):
-            per_entry_bytes = sample.nelement() * sample.element_size()
+        if sample is not None:
+            if isinstance(sample, torch.Tensor):
+                per_entry_bytes = sample.nelement() * sample.element_size()
+            else:
+                per_entry_bytes = self._packet_num_bytes(sample)
         else:
-            per_entry_bytes = self._packet_num_bytes(sample)
+            per_entry_bytes = 0
         memory_bytes = (self._num_trigrams + self._num_bigrams) * per_entry_bytes
         return {
             "num_trigrams": self._num_trigrams,
             "num_bigrams": self._num_bigrams,
             "memory_bytes": memory_bytes,
             "device": str(self.device),
-            "storage_format": self.storage_format,
-            "int8_group_size": self.int8_group_size,
-            "int8_top_k": self.int8_top_k,
+            "gpu_hot_cache": None if self.gpu_hot_cache is None else self.gpu_hot_cache.stats,
         }
 
+    @property
+    def last_classify_stats(self) -> Dict[str, Any]:
+        return dict(self._last_classify_stats)
 
-# =====================================================================
-# DomainTableManager - domain-aware table pool with GPU/CPU tiering
-# =====================================================================
+
+# ======================================================================
+# DomainTableManager — domain-aware table pool with GPU/CPU tiering
+# ======================================================================
 class DomainTableManager:
     """Manages multiple NgramTables keyed by domain/task.
 
@@ -546,34 +722,18 @@ class DomainTableManager:
         table_dtype: torch.dtype = torch.float16,
         max_entries_per_table: int = 0,
         max_gpu_tables: int = 3,
-        table_storage_format: str = "int8",
-        int8_group_size: int = 128,
-        int8_top_k: int = 4,
     ):
         self.gpu_device = gpu_device
         self.cpu_device = torch.device("cpu")
         self.table_dtype = table_dtype
         self.max_entries_per_table = max_entries_per_table
         self.max_gpu_tables = max(max_gpu_tables, 1)
-        self.table_storage_format = table_storage_format
-        self.int8_group_size = int8_group_size
-        self.int8_top_k = int8_top_k
 
-        # domain_key -> NgramTable
+        # domain_key → NgramTable
         self._tables: Dict[str, NgramTable] = {}
         # Ordered list of domain keys on GPU (most-recently-used last)
         self._gpu_lru: List[str] = []
         self._access_counter = 0
-
-    def _create_table(self, device: torch.device) -> NgramTable:
-        return NgramTable(
-            device=device,
-            dtype=self.table_dtype,
-            max_entries=self.max_entries_per_table,
-            storage_format=self.table_storage_format,
-            int8_group_size=self.int8_group_size,
-            int8_top_k=self.int8_top_k,
-        )
 
     # ------------------------------------------------------------------
     # Public API
@@ -588,55 +748,32 @@ class DomainTableManager:
         already_on_gpu = domain in self._gpu_lru
 
         if tbl is None:
-            # Brand-new domain - needs a GPU slot
+            # Brand-new domain — needs a GPU slot
             self._evict_one_if_full()
-            tbl = self._create_table(self.gpu_device)
+            tbl = NgramTable(
+                device=self.gpu_device,
+                dtype=self.table_dtype,
+                max_entries=self.max_entries_per_table,
+            )
             self._tables[domain] = tbl
             self._gpu_lru.append(domain)
         elif not already_on_gpu:
-            # Promote from CPU -> GPU
+            # Promote from CPU → GPU
             self._evict_one_if_full()
             tbl.to_device(self.gpu_device)
             self._gpu_lru.append(domain)
         else:
-            # Already on GPU - just refresh LRU position
+            # Already on GPU — just refresh LRU position
             self._gpu_lru.remove(domain)
             self._gpu_lru.append(domain)
 
         self._access_counter += 1
         return tbl
 
-    def get_many(self, domains: Sequence[str]) -> Dict[str, NgramTable]:
-        ordered_domains: List[str] = []
-        seen = set()
-        for domain in domains:
-            if domain and domain not in seen:
-                seen.add(domain)
-                ordered_domains.append(domain)
-
-        if not ordered_domains:
-            return {}
-
-        resident_requested = {domain for domain in ordered_domains if domain in self._gpu_lru}
-        required_new_slots = len([domain for domain in ordered_domains if domain not in self._gpu_lru])
-
-        while len(self._gpu_lru) - len(resident_requested) + required_new_slots > self.max_gpu_tables:
-            victim = next((domain for domain in self._gpu_lru if domain not in resident_requested), None)
-            if victim is None:
-                logger.warning(
-                    "Requested %d active tables, exceeding max_gpu_tables=%d; keeping all requested tables resident",
-                    len(ordered_domains),
-                    self.max_gpu_tables,
-                )
-                break
-            self.offload(victim)
-
-        return {domain: self.get(domain) for domain in ordered_domains}
-
     def release(self, domain: str) -> None:
         """Optional hint that *domain* is not immediately needed.
 
-        Does NOT offload eagerly - just deprioritizes in LRU.
+        Does NOT offload eagerly — just deprioritizes in LRU.
         """
         if domain in self._gpu_lru:
             self._gpu_lru.remove(domain)
@@ -654,124 +791,6 @@ class DomainTableManager:
         """Move every table to CPU."""
         for domain in list(self._gpu_lru):
             self.offload(domain)
-
-    def release_many(self, domains: Sequence[str]) -> None:
-        for domain in domains:
-            self.release(domain)
-
-    def classify_and_build_refs_from_domains(
-        self,
-        domains: Sequence[str],
-        token_ids: List[int],
-        hidden_dim: int,
-        domain_weights: Optional[Dict[str, float]] = None,
-    ) -> Tuple[List[str], torch.Tensor, List[Optional[int]], Dict[Tuple, int], MultiTableRefStats]:
-        tables = self.get_many(domains)
-        ordered_domains = [domain for domain in domains if domain in tables]
-        seq_len = len(token_ids)
-        tiers: List[str] = []
-        self_ref_sources: List[Optional[int]] = []
-        first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
-        matched_domains: List[Optional[str]] = [None] * seq_len
-        domain_hits = {domain: 0 for domain in ordered_domains}
-        ref_positions: List[int] = []
-        ref_tensors: List[torch.Tensor] = []
-        domain_weights = domain_weights or {}
-
-        def materialize_hidden(table: NgramTable, stored_hidden: StoredHidden) -> torch.Tensor:
-            return table._decode_stored_batch([stored_hidden], self.gpu_device)[0]
-
-        def fuse_candidates(candidates: List[Tuple[str, NgramTable, StoredHidden]]) -> Tuple[str, torch.Tensor]:
-            if len(candidates) == 1:
-                domain, table, stored_hidden = candidates[0]
-                return domain, materialize_hidden(table, stored_hidden)
-
-            weighted_refs: List[torch.Tensor] = []
-            weights: List[float] = []
-            for domain, table, stored_hidden in candidates:
-                weighted_refs.append(materialize_hidden(table, stored_hidden))
-                weight = domain_weights.get(domain, 1.0)
-                stats = self._tables.get(domain)
-                if stats is not None:
-                    weight += min(0.2, math.log1p(stats._num_trigrams + stats._num_bigrams) * 0.01)
-                weights.append(max(weight, 1e-4))
-
-            weight_tensor = torch.tensor(weights, device=self.gpu_device, dtype=torch.float32)
-            weight_tensor = weight_tensor / weight_tensor.sum().clamp_min(1e-8)
-            ref_tensor = torch.stack(weighted_refs).to(torch.float32)
-            fused = torch.sum(weight_tensor.unsqueeze(-1) * ref_tensor, dim=0).to(torch.float16)
-            best_domain = candidates[int(torch.argmax(weight_tensor).item())][0]
-            return best_domain, fused
-
-        for i in range(seq_len):
-            trigram = None
-            if i >= 2:
-                a, b, c = token_ids[i - 2], token_ids[i - 1], token_ids[i]
-                trigram = (a, b, c)
-
-                trigram_candidates: List[Tuple[str, NgramTable, StoredHidden]] = []
-                for domain in ordered_domains:
-                    table = tables[domain]
-                    node_ab = table._get_node(a, b)
-                    if node_ab is not None and c in node_ab.suffixes:
-                        node_ab.hit_count += 1
-                        node_ab.last_access = table._request_counter
-                        trigram_candidates.append((domain, table, node_ab.suffixes[c]))
-                if trigram_candidates:
-                    best_domain, fused_ref = fuse_candidates(trigram_candidates)
-                    tiers.append("trigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(fused_ref)
-                    self_ref_sources.append(None)
-                    first_occurrence_map.setdefault(trigram, i)
-                    matched_domains[i] = best_domain
-                    domain_hits[best_domain] += 1
-                    continue
-
-                if trigram in first_occurrence_map:
-                    tiers.append("self_ref")
-                    self_ref_sources.append(first_occurrence_map[trigram])
-                    continue
-
-            if i >= 1:
-                b_tok, c_tok = token_ids[i - 1], token_ids[i]
-                bigram_candidates: List[Tuple[str, NgramTable, StoredHidden]] = []
-                for domain in ordered_domains:
-                    table = tables[domain]
-                    node_bc = table._get_node(b_tok, c_tok)
-                    if node_bc is not None:
-                        node_bc.hit_count += 1
-                        node_bc.last_access = table._request_counter
-                        bigram_candidates.append((domain, table, node_bc.bigram_hidden))
-                if bigram_candidates:
-                    best_domain, fused_ref = fuse_candidates(bigram_candidates)
-                    tiers.append("bigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(fused_ref)
-                    self_ref_sources.append(None)
-                    if trigram is not None:
-                        first_occurrence_map.setdefault(trigram, i)
-                    matched_domains[i] = best_domain
-                    domain_hits[best_domain] += 1
-                    continue
-
-            tiers.append("unigram")
-            self_ref_sources.append(None)
-            if trigram is not None:
-                first_occurrence_map.setdefault(trigram, i)
-
-        ref_acts = torch.zeros(seq_len, hidden_dim, device=self.gpu_device, dtype=torch.float16)
-        if ref_tensors:
-            idx = torch.tensor(ref_positions, dtype=torch.long, device=self.gpu_device)
-            ref_acts[idx] = torch.stack(ref_tensors).to(device=self.gpu_device, dtype=torch.float16)
-
-        return (
-            tiers,
-            ref_acts,
-            self_ref_sources,
-            first_occurrence_map,
-            MultiTableRefStats(matched_domains=matched_domains, domain_hits=domain_hits),
-        )
 
     def delete(self, domain: str) -> None:
         """Permanently remove a domain table."""
@@ -802,9 +821,6 @@ class DomainTableManager:
             "num_domains": len(self._tables),
             "gpu_resident": len(self._gpu_lru),
             "max_gpu_tables": self.max_gpu_tables,
-            "storage_format": self.table_storage_format,
-            "int8_group_size": self.int8_group_size,
-            "int8_top_k": self.int8_top_k,
             "per_domain": per_domain,
         }
 

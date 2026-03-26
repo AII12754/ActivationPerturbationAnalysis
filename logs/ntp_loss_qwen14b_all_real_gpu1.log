@@ -1,0 +1,36 @@
+]633;E;for cfg in fp16_baseline pure_int8\x3b do   /usr/bin/python delta_coding_system/benchmarks/run_ntp_loss_benchmark.py --model /root/share/models/Qwen2.5-14B-Instruct --gpu 1 --config "$cfg" --dataset wikitext2 --warmup-requests 30 --test-requests 100 --prompt-tokens 512 --continuation-tokens 128 --max-seq-len 1024 --split-manifest /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b/splits/wikitext2_w30_t100_p512_c128_m1024_s42.json --output "/root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/${cfg}.json"\x3b done > /root/ActivationPerturbationAnalysis/logs/ntp_loss_qwen14b_all_real_gpu1.log 2>&1;989758d8-7123-4d45-b193-4e67ac9db70d]633;C/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:17<02:00, 17.15s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:24<01:09, 11.54s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:39<01:05, 13.20s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:50<00:47, 11.97s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [01:04<00:38, 12.99s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [01:12<00:22, 11.27s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [01:21<00:10, 10.30s/it]Loading checkpoint shards: 100%|██████████| 8/8 [01:21<00:00,  7.31s/it]Loading checkpoint shards: 100%|██████████| 8/8 [01:21<00:00, 10.25s/it]
+2026-03-24 11:26:33,240 INFO ntp_loss_benchmark: Test 100 sequences for config=fp16_baseline dataset=wikitext2
+2026-03-24 11:26:34,787 INFO ntp_loss_benchmark: Config=fp16_baseline progress=10/100 running_mean_ntp_loss=2.086342
+2026-03-24 11:26:35,811 INFO ntp_loss_benchmark: Config=fp16_baseline progress=20/100 running_mean_ntp_loss=2.220092
+2026-03-24 11:26:36,835 INFO ntp_loss_benchmark: Config=fp16_baseline progress=30/100 running_mean_ntp_loss=2.221421
+2026-03-24 11:26:37,861 INFO ntp_loss_benchmark: Config=fp16_baseline progress=40/100 running_mean_ntp_loss=2.183962
+2026-03-24 11:26:38,887 INFO ntp_loss_benchmark: Config=fp16_baseline progress=50/100 running_mean_ntp_loss=2.165697
+2026-03-24 11:26:39,914 INFO ntp_loss_benchmark: Config=fp16_baseline progress=60/100 running_mean_ntp_loss=2.154879
+2026-03-24 11:26:40,941 INFO ntp_loss_benchmark: Config=fp16_baseline progress=70/100 running_mean_ntp_loss=2.179338
+2026-03-24 11:26:41,969 INFO ntp_loss_benchmark: Config=fp16_baseline progress=80/100 running_mean_ntp_loss=2.133222
+2026-03-24 11:26:42,999 INFO ntp_loss_benchmark: Config=fp16_baseline progress=90/100 running_mean_ntp_loss=2.098304
+2026-03-24 11:26:44,029 INFO ntp_loss_benchmark: Config=fp16_baseline progress=100/100 running_mean_ntp_loss=2.114652
+2026-03-24 11:26:44,031 INFO ntp_loss_benchmark: Saved NTP loss summary to /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/fp16_baseline.json
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:08,  1.15s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.12it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.20it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.24it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.28it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.34it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.74it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.40it/s]
+2026-03-24 11:26:56,796 INFO ntp_loss_benchmark: Warmup 30 sequences for config=pure_int8
+2026-03-24 11:26:59,257 INFO ntp_loss_benchmark: Warmup 10/30 table_trigrams=4667 table_bigrams=3862
+2026-03-24 11:27:00,206 INFO ntp_loss_benchmark: Warmup 20/30 table_trigrams=9030 table_bigrams=7182
+2026-03-24 11:27:01,267 INFO ntp_loss_benchmark: Warmup 30/30 table_trigrams=13416 table_bigrams=10398
+2026-03-24 11:27:01,267 INFO ntp_loss_benchmark: Test 100 sequences for config=pure_int8 dataset=wikitext2
+2026-03-24 11:27:48,455 INFO ntp_loss_benchmark: Config=pure_int8 progress=10/100 running_mean_ntp_loss=2.086060
+2026-03-24 11:28:36,206 INFO ntp_loss_benchmark: Config=pure_int8 progress=20/100 running_mean_ntp_loss=2.220047
+2026-03-24 11:29:23,429 INFO ntp_loss_benchmark: Config=pure_int8 progress=30/100 running_mean_ntp_loss=2.221248
+2026-03-24 11:30:10,826 INFO ntp_loss_benchmark: Config=pure_int8 progress=40/100 running_mean_ntp_loss=2.183829
+2026-03-24 11:30:59,062 INFO ntp_loss_benchmark: Config=pure_int8 progress=50/100 running_mean_ntp_loss=2.165525
+2026-03-24 11:31:46,492 INFO ntp_loss_benchmark: Config=pure_int8 progress=60/100 running_mean_ntp_loss=2.154791
+2026-03-24 11:32:33,961 INFO ntp_loss_benchmark: Config=pure_int8 progress=70/100 running_mean_ntp_loss=2.179244
+2026-03-24 11:33:21,658 INFO ntp_loss_benchmark: Config=pure_int8 progress=80/100 running_mean_ntp_loss=2.133130
+2026-03-24 11:34:09,372 INFO ntp_loss_benchmark: Config=pure_int8 progress=90/100 running_mean_ntp_loss=2.098201
+2026-03-24 11:34:57,287 INFO ntp_loss_benchmark: Config=pure_int8 progress=100/100 running_mean_ntp_loss=2.114557
+2026-03-24 11:34:57,289 INFO ntp_loss_benchmark: Saved NTP loss summary to /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/pure_int8.json

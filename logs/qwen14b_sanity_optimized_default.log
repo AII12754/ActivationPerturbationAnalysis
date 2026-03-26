@@ -1,0 +1,10 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:06<00:42,  6.08s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:07<00:21,  3.59s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:09<00:14,  2.84s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:11<00:10,  2.51s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:13<00:07,  2.33s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:15<00:04,  2.18s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:17<00:02,  2.03s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:18<00:00,  1.83s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:18<00:00,  2.37s/it]
+2026-03-24 01:01:00,160 INFO longbench_benchmark: Scoring 8 LongBench samples across 4 tasks for 1 configs...
+2026-03-24 01:01:48,945 INFO longbench_benchmark: Config=optimized_default task=qmsum processed 2/2 samples avg_score=0.0096
+2026-03-24 01:02:35,765 INFO longbench_benchmark: Config=optimized_default task=gov_report processed 2/2 samples avg_score=0.1642
+2026-03-24 01:03:22,796 INFO longbench_benchmark: Config=optimized_default task=hotpotqa_e processed 2/2 samples avg_score=0.0000
+2026-03-24 01:04:09,881 INFO longbench_benchmark: Config=optimized_default task=passage_count processed 2/2 samples avg_score=0.0000
+2026-03-24 01:04:09,882 INFO longbench_benchmark: Saved summary to results_longbench/qwen14b_sanity/optimized_default.json

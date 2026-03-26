@@ -1,0 +1,165 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:05,  1.00it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.11it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.18it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.23it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.27it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.31it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.33it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+2026-03-24 05:53:05,051 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=10/200
+2026-03-24 05:54:11,575 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=20/200
+2026-03-24 05:56:00,706 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=30/200
+2026-03-24 05:57:21,598 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=40/200
+2026-03-24 05:58:58,965 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=50/200
+2026-03-24 06:00:58,911 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=60/200
+2026-03-24 06:02:14,068 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=70/200
+2026-03-24 06:03:39,215 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=80/200
+2026-03-24 06:05:14,123 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=90/200
+2026-03-24 06:06:35,138 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=100/200
+2026-03-24 06:08:18,057 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=110/200
+2026-03-24 06:10:07,086 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=120/200
+2026-03-24 06:11:58,133 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=130/200
+2026-03-24 06:13:06,209 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=140/200
+2026-03-24 06:14:27,540 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=150/200
+2026-03-24 06:15:48,054 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=160/200
+2026-03-24 06:15:58,398 WARNING longbench_benchmark: Config=pure_int4 task=narrativeqa sample=70b284b8df3a6b792b62c91b56a951f6ec946b73a14e8250 OOM at max_seq_len=32768, retrying with smaller budget
+2026-03-24 06:16:06,562 WARNING longbench_benchmark: Config=pure_int4 task=narrativeqa sample=70b284b8df3a6b792b62c91b56a951f6ec946b73a14e8250 lowered max_seq_len from 32768 to 8192 after OOM
+2026-03-24 06:17:11,419 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=170/200
+2026-03-24 06:18:32,050 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=180/200
+2026-03-24 06:19:52,992 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=190/200
+2026-03-24 06:21:13,232 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=200/200
+2026-03-24 06:21:29,916 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=10/200
+2026-03-24 06:22:07,291 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=20/200
+2026-03-24 06:22:29,454 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=30/200
+2026-03-24 06:22:51,467 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=40/200
+2026-03-24 06:23:06,675 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=50/200
+2026-03-24 06:23:32,626 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=60/200
+2026-03-24 06:23:55,859 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=70/200
+2026-03-24 06:24:15,921 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=80/200
+2026-03-24 06:24:30,938 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=90/200
+2026-03-24 06:24:43,937 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=100/200
+2026-03-24 06:25:02,330 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=110/200
+2026-03-24 06:25:24,696 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=120/200
+2026-03-24 06:25:43,100 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=130/200
+2026-03-24 06:26:11,628 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=140/200
+2026-03-24 06:26:27,623 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=150/200
+2026-03-24 06:26:43,379 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=160/200
+2026-03-24 06:26:58,020 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=170/200
+2026-03-24 06:27:21,708 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=180/200
+2026-03-24 06:27:35,633 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=190/200
+2026-03-24 06:27:56,617 INFO longbench_official_benchmark: config=pure_int4 task=qasper progress=200/200
+2026-03-24 06:28:30,114 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=10/150
+2026-03-24 06:29:09,959 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=20/150
+2026-03-24 06:29:39,214 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=30/150
+2026-03-24 06:30:01,870 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=40/150
+2026-03-24 06:30:28,149 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=50/150
+2026-03-24 06:30:46,621 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=60/150
+2026-03-24 06:31:16,840 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=70/150
+2026-03-24 06:31:45,626 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=80/150
+2026-03-24 06:32:09,913 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=90/150
+2026-03-24 06:32:46,503 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=100/150
+2026-03-24 06:33:21,462 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=110/150
+2026-03-24 06:33:57,700 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=120/150
+2026-03-24 06:34:23,175 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=130/150
+2026-03-24 06:34:57,754 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=140/150
+2026-03-24 06:35:27,118 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_en progress=150/150
+2026-03-24 06:35:41,134 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=10/200
+2026-03-24 06:35:57,192 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=20/200
+2026-03-24 06:36:13,539 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=30/200
+2026-03-24 06:36:30,948 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=40/200
+2026-03-24 06:36:48,047 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=50/200
+2026-03-24 06:37:03,471 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=60/200
+2026-03-24 06:37:24,588 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=70/200
+2026-03-24 06:37:36,845 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=80/200
+2026-03-24 06:37:54,350 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=90/200
+2026-03-24 06:38:08,913 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=100/200
+2026-03-24 06:38:24,717 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=110/200
+2026-03-24 06:38:36,962 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=120/200
+2026-03-24 06:38:51,874 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=130/200
+2026-03-24 06:39:12,899 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=140/200
+2026-03-24 06:39:34,633 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=150/200
+2026-03-24 06:39:56,212 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=160/200
+2026-03-24 06:40:20,414 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=170/200
+2026-03-24 06:40:37,994 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=180/200
+2026-03-24 06:40:54,175 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=190/200
+2026-03-24 06:41:00,465 WARNING longbench_benchmark: Config=pure_int4 task=multifieldqa_zh sample=f327ab95dfcc5212a35bb9090dc7e0fdda701d4e1dc0b267 OOM at max_seq_len=8192, retrying with smaller budget
+2026-03-24 06:41:01,926 WARNING longbench_benchmark: Config=pure_int4 task=multifieldqa_zh sample=f327ab95dfcc5212a35bb9090dc7e0fdda701d4e1dc0b267 OOM at max_seq_len=6144, retrying with smaller budget
+2026-03-24 06:41:05,117 WARNING longbench_benchmark: Config=pure_int4 task=multifieldqa_zh sample=f327ab95dfcc5212a35bb9090dc7e0fdda701d4e1dc0b267 lowered max_seq_len from 8192 to 4096 after OOM
+2026-03-24 06:41:13,998 INFO longbench_official_benchmark: config=pure_int4 task=multifieldqa_zh progress=200/200
+2026-03-24 06:41:33,099 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=10/200
+2026-03-24 06:41:53,775 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=20/200
+2026-03-24 06:42:12,905 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=30/200
+2026-03-24 06:42:33,313 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=40/200
+2026-03-24 06:42:53,707 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=50/200
+2026-03-24 06:43:13,988 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=60/200
+2026-03-24 06:43:34,404 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=70/200
+2026-03-24 06:43:54,318 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=80/200
+2026-03-24 06:44:14,814 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=90/200
+2026-03-24 06:44:35,132 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=100/200
+2026-03-24 06:44:55,552 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=110/200
+2026-03-24 06:45:15,940 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=120/200
+2026-03-24 06:45:33,259 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=130/200
+2026-03-24 06:45:53,700 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=140/200
+2026-03-24 06:46:13,920 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=150/200
+2026-03-24 06:46:34,227 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=160/200
+2026-03-24 06:46:53,283 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=170/200
+2026-03-24 06:47:13,670 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=180/200
+2026-03-24 06:47:33,881 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=190/200
+2026-03-24 06:47:54,212 INFO longbench_official_benchmark: config=pure_int4 task=hotpotqa progress=200/200
+2026-03-24 06:48:02,829 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=4b28d517ce1c1e3cfec9282ca7b212c1cb87c254781d7c86 OOM at max_seq_len=4096, retrying with smaller budget
+2026-03-24 06:48:03,850 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=4b28d517ce1c1e3cfec9282ca7b212c1cb87c254781d7c86 OOM at max_seq_len=3072, retrying with smaller budget
+2026-03-24 06:48:05,383 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=4b28d517ce1c1e3cfec9282ca7b212c1cb87c254781d7c86 lowered max_seq_len from 4096 to 2048 after OOM
+2026-03-24 06:48:13,133 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=10/200
+2026-03-24 06:48:27,807 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=20/200
+2026-03-24 06:48:42,594 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=30/200
+2026-03-24 06:48:58,098 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=40/200
+2026-03-24 06:49:12,566 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=50/200
+2026-03-24 06:49:27,838 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=60/200
+2026-03-24 06:49:43,180 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=70/200
+2026-03-24 06:49:57,236 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=80/200
+2026-03-24 06:49:58,324 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=9ce10c5072e04cbd0d81d7e721fba8cf8062cc665fd32314 OOM at max_seq_len=2048, retrying with smaller budget
+2026-03-24 06:49:59,750 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=9ce10c5072e04cbd0d81d7e721fba8cf8062cc665fd32314 lowered max_seq_len from 2048 to 1536 after OOM
+2026-03-24 06:50:13,548 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=90/200
+2026-03-24 06:50:28,006 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=100/200
+2026-03-24 06:50:40,697 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=93ff7c9369b6ff2f37896b54f6e4d8ff91c125f78ae8bf9a OOM at max_seq_len=1536, retrying with smaller budget
+2026-03-24 06:50:42,051 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=93ff7c9369b6ff2f37896b54f6e4d8ff91c125f78ae8bf9a lowered max_seq_len from 1536 to 1024 after OOM
+2026-03-24 06:50:44,159 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=110/200
+2026-03-24 06:50:57,580 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=120/200
+2026-03-24 06:51:11,373 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=130/200
+2026-03-24 06:51:24,788 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=140/200
+2026-03-24 06:51:38,871 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=150/200
+2026-03-24 06:51:52,226 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=160/200
+2026-03-24 06:52:05,696 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=170/200
+2026-03-24 06:52:19,617 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=180/200
+2026-03-24 06:52:33,194 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=190/200
+2026-03-24 06:52:43,996 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=35cbcb102aa5b4f9188011190e0f30456df5673fcddacf49 OOM at max_seq_len=1024, retrying with smaller budget
+2026-03-24 06:52:45,325 WARNING longbench_benchmark: Config=pure_int4 task=2wikimqa sample=35cbcb102aa5b4f9188011190e0f30456df5673fcddacf49 lowered max_seq_len from 1024 to 768 after OOM
+2026-03-24 06:52:48,565 INFO longbench_official_benchmark: config=pure_int4 task=2wikimqa progress=200/200
+2026-03-24 06:53:02,560 INFO longbench_official_benchmark: config=pure_int4 task=musique progress=10/200
+2026-03-24 06:53:16,467 INFO longbench_official_benchmark: config=pure_int4 task=musique progress=20/200
+2026-03-24 06:53:26,596 WARNING longbench_benchmark: Config=pure_int4 task=musique sample=9724776e8c8210a47eae48302b73a9e2603c238d417a63f2 OOM at max_seq_len=768, retrying with smaller budget
+2026-03-24 06:53:26,596 ERROR longbench_official_benchmark: OOM config=pure_int4 task=musique sample=9724776e8c8210a47eae48302b73a9e2603c238d417a63f2 max_seq_len=32768
+Traceback (most recent call last):
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 338, in <module>
+    main()
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 317, in main
+    prediction = _compressed_generate(pipeline, tokenizer, final_prompt, task_name, config_name, row_id)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 210, in _compressed_generate
+    _prefill, decode_res, _stats = _run_request_with_retry(
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_benchmark.py", line 370, in _run_request_with_retry
+    torch.cuda.empty_cache()
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_benchmark.py", line 342, in _run_request_with_retry
+    
+  File "/usr/local/lib/python3.10/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 1046, in process_request
+    ) -> None:
+  File "/usr/local/lib/python3.10/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 754, in process_prefill
+    "recon_cosine_min": 0.0, "mse_mean": 0.0, "mse_max": 0.0,
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 261, in _run_suffix_prefill
+    logits = self.model.lm_head(suffix_hidden)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/linear.py", line 125, in forward
+    return F.linear(input, self.weight, self.bias)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 224.00 MiB. GPU 0 has a total capacity of 79.32 GiB of which 59.00 MiB is free. Process 2906246 has 79.25 GiB memory in use. Of the allocated memory 77.91 GiB is allocated by PyTorch, and 863.78 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

@@ -295,7 +295,11 @@ def run_dataset(pipeline: OverlappedPipeline, dataset_name: str, cfg: Dict[str, 
     # --- Warmup ---
     logger.info("--- Warmup: %d requests ---", warmup_n)
     for i, text in enumerate(warmup_texts):
-        prefill_res, decode_res, tbl_stats = pipeline.process_request(text, phase="warmup")
+        prefill_res, decode_res, tbl_stats = pipeline.process_request(
+            text,
+            phase="warmup",
+            task_name=dataset_name,
+        )
         table_records.append({
             "dataset_name": dataset_name, "request_index": i, "phase": "warmup",
             **tbl_stats,
@@ -311,7 +315,11 @@ def run_dataset(pipeline: OverlappedPipeline, dataset_name: str, cfg: Dict[str, 
     # --- Test ---
     logger.info("--- Test: %d requests ---", test_n)
     for i, text in enumerate(test_texts):
-        prefill_res, decode_res, tbl_stats = pipeline.process_request(text, phase="test")
+        prefill_res, decode_res, tbl_stats = pipeline.process_request(
+            text,
+            phase="test",
+            task_name=dataset_name,
+        )
 
         # Prefill record
         prefill_records.append({

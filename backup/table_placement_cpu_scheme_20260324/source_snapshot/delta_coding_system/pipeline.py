@@ -20,14 +20,13 @@ import re
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import torch
 import torch.nn.functional as F
 from transformers.cache_utils import DynamicCache
 
 from delta_coding_system.table import DomainTableManager, NgramTable
-from delta_coding_system.topic_router import DEFAULT_TOPIC_KEYWORDS, LightweightTopicRouter, RoutingDecision
 from delta_coding_system.codec import (
     DeltaPacket,
     compute_affine_params,
@@ -150,9 +149,6 @@ class OverlappedPipeline:
         device: torch.device = None,
         domain_aware: bool = False,
         max_gpu_tables: int = 3,
-        max_active_tables_per_request: int = 4,
-        auto_topic_routing: bool = True,
-        topic_keywords: Optional[Dict[str, Sequence[str]]] = None,
         delta_strategy: str = "delta_noaffine_int4_k1",
         unigram_strategy: str = "unigram_int4_k4",
         track_transfer_bytes: bool = True,
@@ -172,17 +168,6 @@ class OverlappedPipeline:
         self.unigram_strategy = unigram_strategy
         self.track_transfer_bytes = track_transfer_bytes
         self.extra_stop_token_ids: Set[int] = set(extra_stop_token_ids or [])
-        self.max_active_tables_per_request = max(1, max_active_tables_per_request)
-        self.auto_topic_routing = auto_topic_routing
-        self.topic_keywords = {
-            domain: tuple(keywords)
-            for domain, keywords in (topic_keywords or DEFAULT_TOPIC_KEYWORDS).items()
-        }
-        self.topic_router = LightweightTopicRouter(
-            topic_keywords=self.topic_keywords,
-            max_active_domains=max_active_tables_per_request,
-            max_write_domains=max(1, min(3, max_active_tables_per_request)),
-        )
 
         if device is None:
             device = next(model.parameters()).device
@@ -198,34 +183,16 @@ class OverlappedPipeline:
                 table_dtype=table_dtype,
                 max_entries_per_table=max_table_entries,
                 max_gpu_tables=max_gpu_tables,
-                table_storage_format="int8",
-                int8_group_size=int8_group_size,
-                int8_top_k=int8_outlier_top_k,
             )
-            self.table = None  # set per-request via select_domains()
-            self._current_domains: List[str] = []
-            self._current_domain_weights: Dict[str, float] = {}
-            self._current_write_domains: List[str] = []
-            self._manual_domains: List[str] = []
-            self._last_routing_info: Dict[str, Any] = {}
-            self._last_routing_decision: Optional[RoutingDecision] = None
-            self._last_request_domain_hits: Dict[str, int] = {}
+            self.table = None  # set per-request via select_domain()
+            self._current_domain: Optional[str] = None
         else:
             self.table_manager = None
-            self._current_domains = []
-            self._current_domain_weights = {}
-            self._current_write_domains = []
-            self._manual_domains = []
-            self._last_routing_info = {}
-            self._last_routing_decision = None
-            self._last_request_domain_hits = {}
+            self._current_domain = None
             self.table = NgramTable(
                 device=device,
                 dtype=table_dtype,
                 max_entries=max_table_entries,
-                storage_format="int8",
-                int8_group_size=int8_group_size,
-                int8_top_k=int8_outlier_top_k,
             )
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
@@ -310,105 +277,22 @@ class OverlappedPipeline:
         logits = self.model.lm_head(suffix_hidden)
         return logits[:, -1, :]
 
-    def _activate_request_tables(
-        self,
-        text: str,
-        task_name: Optional[str] = None,
-        request_domains: Optional[Sequence[str]] = None,
-    ) -> List[str]:
-        if not self.domain_aware:
-            return []
-
-        manual_domains = list(self._manual_domains)
-        if request_domains:
-            manual_domains.extend(request_domains)
-        decision = self.topic_router.route(text, task_name=task_name, manual_domains=manual_domains)
-        tables = self.table_manager.get_many(decision.active_domains)
-        self._current_domains = list(tables.keys())
-        self._current_domain_weights = {
-            domain: decision.domain_weights.get(domain, 1.0)
-            for domain in self._current_domains
-        }
-        self._current_write_domains = [domain for domain in decision.write_domains if domain in tables]
-        self.table = tables[self._current_domains[0]] if self._current_domains else None
-        self._last_routing_decision = decision
-        self._last_routing_info = {
-            "manual_domains": manual_domains,
-            "resolved_domains": list(self._current_domains),
-            "write_domains": list(self._current_write_domains),
-            "domain_weights": dict(self._current_domain_weights),
-            "task_name": task_name,
-            "topic_scores": decision.topic_scores,
-            "merge_domains": decision.merge_domains,
-        }
-        return self._current_domains
-
-    def select_domains(self, domains: Sequence[str]):
-        if not self.domain_aware:
-            return [self.table]
-        self._manual_domains = [re.sub(r"[^a-z0-9_:+-]+", "_", domain.strip().lower()).strip("_") or "misc" for domain in domains if domain]
-        tables = self.table_manager.get_many(self._manual_domains)
-        self._current_domains = list(tables.keys())
-        self._current_domain_weights = {domain: 1.0 for domain in self._current_domains}
-        self._current_write_domains = list(self._current_domains)
-        self.table = tables[self._current_domains[0]] if self._current_domains else None
-        return [tables[domain] for domain in self._current_domains]
-
     def select_domain(self, domain: str) -> NgramTable:
-        selected = self.select_domains([domain])
-        return selected[0] if selected else self.table
+        """Activate the table for *domain* (domain-aware mode only).
 
-    def release_domains(self) -> None:
-        if self.domain_aware and self._current_domains:
-            self.table_manager.release_many(self._current_domains)
-        self._current_domains = []
-        self._current_domain_weights = {}
-        self._current_write_domains = []
-        self._manual_domains = []
-        self._last_routing_decision = None
-        self._last_request_domain_hits = {}
+        In non-domain-aware mode this is a no-op returning the single table.
+        """
+        if not self.domain_aware:
+            return self.table
+        self.table = self.table_manager.get(domain)
+        self._current_domain = domain
+        return self.table
 
     def release_domain(self) -> None:
-        self.release_domains()
-
-    def _materialize_stored_hidden(self, stored_hidden: Any) -> torch.Tensor:
-        if isinstance(stored_hidden, torch.Tensor):
-            return stored_hidden.to(device=self.device, dtype=torch.float16)
-        packet = stored_hidden
-        packet = type(packet)(
-            quantized=packet.quantized.to(self.device, non_blocking=True),
-            scales=packet.scales.to(self.device, non_blocking=True),
-            zero_points=packet.zero_points.to(self.device, non_blocking=True),
-            topk_values=packet.topk_values.to(self.device, non_blocking=True),
-            topk_indices=packet.topk_indices.to(self.device, non_blocking=True),
-            group_size=packet.group_size,
-            top_k=packet.top_k,
-        )
-        return groupwise_int8_dequantize_topk(packet)[0]
-
-    def _active_tables(self) -> List[NgramTable]:
-        if not self.domain_aware:
-            return [self.table]
-        return [self.table_manager.get(domain) for domain in self._current_domains]
-
-    def _write_tables(self) -> List[NgramTable]:
-        if not self.domain_aware:
-            return [self.table]
-        return [self.table_manager.get(domain) for domain in self._current_write_domains]
-
-    def _update_active_tables_from_hidden_states(
-        self,
-        token_ids: List[int],
-        hidden_states: torch.Tensor,
-    ) -> Tuple[int, int, float]:
-        total_new_trigrams = 0
-        total_new_bigrams = 0
-        t0 = time.perf_counter()
-        for table in self._write_tables():
-            new_tri, new_bi, _ = table.update_from_hidden_states(token_ids, hidden_states)
-            total_new_trigrams += new_tri
-            total_new_bigrams += new_bi
-        return total_new_trigrams, total_new_bigrams, (time.perf_counter() - t0) * 1000.0
+        """Hint that the current domain is done (domain-aware mode)."""
+        if self.domain_aware and self._current_domain is not None:
+            self.table_manager.release(self._current_domain)
+            self._current_domain = None
 
     def shutdown(self):
         """Shutdown the thread pool executors."""
@@ -666,8 +550,6 @@ class OverlappedPipeline:
         self,
         text: str,
         phase: str = "test",
-        task_name: Optional[str] = None,
-        request_domains: Optional[Sequence[str]] = None,
     ) -> Tuple[
         PrefillResult,
         DynamicCache,
@@ -705,28 +587,15 @@ class OverlappedPipeline:
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         seq_len = len(input_ids)
 
-        if self.domain_aware:
-            self._activate_request_tables(text, task_name=task_name, request_domains=request_domains)
-
         # 1. Launch classify async (CPU) — only needs token_ids
         classify_future = None
         if is_test:
-            if self.domain_aware:
-                classify_future = self.classify_executor.submit(
-                    self.table_manager.classify_and_build_refs_from_domains,
-                    list(self._current_domains),
-                    input_ids,
-                    self.hidden_dim,
-                    dict(self._current_domain_weights),
-                )
-            else:
-                classify_future = self.classify_executor.submit(
-                    self.table.classify_and_build_refs,
-                    input_ids,
-                    self.hidden_dim,
-                )
+            classify_future = self.classify_executor.submit(
+                self.table.classify_and_build_refs,
+                input_ids, self.hidden_dim, self.device,
+            )
 
-        # 2. Prefill forward (GPU, concurrent with classify)
+        # 2. Prefix prefill forward (GPU, concurrent with classify)
         torch.cuda.synchronize()
         t_fwd_start = time.perf_counter()
         prefill_hidden, prefix_cache = self._run_prefix_prefill(input_tensor)
@@ -740,10 +609,7 @@ class OverlappedPipeline:
             next_logits, suffix_cache = self._run_suffix_prefill(prefill_hidden)
             next_tok = self._select_next_token(next_logits, do_sample=False)
             t_upd_start = time.perf_counter()
-            if self.domain_aware:
-                self._update_active_tables_from_hidden_states(input_ids, prefill_hidden)
-            else:
-                self.table.update_from_hidden_states(input_ids, prefill_hidden)
+            self.table.update_from_hidden_states(input_ids, prefill_hidden)
             result.table_update_ms = (time.perf_counter() - t_upd_start) * 1000.0
             result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
             result.reconstructed_hidden = prefill_hidden
@@ -752,12 +618,7 @@ class OverlappedPipeline:
 
         # 3. Collect classify result
         t_classify_start = time.perf_counter()
-        if self.domain_aware:
-            tiers, ref_acts, self_ref_sources, first_occ_map, ref_stats = classify_future.result()
-            self._last_request_domain_hits = dict(ref_stats.domain_hits)
-        else:
-            tiers, ref_acts, self_ref_sources, first_occ_map = classify_future.result()
-            self._last_request_domain_hits = {}
+        tiers, sparse_refs, self_ref_sources, first_occ_map = classify_future.result()
         classify_ms = (time.perf_counter() - t_classify_start) * 1000.0
         result.classify_ms = classify_ms
 
@@ -794,7 +655,7 @@ class OverlappedPipeline:
         if delta_indices:
             idx_t = torch.tensor(delta_indices, dtype=torch.long, device=self.device)
             real_batch = real_acts[idx_t]
-            ref_batch = ref_acts[idx_t]
+            ref_batch = sparse_refs.gather(delta_indices)
 
             recon_batch, total_delta_bytes = self._encode_delta_batch(
                 real_batch, ref_batch, include_ref_idx=True,
@@ -842,7 +703,6 @@ class OverlappedPipeline:
             source_positions = [self_ref_sources[pos] for pos in sorted_self_ref]
             src_t = torch.tensor(source_positions, dtype=torch.long, device=self.device)
             ref_sr = reconstructed[src_t]
-            ref_acts[idx_sr] = ref_sr
 
             recon_sr, transfer_bytes_by_tier["self_ref"] = self._encode_delta_batch(
                 real_sr, ref_sr, include_ref_idx=True,
@@ -872,12 +732,19 @@ class OverlappedPipeline:
         result.mse_max = overall_mse.max().item()
 
         # Raw cosine for non-unigram
-        non_uni_indices = trigram_indices + bigram_indices + sorted(self_ref_indices)
-        if non_uni_indices:
-            idx_nu = torch.tensor(non_uni_indices, dtype=torch.long, device=self.device)
-            raw_cos = F.cosine_similarity(
-                real_acts[idx_nu].float(), ref_acts[idx_nu].float(), dim=-1,
-            )
+        raw_cos_batches: List[torch.Tensor] = []
+        if delta_indices:
+            idx_delta = torch.tensor(delta_indices, dtype=torch.long, device=self.device)
+            delta_ref_batch = sparse_refs.gather(delta_indices)
+            raw_cos_batches.append(F.cosine_similarity(
+                real_acts[idx_delta].float(), delta_ref_batch.float(), dim=-1,
+            ))
+        if self_ref_indices:
+            raw_cos_batches.append(F.cosine_similarity(
+                real_sr.float(), ref_sr.float(), dim=-1,
+            ))
+        if raw_cos_batches:
+            raw_cos = torch.cat(raw_cos_batches)
             result.raw_cosine_mean = raw_cos.mean().item()
             result.raw_cosine_min = raw_cos.min().item()
 
@@ -896,11 +763,16 @@ class OverlappedPipeline:
                 continue
             idx_t = torch.tensor(tier_indices, dtype=torch.long, device=self.device)
             real_tier = real_acts[idx_t]
-            ref_tier = ref_acts[idx_t]
             recon_tier = reconstructed[idx_t]
             if tier_name == "unigram":
                 raw_cos_t = torch.zeros(len(tier_indices), device=self.device)
             else:
+                if tier_name == "self_ref":
+                    source_positions = [self_ref_sources[pos] for pos in tier_indices]
+                    src_t = torch.tensor(source_positions, dtype=torch.long, device=self.device)
+                    ref_tier = reconstructed[src_t]
+                else:
+                    ref_tier = sparse_refs.gather(tier_indices)
                 raw_cos_t = F.cosine_similarity(real_tier.float(), ref_tier.float(), dim=-1)
             recon_cos_t = F.cosine_similarity(real_tier.float(), recon_tier.float(), dim=-1)
             mse_t = ((real_tier.float() - recon_tier.float()) ** 2).mean(dim=-1)
@@ -917,18 +789,10 @@ class OverlappedPipeline:
         # 5. Prefill table update: launch asynchronously and let decode hide it.
         local_prompt_refs = self._build_local_prompt_refs(input_ids, prefill_hidden)
         t_upd_start = time.perf_counter()
-        if self.domain_aware:
-            self._pending_prefill_update = self.update_executor.submit(
-                self._update_active_tables_from_hidden_states,
-                input_ids,
-                prefill_hidden,
-            )
-        else:
-            self._pending_prefill_update = self.update_executor.submit(
-                self.table.update_from_hidden_states,
-                input_ids,
-                prefill_hidden,
-            )
+        self._pending_prefill_update = self.update_executor.submit(
+            self.table.update_from_hidden_states,
+            input_ids, prefill_hidden,
+        )
         result.table_update_ms = (time.perf_counter() - t_upd_start) * 1000.0
 
         result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
@@ -1151,14 +1015,10 @@ class OverlappedPipeline:
             trigram_key = (a, b, c)
 
             # 1. Trigram table lookup
-            tri_ref = None
-            for table in self._active_tables():
-                tri_ref = table.get_trigram(a, b, c)
-                if tri_ref is not None:
-                    break
+            tri_ref = self.table.get_trigram(a, b, c)
             if tri_ref is not None:
                 tier = "trigram"
-                ref_h = self._materialize_stored_hidden(tri_ref).unsqueeze(0)
+                ref_h = tri_ref.unsqueeze(0).to(device=self.device, dtype=torch.float16)
                 first_occ_map.setdefault(trigram_key, decode_pos)
             elif trigram_key in local_prompt_trigrams:
                 tier = "trigram"
@@ -1175,14 +1035,10 @@ class OverlappedPipeline:
                 if len(running_token_ids) >= 2:
                     b_tok = running_token_ids[-2]
                     c_tok = running_token_ids[-1]
-                    bi_ref = None
-                    for table in self._active_tables():
-                        bi_ref = table.get_bigram(b_tok, c_tok)
-                        if bi_ref is not None:
-                            break
+                    bi_ref = self.table.get_bigram(b_tok, c_tok)
                     if bi_ref is not None:
                         tier = "bigram"
-                        ref_h = self._materialize_stored_hidden(bi_ref).unsqueeze(0)
+                        ref_h = bi_ref.unsqueeze(0).to(device=self.device, dtype=torch.float16)
                     elif (b_tok, c_tok) in local_prompt_bigrams:
                         tier = "bigram"
                         ref_h = local_prompt_bigrams[(b_tok, c_tok)].unsqueeze(0).to(torch.float16)
@@ -1204,9 +1060,7 @@ class OverlappedPipeline:
             a = running_token_ids[-3]
             b = running_token_ids[-2]
             c = running_token_ids[-1]
-            for table in self._active_tables():
-                if table.has_trigram(a, b, c):
-                    continue
+            if not self.table.has_trigram(a, b, c):
                 b_abs_pos = decode_pos - 1
                 if b_abs_pos < len(input_ids):
                     bi_hidden = prefill_hidden[b_abs_pos]
@@ -1214,14 +1068,12 @@ class OverlappedPipeline:
                     bi_hidden = decode_hidden_by_pos[b_abs_pos]
                 else:
                     bi_hidden = h
-                stored_bigram = table._encode_hidden_batch_for_storage(bi_hidden.unsqueeze(0))[0]
-                stored_trigram = table._encode_hidden_batch_for_storage(h.unsqueeze(0))[0]
-                node = table._get_or_create_node(a, b, stored_bigram)
+                node = self.table._get_or_create_node(
+                    a, b, bi_hidden.to(device=self.table.device, dtype=self.table.dtype).detach(),
+                )
                 if c not in node.suffixes:
-                    node.suffixes[c] = stored_trigram
-                    table._num_trigrams += 1
-                table._request_counter += 1
-                table._last_evicted = table.evict()
+                    node.suffixes[c] = h.to(device=self.table.device, dtype=self.table.dtype).detach()
+                    self.table._num_trigrams += 1
 
     # ------------------------------------------------------------------
     # Full request processing
@@ -1231,24 +1083,13 @@ class OverlappedPipeline:
         self,
         text: str,
         phase: str = "test",
-        task_name: Optional[str] = None,
-        request_domains: Optional[Sequence[str]] = None,
     ) -> Tuple[PrefillResult, DecodeResult, Dict[str, Any]]:
         """Process a complete request: prefill + decode.
 
         Returns (prefill_result, decode_result, table_stats).
         """
-        prefill_outputs = self.process_prefill(
-            text,
-            phase=phase,
-            task_name=task_name,
-            request_domains=request_domains,
-        )
-        if len(prefill_outputs) == 6:
-            prefill_result, prefix_cache, next_tok, input_ids, prefill_hidden, local_prompt_refs = prefill_outputs
-            _suffix_logits, suffix_cache = self._run_suffix_prefill(prefill_hidden)
-        else:
-            prefill_result, prefix_cache, suffix_cache, next_tok, input_ids, prefill_hidden, local_prompt_refs = prefill_outputs
+        prefill_result, prefix_cache, suffix_cache, next_tok, input_ids, prefill_hidden, local_prompt_refs = \
+            self.process_prefill(text, phase=phase)
 
         decode_result = self.process_decode(
             prefix_cache,
@@ -1261,20 +1102,10 @@ class OverlappedPipeline:
             phase=phase,
         )
 
-        table_stats = self.table.stats if self.table is not None else {}
-        if self.table is not None:
-            table_stats["last_evicted"] = self.table._last_evicted
+        table_stats = self.table.stats
+        table_stats["last_evicted"] = self.table._last_evicted
         if self.domain_aware:
-            table_stats["domains"] = list(self._current_domains)
-            table_stats["routing"] = dict(self._last_routing_info)
-            table_stats["domain_hits"] = dict(self._last_request_domain_hits)
+            table_stats["domain"] = self._current_domain
             table_stats["manager"] = self.table_manager.stats
-
-            if self._last_routing_decision is not None:
-                self.topic_router.observe(
-                    text,
-                    self._last_routing_decision,
-                    self._last_request_domain_hits,
-                )
 
         return prefill_result, decode_result, table_stats

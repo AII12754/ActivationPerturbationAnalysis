@@ -1,0 +1,16 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:05<00:41,  5.98s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:07<00:21,  3.54s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:09<00:14,  2.82s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:11<00:09,  2.50s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:13<00:06,  2.33s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:15<00:04,  2.17s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:17<00:02,  2.03s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:18<00:00,  1.83s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:18<00:00,  2.35s/it]
+2026-03-24 01:01:00,160 INFO longbench_benchmark: Scoring 8 LongBench samples across 4 tasks for 1 configs...
+/usr/local/lib/python3.10/dist-packages/transformers/generation/configuration_utils.py:631: UserWarning: `do_sample` is set to `False`. However, `temperature` is set to `0.7` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `temperature`.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/transformers/generation/configuration_utils.py:636: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.8` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/transformers/generation/configuration_utils.py:653: UserWarning: `do_sample` is set to `False`. However, `top_k` is set to `20` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_k`.
+  warnings.warn(
+2026-03-24 01:01:44,311 INFO longbench_benchmark: Config=fp16_baseline task=qmsum processed 2/2 samples avg_score=0.0437
+2026-03-24 01:02:27,837 INFO longbench_benchmark: Config=fp16_baseline task=gov_report processed 2/2 samples avg_score=0.1643
+2026-03-24 01:02:57,129 INFO longbench_benchmark: Config=fp16_baseline task=hotpotqa_e processed 2/2 samples avg_score=0.0000
+2026-03-24 01:03:40,705 INFO longbench_benchmark: Config=fp16_baseline task=passage_count processed 2/2 samples avg_score=0.0000
+2026-03-24 01:03:40,706 INFO longbench_benchmark: Saved summary to results_longbench/qwen14b_sanity/fp16_baseline.json

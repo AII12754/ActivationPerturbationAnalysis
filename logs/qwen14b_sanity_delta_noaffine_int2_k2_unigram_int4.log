@@ -1,0 +1,10 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:06<00:42,  6.08s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:07<00:21,  3.57s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:09<00:14,  2.81s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:11<00:09,  2.37s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:13<00:06,  2.07s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:14<00:03,  1.91s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:16<00:01,  1.80s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:17<00:00,  1.57s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:17<00:00,  2.16s/it]
+2026-03-24 01:00:58,567 INFO longbench_benchmark: Scoring 8 LongBench samples across 4 tasks for 1 configs...
+2026-03-24 01:01:47,038 INFO longbench_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 task=qmsum processed 2/2 samples avg_score=0.0189
+2026-03-24 01:02:33,929 INFO longbench_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 task=gov_report processed 2/2 samples avg_score=0.1625
+2026-03-24 01:03:21,053 INFO longbench_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 task=hotpotqa_e processed 2/2 samples avg_score=0.0333
+2026-03-24 01:04:07,160 INFO longbench_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 task=passage_count processed 2/2 samples avg_score=0.0000
+2026-03-24 01:04:07,161 INFO longbench_benchmark: Saved summary to results_longbench/qwen14b_sanity/delta_noaffine_int2_k2_unigram_int4.json

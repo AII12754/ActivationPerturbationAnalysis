@@ -1,0 +1,20 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:10,  1.47s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.04s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.16it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.29it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.40it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.43it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.49it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.78it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.40it/s]
+2026-03-24 06:09:53,926 INFO ntp_loss_benchmark: Warmup 30 sequences for config=optimized_default
+2026-03-24 06:09:55,537 INFO ntp_loss_benchmark: Warmup 10/30 table_trigrams=4667 table_bigrams=3862
+2026-03-24 06:09:56,480 INFO ntp_loss_benchmark: Warmup 20/30 table_trigrams=9030 table_bigrams=7182
+2026-03-24 06:09:57,442 INFO ntp_loss_benchmark: Warmup 30/30 table_trigrams=13416 table_bigrams=10398
+2026-03-24 06:09:57,443 INFO ntp_loss_benchmark: Test 100 sequences for config=optimized_default dataset=wikitext2
+2026-03-24 06:10:43,814 INFO ntp_loss_benchmark: Config=optimized_default progress=10/100 running_mean_ntp_loss=2.087595
+2026-03-24 06:11:30,396 INFO ntp_loss_benchmark: Config=optimized_default progress=20/100 running_mean_ntp_loss=2.220401
+2026-03-24 06:12:17,093 INFO ntp_loss_benchmark: Config=optimized_default progress=30/100 running_mean_ntp_loss=2.222102
+2026-03-24 06:13:03,702 INFO ntp_loss_benchmark: Config=optimized_default progress=40/100 running_mean_ntp_loss=2.185214
+2026-03-24 06:13:50,609 INFO ntp_loss_benchmark: Config=optimized_default progress=50/100 running_mean_ntp_loss=2.166624
+2026-03-24 06:14:37,967 INFO ntp_loss_benchmark: Config=optimized_default progress=60/100 running_mean_ntp_loss=2.155844
+2026-03-24 06:15:25,495 INFO ntp_loss_benchmark: Config=optimized_default progress=70/100 running_mean_ntp_loss=2.179886
+2026-03-24 06:16:12,756 INFO ntp_loss_benchmark: Config=optimized_default progress=80/100 running_mean_ntp_loss=2.133685
+2026-03-24 06:17:00,120 INFO ntp_loss_benchmark: Config=optimized_default progress=90/100 running_mean_ntp_loss=2.098697
+2026-03-24 06:17:46,886 INFO ntp_loss_benchmark: Config=optimized_default progress=100/100 running_mean_ntp_loss=2.114904
+2026-03-24 06:17:46,888 INFO ntp_loss_benchmark: Saved NTP loss summary to results_ntp_loss_qwen14b/optimized_default.json

@@ -254,12 +254,20 @@ def groupwise_int8_quantize_topk(
 ) -> Int8OutlierPacket:
     """Group-wise Int8 quantization with top-k fp16 outlier extraction."""
     batch, hidden_dim = tensor.shape
-    num_groups = hidden_dim // group_size
+    effective_group_size = min(group_size, hidden_dim)
+    if effective_group_size <= 0:
+        raise ValueError("group_size must be positive")
+    if hidden_dim % effective_group_size != 0:
+        raise ValueError(
+            f"hidden_dim={hidden_dim} must be divisible by effective group size {effective_group_size}"
+        )
+    effective_top_k = min(top_k, effective_group_size)
+    num_groups = hidden_dim // effective_group_size
 
-    grouped = tensor.float().reshape(batch, num_groups, group_size)
+    grouped = tensor.float().reshape(batch, num_groups, effective_group_size)
 
     abs_vals = grouped.abs()
-    _, tk_idx = abs_vals.topk(top_k, dim=-1)
+    _, tk_idx = abs_vals.topk(effective_top_k, dim=-1)
     tk_vals = torch.gather(grouped, -1, tk_idx)
 
     # Zero out top-k positions in-place (tk_vals already saved above)
@@ -285,8 +293,8 @@ def groupwise_int8_quantize_topk(
         zero_points=zero_points,
         topk_values=tk_vals.to(torch.float16),
         topk_indices=tk_idx.to(torch.uint8),
-        group_size=group_size,
-        top_k=top_k,
+        group_size=effective_group_size,
+        top_k=effective_top_k,
     )
 
 

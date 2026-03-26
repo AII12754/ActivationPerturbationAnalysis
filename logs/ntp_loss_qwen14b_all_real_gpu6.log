@@ -1,0 +1,60 @@
+]633;E;for cfg in delta_int2_k2_unigram_int4 delta_noaffine_int2_k2_unigram_int4 legacy_prev_int4_k2\x3b do   /usr/bin/python delta_coding_system/benchmarks/run_ntp_loss_benchmark.py --model /root/share/models/Qwen2.5-14B-Instruct --gpu 6 --config "$cfg" --dataset wikitext2 --warmup-requests 30 --test-requests 100 --prompt-tokens 512 --continuation-tokens 128 --max-seq-len 1024 --split-manifest /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b/splits/wikitext2_w30_t100_p512_c128_m1024_s42.json --output "/root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/${cfg}.json"\x3b done > /root/ActivationPerturbationAnalysis/logs/ntp_loss_qwen14b_all_real_gpu6.log 2>&1;fdc4fbaa-aa86-4af1-9a75-fc40f3cc1552]633;C/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:07,  1.12s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.07it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:11<00:23,  4.68s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:21<00:27,  6.82s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:35<00:29,  9.70s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:43<00:18,  9.09s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:52<00:08,  8.84s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:53<00:00,  6.34s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:53<00:00,  6.65s/it]
+2026-03-24 11:26:33,334 INFO ntp_loss_benchmark: Warmup 30 sequences for config=delta_int2_k2_unigram_int4
+2026-03-24 11:26:36,038 INFO ntp_loss_benchmark: Warmup 10/30 table_trigrams=4667 table_bigrams=3862
+2026-03-24 11:26:36,993 INFO ntp_loss_benchmark: Warmup 20/30 table_trigrams=9030 table_bigrams=7182
+2026-03-24 11:26:38,130 INFO ntp_loss_benchmark: Warmup 30/30 table_trigrams=13416 table_bigrams=10398
+2026-03-24 11:26:38,131 INFO ntp_loss_benchmark: Test 100 sequences for config=delta_int2_k2_unigram_int4 dataset=wikitext2
+2026-03-24 11:27:27,313 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=10/100 running_mean_ntp_loss=2.090829
+2026-03-24 11:28:15,878 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=20/100 running_mean_ntp_loss=2.223377
+2026-03-24 11:29:04,741 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=30/100 running_mean_ntp_loss=2.223943
+2026-03-24 11:29:53,777 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=40/100 running_mean_ntp_loss=2.186007
+2026-03-24 11:30:42,732 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=50/100 running_mean_ntp_loss=2.168376
+2026-03-24 11:31:31,535 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=60/100 running_mean_ntp_loss=2.156783
+2026-03-24 11:32:21,552 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=70/100 running_mean_ntp_loss=2.181135
+2026-03-24 11:33:10,317 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=80/100 running_mean_ntp_loss=2.134765
+2026-03-24 11:33:59,398 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=90/100 running_mean_ntp_loss=2.099939
+2026-03-24 11:34:48,911 INFO ntp_loss_benchmark: Config=delta_int2_k2_unigram_int4 progress=100/100 running_mean_ntp_loss=2.116796
+2026-03-24 11:34:48,913 INFO ntp_loss_benchmark: Saved NTP loss summary to /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/delta_int2_k2_unigram_int4.json
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:08,  1.18s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.02s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.04it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.11it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.15it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.18it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.21it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.15it/s]
+2026-03-24 11:35:02,416 INFO ntp_loss_benchmark: Warmup 30 sequences for config=delta_noaffine_int2_k2_unigram_int4
+2026-03-24 11:35:05,273 INFO ntp_loss_benchmark: Warmup 10/30 table_trigrams=4667 table_bigrams=3862
+2026-03-24 11:35:06,236 INFO ntp_loss_benchmark: Warmup 20/30 table_trigrams=9030 table_bigrams=7182
+2026-03-24 11:35:07,400 INFO ntp_loss_benchmark: Warmup 30/30 table_trigrams=13416 table_bigrams=10398
+2026-03-24 11:35:07,401 INFO ntp_loss_benchmark: Test 100 sequences for config=delta_noaffine_int2_k2_unigram_int4 dataset=wikitext2
+2026-03-24 11:35:57,724 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=10/100 running_mean_ntp_loss=2.088412
+2026-03-24 11:36:48,574 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=20/100 running_mean_ntp_loss=2.222253
+2026-03-24 11:37:39,148 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=30/100 running_mean_ntp_loss=2.222658
+2026-03-24 11:38:29,800 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=40/100 running_mean_ntp_loss=2.185777
+2026-03-24 11:39:22,744 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=50/100 running_mean_ntp_loss=2.167222
+2026-03-24 11:40:13,946 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=60/100 running_mean_ntp_loss=2.155194
+2026-03-24 11:41:04,615 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=70/100 running_mean_ntp_loss=2.179899
+2026-03-24 11:41:54,482 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=80/100 running_mean_ntp_loss=2.133742
+2026-03-24 11:42:45,153 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=90/100 running_mean_ntp_loss=2.098915
+2026-03-24 11:43:35,694 INFO ntp_loss_benchmark: Config=delta_noaffine_int2_k2_unigram_int4 progress=100/100 running_mean_ntp_loss=2.115613
+2026-03-24 11:43:35,696 INFO ntp_loss_benchmark: Saved NTP loss summary to /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/delta_noaffine_int2_k2_unigram_int4.json
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:07,  1.01s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.11it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.16it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.20it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.23it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.26it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.24it/s]
+2026-03-24 11:43:48,538 INFO ntp_loss_benchmark: Warmup 30 sequences for config=legacy_prev_int4_k2
+2026-03-24 11:43:58,907 INFO ntp_loss_benchmark: Warmup 10/30 table_trigrams=4667 table_bigrams=3862
+2026-03-24 11:44:07,118 INFO ntp_loss_benchmark: Warmup 20/30 table_trigrams=9030 table_bigrams=7182
+2026-03-24 11:44:15,469 INFO ntp_loss_benchmark: Warmup 30/30 table_trigrams=13416 table_bigrams=10398
+2026-03-24 11:44:15,469 INFO ntp_loss_benchmark: Test 100 sequences for config=legacy_prev_int4_k2 dataset=wikitext2
+2026-03-24 11:45:08,555 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=10/100 running_mean_ntp_loss=2.087133
+2026-03-24 11:46:01,387 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=20/100 running_mean_ntp_loss=2.219400
+2026-03-24 11:46:54,906 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=30/100 running_mean_ntp_loss=2.220682
+2026-03-24 11:47:47,469 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=40/100 running_mean_ntp_loss=2.183748
+2026-03-24 11:48:39,625 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=50/100 running_mean_ntp_loss=2.165938
+2026-03-24 11:49:31,434 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=60/100 running_mean_ntp_loss=2.154997
+2026-03-24 11:50:23,971 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=70/100 running_mean_ntp_loss=2.179482
+2026-03-24 11:51:15,308 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=80/100 running_mean_ntp_loss=2.133160
+2026-03-24 11:52:06,714 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=90/100 running_mean_ntp_loss=2.098386
+2026-03-24 11:52:57,935 INFO ntp_loss_benchmark: Config=legacy_prev_int4_k2 progress=100/100 running_mean_ntp_loss=2.114939
+2026-03-24 11:52:57,937 INFO ntp_loss_benchmark: Saved NTP loss summary to /root/ActivationPerturbationAnalysis/results_ntp_loss_qwen14b_all_real/legacy_prev_int4_k2.json

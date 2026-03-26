@@ -20,6 +20,7 @@ import gc
 import json
 import logging
 import random
+import math
 import shutil
 import sys
 import time
@@ -63,6 +64,49 @@ def _save_records(records: List[Dict[str, Any]], path: Path) -> None:
     logger.info("Saved %d records to %s", len(records), path)
 
 
+def _percentile(values: List[float], pct: float) -> float:
+    if not values:
+        return 0.0
+    if len(values) == 1:
+        return float(values[0])
+    ordered = sorted(float(value) for value in values)
+    rank = (len(ordered) - 1) * pct
+    low = int(math.floor(rank))
+    high = int(math.ceil(rank))
+    if low == high:
+        return ordered[low]
+    frac = rank - low
+    return ordered[low] * (1.0 - frac) + ordered[high] * frac
+
+
+def _build_latency_summary(dataset_name: str, config_name: str, request_records: List[Dict[str, Any]], bandwidths: List[int]) -> Dict[str, Any]:
+    pipeline_values = [float(record["pipeline_total_ms"]) for record in request_records]
+    summary: Dict[str, Any] = {
+        "dataset_name": dataset_name,
+        "config_name": config_name,
+        "num_requests": len(request_records),
+        "pipeline_total_ms_mean": sum(pipeline_values) / max(len(pipeline_values), 1),
+        "pipeline_total_ms_p50": _percentile(pipeline_values, 0.50),
+        "pipeline_total_ms_p95": _percentile(pipeline_values, 0.95),
+    }
+
+    for bw in bandwidths:
+        prefill_key = f"prefill_comm_e2e_{bw}mbps_ms"
+        decode_key = f"decode_comm_e2e_{bw}mbps_total_ms"
+        per_token_key = f"decode_comm_e2e_{bw}mbps_per_token_ms"
+        prefill_values = [float(record[prefill_key]) for record in request_records]
+        decode_values = [float(record[decode_key]) for record in request_records]
+        per_token_values = [float(record[per_token_key]) for record in request_records]
+        summary[f"prefill_comm_e2e_{bw}mbps_mean_ms"] = sum(prefill_values) / max(len(prefill_values), 1)
+        summary[f"prefill_comm_e2e_{bw}mbps_p95_ms"] = _percentile(prefill_values, 0.95)
+        summary[f"decode_comm_e2e_{bw}mbps_total_mean_ms"] = sum(decode_values) / max(len(decode_values), 1)
+        summary[f"decode_comm_e2e_{bw}mbps_total_p95_ms"] = _percentile(decode_values, 0.95)
+        summary[f"decode_comm_e2e_{bw}mbps_per_token_mean_ms"] = sum(per_token_values) / max(len(per_token_values), 1)
+        summary[f"decode_comm_e2e_{bw}mbps_per_token_p95_ms"] = _percentile(per_token_values, 0.95)
+
+    return summary
+
+
 def _prepare_texts(dataset_name: str, seed: int, warmup_requests: int, test_requests: int) -> tuple[list[str], list[str]]:
     texts = load_dataset_texts(dataset_name)
     rng = random.Random(seed)
@@ -81,6 +125,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
 
     request_records: List[Dict[str, Any]] = []
     drift_records: List[Dict[str, Any]] = []
+    summary_records: List[Dict[str, Any]] = []
 
     pipelines = []
 
@@ -101,7 +146,10 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             decode_tokens=args.max_decode_tokens,
             max_seq_len=args.max_seq_len,
             device=device,
-            domain_aware=False,
+            domain_aware=args.domain_aware,
+            max_gpu_tables=args.max_gpu_tables,
+            max_active_tables_per_request=args.max_active_tables_per_request,
+            auto_topic_routing=not args.disable_auto_topic_routing,
             delta_strategy=cfg["delta_strategy"],
             unigram_strategy=cfg["unigram_strategy"],
         )
@@ -110,7 +158,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
     for cfg, pipeline in pipelines:
         logger.info("Warmup %d requests for config=%s...", len(warmup_texts), cfg["name"])
         for text in warmup_texts:
-            pipeline.process_request(text, phase="warmup")
+            pipeline.process_request(text, phase="warmup", task_name=dataset_name)
 
     logger.info("Test %d requests across %d configs...", len(test_texts), len(pipelines))
     for request_index, text in enumerate(test_texts):
@@ -128,7 +176,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
         for cfg, pipeline in pipelines:
             request_t0 = time.perf_counter()
             pipeline_t0 = time.perf_counter()
-            prefill_res, decode_res, table_stats = pipeline.process_request(text, phase="test")
+            prefill_res, decode_res, table_stats = pipeline.process_request(text, phase="test", task_name=dataset_name)
             pipeline_ms = (time.perf_counter() - pipeline_t0) * 1000.0
 
             prompt_len = prefill_res.seq_len
@@ -145,6 +193,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             request_row = {
                 "dataset_name": dataset_name,
                 "config_name": cfg["name"],
+                "domain_aware": bool(args.domain_aware),
                 "request_index": request_index,
                 "prompt_len": prompt_len,
                 "decode_len": decode_len,
@@ -177,9 +226,18 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 "pipeline_total_ms": prefill_res.total_ms + decode_res.total_ms,
                 "table_num_trigrams": table_stats["num_trigrams"],
                 "table_num_bigrams": table_stats["num_bigrams"],
+                "active_domains": json.dumps(table_stats.get("domains", []), ensure_ascii=False),
+                "routing": json.dumps(table_stats.get("routing", {}), ensure_ascii=False),
+                "domain_hits": json.dumps(table_stats.get("domain_hits", {}), ensure_ascii=False),
             }
 
-            for bw in BANDWIDTHS_MBPS:
+            manager_stats = table_stats.get("manager")
+            if isinstance(manager_stats, dict):
+                request_row["manager_gpu_resident"] = manager_stats.get("gpu_resident", 0)
+                request_row["manager_num_domains"] = manager_stats.get("num_domains", 0)
+                request_row["manager_storage_format"] = manager_stats.get("storage_format", "")
+
+            for bw in args.bandwidths_mbps:
                 prefill_net = _network_ms(prefill_res.total_transfer_bytes, bw)
                 decode_net_total = _network_ms(decode_res.total_transfer_bytes, bw)
                 request_row[f"prefill_comm_e2e_{bw}mbps_ms"] = prefill_local_ms + prefill_net
@@ -210,8 +268,9 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             if decode_res.reconstructed_hidden is not None and decode_res.decode_tokens > 0:
                 recon_parts.append(decode_res.reconstructed_hidden)
             recon_full = torch.cat(recon_parts, dim=0).unsqueeze(0)
+            attention_mask = cached_full_mask if reuse_orig_logits and cached_full_mask is not None else full_mask
             with torch.no_grad():
-                recon_logits = run_remaining_layers(model, recon_full, cached_full_mask if reuse_orig_logits else full_mask, start_layer=args.layer_boundary)
+                recon_logits = run_remaining_layers(model, recon_full, attention_mask, start_layer=args.layer_boundary)
 
             if decode_len > 0:
                 decode_metrics = compute_logit_drift_metrics(orig_logits[:, prompt_len:, :], recon_logits[:, prompt_len:, :])
@@ -256,6 +315,14 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 reuse_orig_logits,
             )
 
+    for cfg, _pipeline in pipelines:
+        cfg_request_rows = [
+            record for record in request_records
+            if record["dataset_name"] == dataset_name and record["config_name"] == cfg["name"]
+        ]
+        if cfg_request_rows:
+            summary_records.append(_build_latency_summary(dataset_name, cfg["name"], cfg_request_rows, args.bandwidths_mbps))
+
     for _, pipeline in pipelines:
         pipeline.shutdown()
     gc.collect()
@@ -263,6 +330,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
 
     _save_records(request_records, dataset_out / "request_summary.parquet")
     _save_records(drift_records, dataset_out / "decode_drift.parquet")
+    _save_records(summary_records, dataset_out / "latency_summary.parquet")
 
 
 def main():
@@ -280,6 +348,11 @@ def main():
     parser.add_argument("--output-dir", default="results_pipeline_strategy_real_run")
     parser.add_argument("--clean-output", action="store_true")
     parser.add_argument("--datasets", nargs="+", default=["wikitext2"])
+    parser.add_argument("--domain-aware", action="store_true")
+    parser.add_argument("--max-gpu-tables", type=int, default=3)
+    parser.add_argument("--max-active-tables-per-request", type=int, default=4)
+    parser.add_argument("--disable-auto-topic-routing", action="store_true")
+    parser.add_argument("--bandwidths-mbps", nargs="+", type=int, default=BANDWIDTHS_MBPS)
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -292,7 +365,8 @@ def main():
     device = torch.device(f"cuda:{args.gpu}")
     torch.cuda.set_device(device)
 
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers.models.auto.modeling_auto import AutoModelForCausalLM
+    from transformers.models.auto.tokenization_auto import AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(

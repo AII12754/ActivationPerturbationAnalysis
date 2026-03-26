@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 from collections import defaultdict
@@ -11,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List
 
 import torch
+import torch.distributed as dist
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -28,6 +30,8 @@ from delta_coding_system.benchmarks.run_longbench_benchmark import (
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("longbench_v2_benchmark")
+
+_DIST_RANK = 0
 
 DATASET_PATH = Path("/root/share/dataset/LongbenchV2/data.json")
 
@@ -80,9 +84,39 @@ def _effective_strategy_payload(config_name: str) -> Dict[str, object]:
 
 
 def _write_summary(output_path: str, summary: Dict[str, object]) -> None:
+    if _DIST_RANK != 0:
+        return
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False))
+
+
+def _setup_tp(tp_size: int) -> tuple[int, int, bool]:
+    global _DIST_RANK
+
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+    rank = int(os.environ.get("RANK", "0"))
+    distributed = tp_size > 1 or world_size > 1
+    if distributed:
+        if world_size <= 1:
+            raise RuntimeError("Tensor parallel requires torchrun with WORLD_SIZE > 1")
+        torch.cuda.set_device(local_rank)
+        if not dist.is_initialized():
+            dist.init_process_group("nccl")
+        _DIST_RANK = rank
+        if rank != 0:
+            logger.setLevel(logging.WARNING)
+        logger.info("Initialized TP rank=%d local_rank=%d world_size=%d", rank, local_rank, world_size)
+    else:
+        _DIST_RANK = 0
+    return rank, local_rank, distributed
+
+
+def _cleanup_tp(distributed: bool) -> None:
+    if distributed and dist.is_initialized():
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 def main() -> None:
@@ -102,7 +136,10 @@ def main() -> None:
     parser.add_argument("--save-per-sample", action="store_true")
     parser.add_argument("--score-only", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--tp-size", type=int, default=1)
     args = parser.parse_args()
+
+    rank, local_rank, distributed = _setup_tp(args.tp_size)
 
     from transformers.models.auto.modeling_auto import AutoModelForCausalLM
     from transformers.models.auto.tokenization_auto import AutoTokenizer
@@ -116,15 +153,19 @@ def main() -> None:
         if domain in selected_domains:
             grouped_records[domain].append(row)
 
-    device = torch.device(f"cuda:{args.gpu}")
+    device_index = local_rank if distributed else args.gpu
+    device = torch.device(f"cuda:{device_index}")
     torch.cuda.set_device(device)
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        args.model,
-        torch_dtype=torch.float16,
-        device_map={"": device},
-        trust_remote_code=True,
-    )
+    model_kwargs = {
+        "torch_dtype": torch.float16,
+        "trust_remote_code": True,
+    }
+    if distributed:
+        model_kwargs["tp_plan"] = "auto"
+    else:
+        model_kwargs["device_map"] = {"": device}
+    model = AutoModelForCausalLM.from_pretrained(args.model, **model_kwargs)
     model.eval()
     hidden_dim = model.config.hidden_size
 
@@ -329,7 +370,9 @@ def main() -> None:
         "samples_per_domain": args.samples_per_domain,
         "configs": results_by_config,
     })
-    logger.info("Saved summary to %s", Path(args.output))
+    if rank == 0:
+        logger.info("Saved summary to %s", Path(args.output))
+    _cleanup_tp(distributed)
 
 
 if __name__ == "__main__":

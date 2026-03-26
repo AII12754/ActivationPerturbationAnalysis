@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import re
 import string
 import sys
@@ -12,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
 import torch
+import torch.distributed as dist
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -21,12 +23,27 @@ from delta_coding_system.pipeline import OverlappedPipeline
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("longbench_benchmark")
 
+_DIST_RANK = 0
+_DIST_WORLD_SIZE = 1
+
 DATASET_ROOT = Path("/root/share/dataset/Longbench/data")
 FP16_CONFIG_NAME = "fp16_baseline"
 
 CONFIGS = {
     "optimized_default": {
         "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "unigram_int4_k4",
+    },
+    "pure_int2": {
+        "delta_strategy": "direct_int2",
+        "unigram_strategy": "unigram_int2_k4",
+    },
+    "pure_int8": {
+        "delta_strategy": "direct_int8",
+        "unigram_strategy": "baseline_current",
+    },
+    "pure_int4": {
+        "delta_strategy": "direct_int4",
         "unigram_strategy": "unigram_int4_k4",
     },
     "delta_baseline_unigram_int4": {
@@ -65,7 +82,20 @@ CONFIGS = {
         "delta_strategy": "delta_int2_k4_out4_entropy",
         "unigram_strategy": "unigram_int4_k4",
     },
+    "legacy_prev_int4_k2": {
+        "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "prev_int4_k2",
+    },
+    "legacy_prev_gs256_k2": {
+        "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "prev_gs256_k2",
+    },
 }
+
+LEGACY_CONFIG_NAMES = (
+    "legacy_prev_int4_k2",
+    "legacy_prev_gs256_k2",
+)
 
 TASKS = {
     "narrativeqa": {"metric": "qa_f1"},
@@ -222,7 +252,16 @@ def _build_prompt(task_name: str, row: Dict[str, object]) -> str:
     return f"{instruction}\n\nContext:\n{context}\n\nQuestion:\n{question}\n\nAnswer:"
 
 
-def _load_task_records(task_name: str, max_samples: int | None) -> List[Dict[str, object]]:
+def _context_length_chars(row: Dict[str, object]) -> int:
+    return len(str(row.get("context", "")))
+
+
+def _load_task_records(
+    task_name: str,
+    max_samples: int | None,
+    min_context_chars: int,
+    sort_by_context_length_desc: bool,
+) -> List[Dict[str, object]]:
     file_path = DATASET_ROOT / f"{task_name}.jsonl"
     if not file_path.exists():
         raise FileNotFoundError(f"LongBench task file not found: {file_path}")
@@ -232,9 +271,14 @@ def _load_task_records(task_name: str, max_samples: int | None) -> List[Dict[str
             line = line.strip()
             if not line:
                 continue
-            records.append(json.loads(line))
-            if max_samples is not None and len(records) >= max_samples:
-                break
+            row = json.loads(line)
+            if _context_length_chars(row) < min_context_chars:
+                continue
+            records.append(row)
+    if sort_by_context_length_desc:
+        records.sort(key=_context_length_chars, reverse=True)
+    if max_samples is not None:
+        records = records[:max_samples]
     return records
 
 
@@ -390,6 +434,8 @@ def _write_summary(
     args,
     results_by_config: Dict[str, Dict[str, object]],
 ) -> None:
+    if _DIST_RANK != 0:
+        return
     summary: Dict[str, object] = {
         "benchmark": "LongBench",
         "score_name": "average_task_score",
@@ -404,6 +450,36 @@ def _write_summary(
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False))
+
+
+def _setup_tp(tp_size: int) -> tuple[int, int, bool]:
+    global _DIST_RANK, _DIST_WORLD_SIZE
+
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+    rank = int(os.environ.get("RANK", "0"))
+    distributed = tp_size > 1 or world_size > 1
+    if distributed:
+        if world_size <= 1:
+            raise RuntimeError("Tensor parallel requires torchrun with WORLD_SIZE > 1")
+        torch.cuda.set_device(local_rank)
+        if not dist.is_initialized():
+            dist.init_process_group("nccl")
+        _DIST_RANK = rank
+        _DIST_WORLD_SIZE = world_size
+        if rank != 0:
+            logger.setLevel(logging.WARNING)
+        logger.info("Initialized TP rank=%d local_rank=%d world_size=%d", rank, local_rank, world_size)
+    else:
+        _DIST_RANK = 0
+        _DIST_WORLD_SIZE = 1
+    return rank, local_rank, distributed
+
+
+def _cleanup_tp(distributed: bool) -> None:
+    if distributed and dist.is_initialized():
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 def _effective_strategy_payload(config_name: str) -> Dict[str, object]:
@@ -467,6 +543,8 @@ def main() -> None:
     parser.add_argument("--config", choices=sorted([*CONFIGS.keys(), FP16_CONFIG_NAME]), nargs="+", default=["optimized_default"])
     parser.add_argument("--tasks", choices=sorted(TASKS.keys()), nargs="+", default=list(TASKS.keys()))
     parser.add_argument("--samples-per-task", type=int, default=None)
+    parser.add_argument("--min-context-chars", type=int, default=0)
+    parser.add_argument("--sort-by-context-length-desc", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--warmup-samples", type=int, default=0)
     parser.add_argument("--max-new-tokens", type=int, default=32)
     parser.add_argument("--max-seq-len", type=int, default=16384)
@@ -478,25 +556,38 @@ def main() -> None:
     parser.add_argument("--save-per-sample", action="store_true")
     parser.add_argument("--score-only", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--interleave-configs-per-sample", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--tp-size", type=int, default=1)
     args = parser.parse_args()
+
+    rank, local_rank, distributed = _setup_tp(args.tp_size)
 
     from transformers.models.auto.modeling_auto import AutoModelForCausalLM
     from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-    device = torch.device(f"cuda:{args.gpu}")
+    device_index = local_rank if distributed else args.gpu
+    device = torch.device(f"cuda:{device_index}")
     torch.cuda.set_device(device)
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        args.model,
-        torch_dtype=torch.float16,
-        device_map={"": device},
-        trust_remote_code=True,
-    )
+    model_kwargs = {
+        "torch_dtype": torch.float16,
+        "trust_remote_code": True,
+    }
+    if distributed:
+        model_kwargs["tp_plan"] = "auto"
+    else:
+        model_kwargs["device_map"] = {"": device}
+    model = AutoModelForCausalLM.from_pretrained(args.model, **model_kwargs)
     model.eval()
     hidden_dim = model.config.hidden_size
 
     task_records = {
-        task_name: _load_task_records(task_name, args.samples_per_task) for task_name in args.tasks
+        task_name: _load_task_records(
+            task_name,
+            args.samples_per_task,
+            args.min_context_chars,
+            args.sort_by_context_length_desc,
+        )
+        for task_name in args.tasks
     }
 
     results_by_config: Dict[str, Dict[str, object]] = {}
@@ -649,7 +740,9 @@ def main() -> None:
                 pipeline.shutdown()
 
         _write_summary(args.output, args, results_by_config)
-        logger.info("Saved summary to %s", Path(args.output))
+        if rank == 0:
+            logger.info("Saved summary to %s", Path(args.output))
+        _cleanup_tp(distributed)
         return
 
     for config_name in args.config:
@@ -810,7 +903,9 @@ def main() -> None:
             pipeline.shutdown()
 
     _write_summary(args.output, args, results_by_config)
-    logger.info("Saved summary to %s", Path(args.output))
+    if rank == 0:
+        logger.info("Saved summary to %s", Path(args.output))
+    _cleanup_tp(distributed)
 
 
 if __name__ == "__main__":

@@ -65,7 +65,20 @@ CONFIGS = {
         "delta_strategy": "delta_int2_k4_out4_entropy",
         "unigram_strategy": "unigram_int4_k4",
     },
+    "legacy_prev_int4_k2": {
+        "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "prev_int4_k2",
+    },
+    "legacy_prev_gs256_k2": {
+        "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "prev_gs256_k2",
+    },
 }
+
+LEGACY_CONFIG_NAMES = (
+    "legacy_prev_int4_k2",
+    "legacy_prev_gs256_k2",
+)
 
 
 def _network_ms(total_bytes: float, bandwidth_mbps: int) -> float:
