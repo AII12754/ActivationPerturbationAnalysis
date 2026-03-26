@@ -240,6 +240,7 @@ class OverlappedPipeline:
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
         self._pending_prefill_update: Optional[Future] = None
+        self._pending_decode_updates: List[Future] = []
         self._transfer_kernels_warmed = False
 
         # Import extraction helpers
@@ -451,10 +452,56 @@ class OverlappedPipeline:
         if self._pending_prefill_update is not None:
             self._pending_prefill_update.result()
             self._pending_prefill_update = None
+        self._drain_decode_updates(wait=True)
         self.classify_executor.shutdown(wait=False)
         self.update_executor.shutdown(wait=False)
         if self.domain_aware and self.table_manager is not None:
             self.table_manager.offload_all()
+
+    def _drain_decode_updates(self, wait: bool = False) -> None:
+        if not self._pending_decode_updates:
+            return
+        remaining: List[Future] = []
+        for future in self._pending_decode_updates:
+            if wait:
+                future.result()
+                continue
+            if future.done():
+                future.result()
+                continue
+            remaining.append(future)
+        self._pending_decode_updates = remaining
+
+    def _submit_decode_table_update(
+        self,
+        running_token_ids: List[int],
+        decode_pos: int,
+        h: torch.Tensor,
+        prefill_hidden: torch.Tensor,
+        input_ids: List[int],
+        decode_hidden_by_pos: Dict[int, torch.Tensor],
+    ) -> None:
+        if len(running_token_ids) < 3:
+            return
+        a = running_token_ids[-3]
+        b = running_token_ids[-2]
+        c = running_token_ids[-1]
+        b_abs_pos = decode_pos - 1
+        if b_abs_pos < len(input_ids):
+            bi_hidden = prefill_hidden[b_abs_pos]
+        else:
+            bi_hidden = decode_hidden_by_pos.get(b_abs_pos, h)
+        tables = tuple(self._write_tables() if self.domain_aware else [self.table])
+        future = self.update_executor.submit(
+            self._update_table_step,
+            tables,
+            a,
+            b,
+            c,
+            bi_hidden,
+            h,
+        )
+        self._pending_decode_updates.append(future)
 
     def _delta_uses_affine(self) -> bool:
         if self.delta_strategy in {"direct_int8", "direct_int4", "direct_int2"}:
@@ -738,6 +785,7 @@ class OverlappedPipeline:
         if self._pending_prefill_update is not None:
             self._pending_prefill_update.result()
             self._pending_prefill_update = None
+        self._drain_decode_updates(wait=False)
 
         input_ids = self.tokenizer.encode(text, add_special_tokens=False)
         if len(input_ids) > self.max_seq_len:
@@ -1045,7 +1093,6 @@ class OverlappedPipeline:
         total_transfer_bytes = 0
         total_raw_bytes = 0
 
-        pending_table_update: Optional[Future] = None
         local_prompt_trigrams, local_prompt_bigrams = local_prompt_refs
 
         # Pre-allocate CUDA events for decode loop timing
@@ -1117,19 +1164,17 @@ class OverlappedPipeline:
 
             # "Send" compressed data
 
-            # Collect previous table update if pending
-            if pending_table_update is not None:
-                t_wait0 = time.perf_counter()
-                pending_table_update.result()
-                table_update_ms = (time.perf_counter() - t_wait0) * 1000.0
-            else:
-                table_update_ms = 0.0
+            table_update_ms = 0.0
+            self._drain_decode_updates(wait=False)
 
-            # Table update (async, after send)
-            pending_table_update = self.update_executor.submit(
-                self._update_table_step,
-                running_token_ids, decode_pos, h,
-                prefill_hidden, input_ids, decode_hidden_by_pos,
+            # Table update (fully async, after send)
+            self._submit_decode_table_update(
+                running_token_ids,
+                decode_pos,
+                h,
+                prefill_hidden,
+                input_ids,
+                decode_hidden_by_pos,
             )
 
             # Record metrics
@@ -1155,11 +1200,7 @@ class OverlappedPipeline:
             if tok_id in self.extra_stop_token_ids:
                 break
 
-        # Collect final table update
-        if pending_table_update is not None:
-            t_wait0 = time.perf_counter()
-            pending_table_update.result()
-            decode_result.total_table_update_ms += (time.perf_counter() - t_wait0) * 1000.0
+        self._drain_decode_updates(wait=False)
 
         del next_tok
 
@@ -1266,36 +1307,25 @@ class OverlappedPipeline:
 
     def _update_table_step(
         self,
-        running_token_ids: List[int],
-        decode_pos: int,
-        h: torch.Tensor,
-        prefill_hidden: torch.Tensor,
-        input_ids: List[int],
-        decode_hidden_by_pos: Dict[int, torch.Tensor],
+        tables: Sequence[NgramTable],
+        a: int,
+        b: int,
+        c: int,
+        bi_hidden: torch.Tensor,
+        trigram_hidden: torch.Tensor,
     ) -> None:
         """Update table with a single decode step's trigram. Runs on CPU thread."""
-        if len(running_token_ids) >= 3:
-            a = running_token_ids[-3]
-            b = running_token_ids[-2]
-            c = running_token_ids[-1]
-            for table in self._active_tables():
-                if table.has_trigram(a, b, c):
-                    continue
-                b_abs_pos = decode_pos - 1
-                if b_abs_pos < len(input_ids):
-                    bi_hidden = prefill_hidden[b_abs_pos]
-                elif b_abs_pos in decode_hidden_by_pos:
-                    bi_hidden = decode_hidden_by_pos[b_abs_pos]
-                else:
-                    bi_hidden = h
-                stored_bigram = table._encode_hidden_batch_for_storage(bi_hidden.unsqueeze(0))[0]
-                stored_trigram = table._encode_hidden_batch_for_storage(h.unsqueeze(0))[0]
-                node = table._get_or_create_node(a, b, stored_bigram)
-                if c not in node.suffixes:
-                    node.suffixes[c] = stored_trigram
-                    table._num_trigrams += 1
-                table._request_counter += 1
-                table._last_evicted = table.evict()
+        for table in tables:
+            if table.has_trigram(a, b, c):
+                continue
+            stored_bigram = table._encode_hidden_batch_for_storage(bi_hidden.unsqueeze(0))[0]
+            stored_trigram = table._encode_hidden_batch_for_storage(trigram_hidden.unsqueeze(0))[0]
+            node = table._get_or_create_node(a, b, stored_bigram)
+            if c not in node.suffixes:
+                node.suffixes[c] = stored_trigram
+                table._num_trigrams += 1
+            table._request_counter += 1
+            table._last_evicted = table.evict()
 
     # ------------------------------------------------------------------
     # Full request processing
