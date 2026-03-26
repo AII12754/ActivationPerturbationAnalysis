@@ -152,13 +152,20 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             auto_topic_routing=not args.disable_auto_topic_routing,
             delta_strategy=cfg["delta_strategy"],
             unigram_strategy=cfg["unigram_strategy"],
+            decode_use_raw_fp16=not args.enable_decode_quantization,
+            prefill_use_raw_fp16=args.disable_prefill_quantization,
         )
         pipelines.append((cfg, pipeline))
 
     for cfg, pipeline in pipelines:
         logger.info("Warmup %d requests for config=%s...", len(warmup_texts), cfg["name"])
         for text in warmup_texts:
-            pipeline.process_request(text, phase="warmup", task_name=dataset_name)
+            pipeline.process_request(
+                text,
+                phase="warmup",
+                task_name=dataset_name,
+                request_domains=args.request_domains,
+            )
 
     logger.info("Test %d requests across %d configs...", len(test_texts), len(pipelines))
     for request_index, text in enumerate(test_texts):
@@ -176,7 +183,12 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
         for cfg, pipeline in pipelines:
             request_t0 = time.perf_counter()
             pipeline_t0 = time.perf_counter()
-            prefill_res, decode_res, table_stats = pipeline.process_request(text, phase="test", task_name=dataset_name)
+            prefill_res, decode_res, table_stats = pipeline.process_request(
+                text,
+                phase="test",
+                task_name=dataset_name,
+                request_domains=args.request_domains,
+            )
             pipeline_ms = (time.perf_counter() - pipeline_t0) * 1000.0
 
             prompt_len = prefill_res.seq_len
@@ -194,6 +206,9 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 "dataset_name": dataset_name,
                 "config_name": cfg["name"],
                 "domain_aware": bool(args.domain_aware),
+                "request_domains": json.dumps(args.request_domains or [], ensure_ascii=False),
+                "decode_use_raw_fp16": not args.enable_decode_quantization,
+                "prefill_use_raw_fp16": args.disable_prefill_quantization,
                 "request_index": request_index,
                 "prompt_len": prompt_len,
                 "decode_len": decode_len,
@@ -353,6 +368,10 @@ def main():
     parser.add_argument("--max-active-tables-per-request", type=int, default=4)
     parser.add_argument("--disable-auto-topic-routing", action="store_true")
     parser.add_argument("--bandwidths-mbps", nargs="+", type=int, default=BANDWIDTHS_MBPS)
+    parser.add_argument("--request-domains", nargs="*", default=None)
+    parser.add_argument("--enable-decode-quantization", action="store_true")
+    parser.add_argument("--enable-prefill-quantization", action="store_true")
+    parser.add_argument("--disable-prefill-quantization", action="store_true")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)

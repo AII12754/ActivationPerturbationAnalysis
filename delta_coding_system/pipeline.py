@@ -157,6 +157,9 @@ class OverlappedPipeline:
         unigram_strategy: str = "unigram_int4_k4",
         track_transfer_bytes: bool = True,
         extra_stop_token_ids: Optional[List[int]] = None,
+        decode_use_raw_fp16: bool = True,
+        prefill_use_raw_fp16: bool = False,
+        low_latency_multidomain_classify: bool = True,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -171,6 +174,9 @@ class OverlappedPipeline:
         self.delta_strategy = delta_strategy
         self.unigram_strategy = unigram_strategy
         self.track_transfer_bytes = track_transfer_bytes
+        self.decode_use_raw_fp16 = decode_use_raw_fp16
+        self.prefill_use_raw_fp16 = prefill_use_raw_fp16
+        self.low_latency_multidomain_classify = low_latency_multidomain_classify
         self.extra_stop_token_ids: Set[int] = set(extra_stop_token_ids or [])
         self.max_active_tables_per_request = max(1, max_active_tables_per_request)
         self.auto_topic_routing = auto_topic_routing
@@ -206,6 +212,8 @@ class OverlappedPipeline:
             self._current_domains: List[str] = []
             self._current_domain_weights: Dict[str, float] = {}
             self._current_write_domains: List[str] = []
+            self._active_table_cache: List[NgramTable] = []
+            self._write_table_cache: List[NgramTable] = []
             self._manual_domains: List[str] = []
             self._last_routing_info: Dict[str, Any] = {}
             self._last_routing_decision: Optional[RoutingDecision] = None
@@ -215,6 +223,8 @@ class OverlappedPipeline:
             self._current_domains = []
             self._current_domain_weights = {}
             self._current_write_domains = []
+            self._active_table_cache = []
+            self._write_table_cache = []
             self._manual_domains = []
             self._last_routing_info = {}
             self._last_routing_decision = None
@@ -230,10 +240,13 @@ class OverlappedPipeline:
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
         self._pending_prefill_update: Optional[Future] = None
+        self._transfer_kernels_warmed = False
 
         # Import extraction helpers
         from activation_science.core.extraction import select_next_token
         self._select_next_token = select_next_token
+
+        self._warmup_transfer_kernels()
 
     def _cache_seq_len(self, cache: DynamicCache) -> int:
         for key_state in cache.key_cache:
@@ -275,6 +288,19 @@ class OverlappedPipeline:
                 position_embeddings=position_embeddings,
             )[0]
         return hidden
+
+    def _warmup_transfer_kernels(self) -> None:
+        if self._transfer_kernels_warmed or self.device.type != "cuda":
+            return
+        warm_batch = min(8, max(1, self.group_size))
+        real = torch.randn(warm_batch, self.hidden_dim, device=self.device, dtype=torch.float16)
+        ref = torch.randn(warm_batch, self.hidden_dim, device=self.device, dtype=torch.float16)
+        with torch.inference_mode():
+            self._encode_delta_batch(real, ref, include_ref_idx=True)
+            self._encode_unigram_batch(real)
+            self._encode_prev_unigram_batch(real[:1], ref[:1])
+        torch.cuda.synchronize(self.device)
+        self._transfer_kernels_warmed = True
 
     def _run_prefix_prefill(self, input_tensor: torch.Tensor) -> Tuple[torch.Tensor, DynamicCache]:
         hidden = self.model.model.embed_tokens(input_tensor)
@@ -330,6 +356,8 @@ class OverlappedPipeline:
             for domain in self._current_domains
         }
         self._current_write_domains = [domain for domain in decision.write_domains if domain in tables]
+        self._active_table_cache = [tables[domain] for domain in self._current_domains]
+        self._write_table_cache = [tables[domain] for domain in self._current_write_domains]
         self.table = tables[self._current_domains[0]] if self._current_domains else None
         self._last_routing_decision = decision
         self._last_routing_info = {
@@ -351,6 +379,8 @@ class OverlappedPipeline:
         self._current_domains = list(tables.keys())
         self._current_domain_weights = {domain: 1.0 for domain in self._current_domains}
         self._current_write_domains = list(self._current_domains)
+        self._active_table_cache = [tables[domain] for domain in self._current_domains]
+        self._write_table_cache = [tables[domain] for domain in self._current_write_domains]
         self.table = tables[self._current_domains[0]] if self._current_domains else None
         return [tables[domain] for domain in self._current_domains]
 
@@ -364,6 +394,8 @@ class OverlappedPipeline:
         self._current_domains = []
         self._current_domain_weights = {}
         self._current_write_domains = []
+        self._active_table_cache = []
+        self._write_table_cache = []
         self._manual_domains = []
         self._last_routing_decision = None
         self._last_request_domain_hits = {}
@@ -389,11 +421,15 @@ class OverlappedPipeline:
     def _active_tables(self) -> List[NgramTable]:
         if not self.domain_aware:
             return [self.table]
+        if self._active_table_cache:
+            return self._active_table_cache
         return [self.table_manager.get(domain) for domain in self._current_domains]
 
     def _write_tables(self) -> List[NgramTable]:
         if not self.domain_aware:
             return [self.table]
+        if self._write_table_cache:
+            return self._write_table_cache
         return [self.table_manager.get(domain) for domain in self._current_write_domains]
 
     def _update_active_tables_from_hidden_states(
@@ -652,6 +688,10 @@ class OverlappedPipeline:
         ref_h: Optional[torch.Tensor],
         tier: str,
     ) -> Tuple[torch.Tensor, int]:
+        if self.decode_use_raw_fp16:
+            recon = real_h.to(torch.float16).clone()
+            transfer = int(real_h.numel() * 2) if self.track_transfer_bytes else 0
+            return recon, transfer
         if tier in ("trigram", "bigram", "self_ref") and ref_h is not None:
             recon, transfer = self._encode_delta_batch(real_h, ref_h, include_ref_idx=True)
             return recon, transfer
@@ -718,6 +758,7 @@ class OverlappedPipeline:
                     input_ids,
                     self.hidden_dim,
                     dict(self._current_domain_weights),
+                    self.low_latency_multidomain_classify,
                 )
             else:
                 classify_future = self.classify_executor.submit(
@@ -778,84 +819,105 @@ class OverlappedPipeline:
             "trigram": 0, "bigram": 0, "self_ref": 0, "unigram": 0,
         }
 
-        # 4. Encode all tiers — use CUDA events for timing (no intermediate syncs)
-        # Sync to drain GPU ops queued by classify thread (FP8→FP16 conversions)
-        # so that encode events measure only encode work
-        torch.cuda.synchronize()
-        evt_enc_start = torch.cuda.Event(enable_timing=True)
-        evt_after_delta = torch.cuda.Event(enable_timing=True)
-        evt_after_unigram = torch.cuda.Event(enable_timing=True)
-        evt_after_self_ref = torch.cuda.Event(enable_timing=True)
+        if self.prefill_use_raw_fp16:
+            reconstructed = real_acts.to(torch.float16).clone()
+            bytes_per_pos = self.hidden_dim * 2 if self.track_transfer_bytes else 0
+            transfer_bytes_by_tier["trigram"] = len(trigram_indices) * bytes_per_pos
+            transfer_bytes_by_tier["bigram"] = len(bigram_indices) * bytes_per_pos
+            transfer_bytes_by_tier["self_ref"] = len(self_ref_indices) * bytes_per_pos
+            transfer_bytes_by_tier["unigram"] = len(unigram_indices) * bytes_per_pos
 
-        evt_enc_start.record()
+            if self_ref_indices:
+                sorted_self_ref = sorted(self_ref_indices)
+                idx_sr = torch.tensor(sorted_self_ref, dtype=torch.long, device=self.device)
+                source_positions = [self_ref_sources[pos] for pos in sorted_self_ref]
+                src_t = torch.tensor(source_positions, dtype=torch.long, device=self.device)
+                ref_sr = reconstructed[src_t]
+                ref_acts[idx_sr] = ref_sr
 
-        # 4a. Encode TRIGRAM + BIGRAM (batch)
-        delta_indices = trigram_indices + bigram_indices
-        if delta_indices:
-            idx_t = torch.tensor(delta_indices, dtype=torch.long, device=self.device)
-            real_batch = real_acts[idx_t]
-            ref_batch = ref_acts[idx_t]
+            result.encode_delta_ms = 0.0
+            result.encode_unigram_ms = 0.0
+            result.encode_self_ref_ms = 0.0
+        else:
 
-            recon_batch, total_delta_bytes = self._encode_delta_batch(
-                real_batch, ref_batch, include_ref_idx=True,
-            )
-            reconstructed[idx_t] = recon_batch
+            # 4. Encode all tiers — use CUDA events for timing (no intermediate syncs)
+            # Sync to drain GPU ops queued by classify thread (FP8→FP16 conversions)
+            # so that encode events measure only encode work
+            torch.cuda.synchronize()
+            evt_enc_start = torch.cuda.Event(enable_timing=True)
+            evt_after_delta = torch.cuda.Event(enable_timing=True)
+            evt_after_unigram = torch.cuda.Event(enable_timing=True)
+            evt_after_self_ref = torch.cuda.Event(enable_timing=True)
 
-            n_delta = len(delta_indices)
-            if n_delta > 0:
-                per_pos = total_delta_bytes / n_delta
-                transfer_bytes_by_tier["trigram"] = int(per_pos * len(trigram_indices))
-                transfer_bytes_by_tier["bigram"] = int(per_pos * len(bigram_indices))
+            evt_enc_start.record()
 
-        evt_after_delta.record()
+            # 4a. Encode TRIGRAM + BIGRAM (batch)
+            delta_indices = trigram_indices + bigram_indices
+            if delta_indices:
+                idx_t = torch.tensor(delta_indices, dtype=torch.long, device=self.device)
+                real_batch = real_acts[idx_t]
+                ref_batch = ref_acts[idx_t]
 
-        # 4b. Encode UNIGRAM (Int8 + outliers)
-        if unigram_indices:
-            if self._unigram_uses_prev_ref():
-                unigram_transfer = 0
-                for pos in sorted(unigram_indices):
-                    real_uni = real_acts[pos].unsqueeze(0)
-                    if pos > 0:
-                        prev_ref = reconstructed[pos - 1].unsqueeze(0)
-                        if torch.count_nonzero(prev_ref).item() == 0:
-                            prev_ref = real_acts[pos - 1].unsqueeze(0)
-                        recon_uni, xfer = self._encode_prev_unigram_batch(real_uni, prev_ref)
-                    else:
-                        recon_uni, xfer = self._encode_unigram_batch(real_uni)
-                    reconstructed[pos] = recon_uni.squeeze(0)
-                    unigram_transfer += xfer
-                transfer_bytes_by_tier["unigram"] = unigram_transfer
-            else:
-                idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
-                real_uni = real_acts[idx_u]
-                recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
-                reconstructed[idx_u] = recon_uni
+                recon_batch, total_delta_bytes = self._encode_delta_batch(
+                    real_batch, ref_batch, include_ref_idx=True,
+                )
+                reconstructed[idx_t] = recon_batch
 
-        evt_after_unigram.record()
+                n_delta = len(delta_indices)
+                if n_delta > 0:
+                    per_pos = total_delta_bytes / n_delta
+                    transfer_bytes_by_tier["trigram"] = int(per_pos * len(trigram_indices))
+                    transfer_bytes_by_tier["bigram"] = int(per_pos * len(bigram_indices))
 
-        # 4c. Encode SELF_REF (uses already-reconstructed positions as references)
-        if self_ref_indices:
-            sorted_self_ref = sorted(self_ref_indices)
-            idx_sr = torch.tensor(sorted_self_ref, dtype=torch.long, device=self.device)
-            real_sr = real_acts[idx_sr]
+            evt_after_delta.record()
 
-            source_positions = [self_ref_sources[pos] for pos in sorted_self_ref]
-            src_t = torch.tensor(source_positions, dtype=torch.long, device=self.device)
-            ref_sr = reconstructed[src_t]
-            ref_acts[idx_sr] = ref_sr
+            # 4b. Encode UNIGRAM (Int8 + outliers)
+            if unigram_indices:
+                if self._unigram_uses_prev_ref():
+                    unigram_transfer = 0
+                    for pos in sorted(unigram_indices):
+                        real_uni = real_acts[pos].unsqueeze(0)
+                        if pos > 0:
+                            prev_ref = reconstructed[pos - 1].unsqueeze(0)
+                            if torch.count_nonzero(prev_ref).item() == 0:
+                                prev_ref = real_acts[pos - 1].unsqueeze(0)
+                            recon_uni, xfer = self._encode_prev_unigram_batch(real_uni, prev_ref)
+                        else:
+                            recon_uni, xfer = self._encode_unigram_batch(real_uni)
+                        reconstructed[pos] = recon_uni.squeeze(0)
+                        unigram_transfer += xfer
+                    transfer_bytes_by_tier["unigram"] = unigram_transfer
+                else:
+                    idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
+                    real_uni = real_acts[idx_u]
+                    recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
+                    reconstructed[idx_u] = recon_uni
 
-            recon_sr, transfer_bytes_by_tier["self_ref"] = self._encode_delta_batch(
-                real_sr, ref_sr, include_ref_idx=True,
-            )
-            reconstructed[idx_sr] = recon_sr
+            evt_after_unigram.record()
 
-        evt_after_self_ref.record()
+            # 4c. Encode SELF_REF (uses already-reconstructed positions as references)
+            if self_ref_indices:
+                sorted_self_ref = sorted(self_ref_indices)
+                idx_sr = torch.tensor(sorted_self_ref, dtype=torch.long, device=self.device)
+                real_sr = real_acts[idx_sr]
 
-        # Single sync — needed before quality metrics that read tensor values
-        torch.cuda.synchronize()
-        result.encode_delta_ms = evt_enc_start.elapsed_time(evt_after_delta)
-        result.encode_unigram_ms = evt_after_delta.elapsed_time(evt_after_unigram)
-        result.encode_self_ref_ms = evt_after_unigram.elapsed_time(evt_after_self_ref)
+                source_positions = [self_ref_sources[pos] for pos in sorted_self_ref]
+                src_t = torch.tensor(source_positions, dtype=torch.long, device=self.device)
+                ref_sr = reconstructed[src_t]
+                ref_acts[idx_sr] = ref_sr
+
+                recon_sr, transfer_bytes_by_tier["self_ref"] = self._encode_delta_batch(
+                    real_sr, ref_sr, include_ref_idx=True,
+                )
+                reconstructed[idx_sr] = recon_sr
+
+            evt_after_self_ref.record()
+
+            # Single sync — needed before quality metrics that read tensor values
+            torch.cuda.synchronize()
+            result.encode_delta_ms = evt_enc_start.elapsed_time(evt_after_delta)
+            result.encode_unigram_ms = evt_after_delta.elapsed_time(evt_after_unigram)
+            result.encode_self_ref_ms = evt_after_unigram.elapsed_time(evt_after_self_ref)
 
         # "Send" — record transfer bytes
         result.transfer_bytes_by_tier = transfer_bytes_by_tier
@@ -1143,6 +1205,12 @@ class OverlappedPipeline:
         tier = "unigram"
         ref_h = None
         raw_cos = 0.0
+        single_active_table = None
+        if self.domain_aware and len(self._current_domains) == 1 and self.table is not None:
+            single_active_table = self.table
+            active_tables: List[NgramTable] = [single_active_table]
+        else:
+            active_tables = self._active_tables()
 
         if len(running_token_ids) >= 3:
             a = running_token_ids[-3]
@@ -1152,10 +1220,13 @@ class OverlappedPipeline:
 
             # 1. Trigram table lookup
             tri_ref = None
-            for table in self._active_tables():
-                tri_ref = table.get_trigram(a, b, c)
-                if tri_ref is not None:
-                    break
+            if single_active_table is not None:
+                tri_ref = single_active_table.get_trigram(a, b, c)
+            else:
+                for table in active_tables:
+                    tri_ref = table.get_trigram(a, b, c)
+                    if tri_ref is not None:
+                        break
             if tri_ref is not None:
                 tier = "trigram"
                 ref_h = self._materialize_stored_hidden(tri_ref).unsqueeze(0)
@@ -1176,10 +1247,13 @@ class OverlappedPipeline:
                     b_tok = running_token_ids[-2]
                     c_tok = running_token_ids[-1]
                     bi_ref = None
-                    for table in self._active_tables():
-                        bi_ref = table.get_bigram(b_tok, c_tok)
-                        if bi_ref is not None:
-                            break
+                    if single_active_table is not None:
+                        bi_ref = single_active_table.get_bigram(b_tok, c_tok)
+                    else:
+                        for table in active_tables:
+                            bi_ref = table.get_bigram(b_tok, c_tok)
+                            if bi_ref is not None:
+                                break
                     if bi_ref is not None:
                         tier = "bigram"
                         ref_h = self._materialize_stored_hidden(bi_ref).unsqueeze(0)

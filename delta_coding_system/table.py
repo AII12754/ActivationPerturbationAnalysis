@@ -665,9 +665,112 @@ class DomainTableManager:
         token_ids: List[int],
         hidden_dim: int,
         domain_weights: Optional[Dict[str, float]] = None,
+        prefer_first_hit: bool = False,
     ) -> Tuple[List[str], torch.Tensor, List[Optional[int]], Dict[Tuple, int], MultiTableRefStats]:
         tables = self.get_many(domains)
         ordered_domains = [domain for domain in domains if domain in tables]
+        if len(ordered_domains) == 1:
+            domain = ordered_domains[0]
+            table = tables[domain]
+            tiers, ref_acts, self_ref_sources, first_occurrence_map = table.classify_and_build_refs(
+                token_ids,
+                hidden_dim,
+            )
+            matched_domains: List[Optional[str]] = [None] * len(token_ids)
+            domain_hits = {domain: 0}
+            for index, tier in enumerate(tiers):
+                if tier in {"trigram", "bigram"}:
+                    matched_domains[index] = domain
+                    domain_hits[domain] += 1
+            return (
+                tiers,
+                ref_acts,
+                self_ref_sources,
+                first_occurrence_map,
+                MultiTableRefStats(matched_domains=matched_domains, domain_hits=domain_hits),
+            )
+
+        if prefer_first_hit and ordered_domains:
+            seq_len = len(token_ids)
+            tiers: List[str] = []
+            self_ref_sources: List[Optional[int]] = []
+            first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
+            matched_domains: List[Optional[str]] = [None] * seq_len
+            domain_hits = {domain: 0 for domain in ordered_domains}
+            ref_positions: List[int] = []
+            ref_hidden_batch: List[StoredHidden] = []
+
+            for i in range(seq_len):
+                trigram = None
+                if i >= 2:
+                    a, b, c = token_ids[i - 2], token_ids[i - 1], token_ids[i]
+                    trigram = (a, b, c)
+
+                    trigram_hit = False
+                    for domain in ordered_domains:
+                        table = tables[domain]
+                        node_ab = table._get_node(a, b)
+                        if node_ab is not None and c in node_ab.suffixes:
+                            node_ab.hit_count += 1
+                            node_ab.last_access = table._request_counter
+                            tiers.append("trigram")
+                            ref_positions.append(i)
+                            ref_hidden_batch.append(node_ab.suffixes[c])
+                            self_ref_sources.append(None)
+                            first_occurrence_map.setdefault(trigram, i)
+                            matched_domains[i] = domain
+                            domain_hits[domain] += 1
+                            trigram_hit = True
+                            break
+                    if trigram_hit:
+                        continue
+
+                    if trigram in first_occurrence_map:
+                        tiers.append("self_ref")
+                        self_ref_sources.append(first_occurrence_map[trigram])
+                        continue
+
+                if i >= 1:
+                    b_tok, c_tok = token_ids[i - 1], token_ids[i]
+                    bigram_hit = False
+                    for domain in ordered_domains:
+                        table = tables[domain]
+                        node_bc = table._get_node(b_tok, c_tok)
+                        if node_bc is not None:
+                            node_bc.hit_count += 1
+                            node_bc.last_access = table._request_counter
+                            tiers.append("bigram")
+                            ref_positions.append(i)
+                            ref_hidden_batch.append(node_bc.bigram_hidden)
+                            self_ref_sources.append(None)
+                            if trigram is not None:
+                                first_occurrence_map.setdefault(trigram, i)
+                            matched_domains[i] = domain
+                            domain_hits[domain] += 1
+                            bigram_hit = True
+                            break
+                    if bigram_hit:
+                        continue
+
+                tiers.append("unigram")
+                self_ref_sources.append(None)
+                if trigram is not None:
+                    first_occurrence_map.setdefault(trigram, i)
+
+            ref_acts = torch.zeros(seq_len, hidden_dim, device=self.gpu_device, dtype=torch.float16)
+            if ref_hidden_batch:
+                converted = next(iter(tables.values()))._decode_stored_batch(ref_hidden_batch, self.gpu_device)
+                idx = torch.tensor(ref_positions, dtype=torch.long, device=self.gpu_device)
+                ref_acts[idx] = converted
+
+            return (
+                tiers,
+                ref_acts,
+                self_ref_sources,
+                first_occurrence_map,
+                MultiTableRefStats(matched_domains=matched_domains, domain_hits=domain_hits),
+            )
+
         seq_len = len(token_ids)
         tiers: List[str] = []
         self_ref_sources: List[Optional[int]] = []
