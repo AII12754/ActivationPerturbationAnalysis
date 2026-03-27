@@ -1,0 +1,45 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:09,  1.32s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:05,  1.01it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.11it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.13it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.17it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.22it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.27it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.58it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.27it/s]
+2026-03-27 08:02:13,474 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=1/40 score=0.3125 leak=False
+2026-03-27 08:02:16,802 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=2/40 score=0.3429 leak=False
+2026-03-27 08:02:18,546 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=3/40 score=0.1250 leak=False
+2026-03-27 08:02:21,968 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=4/40 score=0.5000 leak=False
+2026-03-27 08:02:26,563 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=5/40 score=1.0000 leak=False
+2026-03-27 08:02:27,895 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=6/40 score=1.0000 leak=False
+2026-03-27 08:02:31,462 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=7/40 score=0.0000 leak=False
+2026-03-27 08:02:36,781 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=8/40 score=0.7778 leak=False
+2026-03-27 08:02:39,134 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=9/40 score=0.0000 leak=False
+2026-03-27 08:02:43,981 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=10/40 score=0.4444 leak=False
+2026-03-27 08:02:47,034 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=11/40 score=0.6316 leak=False
+2026-03-27 08:02:48,461 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=12/40 score=0.0000 leak=False
+2026-03-27 08:02:50,536 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=13/40 score=1.0000 leak=False
+2026-03-27 08:02:53,243 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=14/40 score=0.0000 leak=False
+2026-03-27 08:02:57,729 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=15/40 score=0.0000 leak=False
+2026-03-27 08:03:10,341 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=16/40 score=0.4000 leak=False
+2026-03-27 08:03:19,216 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=17/40 score=0.0000 leak=False
+2026-03-27 08:03:25,317 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=18/40 score=0.7500 leak=False
+2026-03-27 08:03:29,859 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=19/40 score=0.9767 leak=False
+2026-03-27 08:03:36,731 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=20/40 score=0.7143 leak=False
+2026-03-27 08:03:37,688 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=21/40 score=0.0000 leak=False
+2026-03-27 08:03:43,219 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=22/40 score=0.3265 leak=False
+2026-03-27 08:03:47,759 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=23/40 score=0.2857 leak=False
+2026-03-27 08:03:51,152 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=24/40 score=0.4762 leak=False
+2026-03-27 08:03:52,984 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=25/40 score=0.0000 leak=False
+2026-03-27 08:03:55,560 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=26/40 score=1.0000 leak=False
+2026-03-27 08:03:57,167 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=27/40 score=1.0000 leak=False
+2026-03-27 08:04:00,189 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=28/40 score=1.0000 leak=False
+2026-03-27 08:04:02,770 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=29/40 score=1.0000 leak=False
+2026-03-27 08:04:04,742 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=30/40 score=1.0000 leak=False
+2026-03-27 08:04:08,861 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=31/40 score=0.1739 leak=False
+2026-03-27 08:04:10,021 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=32/40 score=0.0000 leak=False
+2026-03-27 08:04:12,729 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=33/40 score=0.0000 leak=False
+2026-03-27 08:04:15,664 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=34/40 score=0.2667 leak=False
+2026-03-27 08:04:20,078 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=35/40 score=0.0000 leak=False
+2026-03-27 08:04:23,218 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=36/40 score=1.0000 leak=False
+2026-03-27 08:04:26,951 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=37/40 score=0.0000 leak=False
+2026-03-27 08:04:29,738 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=38/40 score=0.6207 leak=False
+2026-03-27 08:04:31,080 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=39/40 score=0.0000 leak=False
+2026-03-27 08:04:36,490 INFO narrativeqa_failure_analysis: task=qasper config=pure_int4 mode=shared sample=40/40 score=0.3158 leak=False
+2026-03-27 08:04:36,491 INFO narrativeqa_failure_analysis: summary=/root/ActivationPerturbationAnalysis/results_narrativeqa_failure_analysis/qasper_pure_int4_shared_int8table_formal/summary.json

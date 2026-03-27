@@ -1,0 +1,45 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:07,  1.03s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.26it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.34it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.30it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:03<00:02,  1.33it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.40it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.46it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.65it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.43it/s]
+2026-03-27 07:51:34,787 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=1/40 score=0.4615 leak=False
+2026-03-27 07:51:59,924 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=2/40 score=0.2759 leak=False
+2026-03-27 07:52:08,365 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=3/40 score=0.2000 leak=False
+2026-03-27 07:52:12,370 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=4/40 score=0.2353 leak=False
+2026-03-27 07:52:26,369 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=5/40 score=0.0870 leak=True
+2026-03-27 07:52:35,748 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=6/40 score=0.6667 leak=False
+2026-03-27 07:52:47,182 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=7/40 score=0.0000 leak=False
+2026-03-27 07:53:04,550 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=8/40 score=0.0000 leak=False
+2026-03-27 07:53:18,686 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=9/40 score=0.5000 leak=False
+2026-03-27 07:53:27,305 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=10/40 score=0.6667 leak=False
+2026-03-27 07:53:42,917 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=11/40 score=0.0000 leak=False
+2026-03-27 07:53:54,493 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=12/40 score=0.0000 leak=False
+2026-03-27 07:53:59,711 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=13/40 score=0.5000 leak=False
+2026-03-27 07:54:04,682 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=14/40 score=0.0000 leak=False
+2026-03-27 07:54:09,582 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=15/40 score=0.6667 leak=False
+2026-03-27 07:54:23,542 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=16/40 score=0.0000 leak=False
+2026-03-27 07:54:36,308 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=17/40 score=0.1053 leak=False
+2026-03-27 07:54:55,090 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=18/40 score=0.0000 leak=False
+2026-03-27 07:55:10,506 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=19/40 score=0.2000 leak=False
+2026-03-27 07:55:19,280 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=20/40 score=1.0000 leak=False
+2026-03-27 07:55:24,527 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=21/40 score=0.1538 leak=False
+2026-03-27 07:55:39,011 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=22/40 score=0.0000 leak=True
+2026-03-27 07:55:55,852 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=23/40 score=0.0000 leak=True
+2026-03-27 07:56:05,142 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=24/40 score=0.1818 leak=False
+2026-03-27 07:56:14,737 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=25/40 score=0.3333 leak=False
+2026-03-27 07:56:49,648 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=26/40 score=0.0000 leak=True
+2026-03-27 07:56:54,984 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=27/40 score=0.3000 leak=False
+2026-03-27 07:57:24,593 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=28/40 score=0.0000 leak=True
+2026-03-27 07:57:36,023 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=29/40 score=0.5455 leak=False
+2026-03-27 07:58:10,459 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=30/40 score=0.0000 leak=False
+2026-03-27 07:58:17,808 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=31/40 score=0.2500 leak=False
+2026-03-27 07:58:31,857 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=32/40 score=0.0000 leak=True
+2026-03-27 07:58:46,286 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=33/40 score=0.3333 leak=False
+2026-03-27 07:59:02,071 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=34/40 score=0.3333 leak=False
+2026-03-27 07:59:14,531 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=35/40 score=0.0000 leak=False
+2026-03-27 07:59:26,619 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=36/40 score=0.0000 leak=True
+2026-03-27 07:59:44,030 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=37/40 score=0.0000 leak=True
+2026-03-27 07:59:53,942 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=38/40 score=0.5000 leak=False
+2026-03-27 08:00:07,904 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=39/40 score=0.0000 leak=False
+2026-03-27 08:00:25,261 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int4 mode=reset-each-sample sample=40/40 score=0.0000 leak=False
+2026-03-27 08:00:31,156 INFO narrativeqa_failure_analysis: summary=/root/ActivationPerturbationAnalysis/results_narrativeqa_failure_analysis/narrativeqa_pure_int4_reset-each-sample_int8table_formal/summary.json

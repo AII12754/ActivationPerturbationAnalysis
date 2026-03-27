@@ -1,0 +1,45 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:07,  1.03s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.04it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.08it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.11it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.08it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.10it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.12it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.29it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.16it/s]
+2026-03-27 08:02:16,076 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=1/40 score=0.4286 leak=False
+2026-03-27 08:02:38,834 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=2/40 score=0.6400 leak=False
+2026-03-27 08:02:54,652 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=3/40 score=0.2000 leak=False
+2026-03-27 08:02:59,921 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=4/40 score=0.2222 leak=False
+2026-03-27 08:03:13,845 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=5/40 score=0.1250 leak=True
+2026-03-27 08:03:30,808 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=6/40 score=0.6667 leak=False
+2026-03-27 08:03:42,196 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=7/40 score=0.0000 leak=False
+2026-03-27 08:03:59,719 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=8/40 score=0.0000 leak=False
+2026-03-27 08:04:15,394 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=9/40 score=0.5000 leak=False
+2026-03-27 08:04:24,386 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=10/40 score=0.6667 leak=False
+2026-03-27 08:04:38,742 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=11/40 score=0.1379 leak=False
+2026-03-27 08:04:52,703 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=12/40 score=0.0000 leak=False
+2026-03-27 08:04:57,838 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=13/40 score=0.5000 leak=False
+2026-03-27 08:05:03,209 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=14/40 score=0.6667 leak=False
+2026-03-27 08:05:08,299 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=15/40 score=0.6667 leak=False
+2026-03-27 08:05:22,667 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=16/40 score=0.0000 leak=False
+2026-03-27 08:05:35,791 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=17/40 score=0.0000 leak=False
+2026-03-27 08:05:53,494 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=18/40 score=0.1333 leak=False
+2026-03-27 08:06:09,846 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=19/40 score=0.2000 leak=False
+2026-03-27 08:06:18,943 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=20/40 score=1.0000 leak=False
+2026-03-27 08:06:24,365 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=21/40 score=0.1538 leak=False
+2026-03-27 08:06:43,031 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=22/40 score=0.0000 leak=True
+2026-03-27 08:07:01,396 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=23/40 score=0.0000 leak=True
+2026-03-27 08:07:12,450 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=24/40 score=0.3333 leak=False
+2026-03-27 08:07:22,486 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=25/40 score=0.3333 leak=False
+2026-03-27 08:07:52,615 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=26/40 score=0.0000 leak=True
+2026-03-27 08:07:59,932 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=27/40 score=0.3000 leak=False
+2026-03-27 08:08:12,842 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=28/40 score=0.0000 leak=True
+2026-03-27 08:08:28,718 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=29/40 score=0.2000 leak=False
+2026-03-27 08:09:03,304 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=30/40 score=0.0000 leak=False
+2026-03-27 08:09:11,877 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=31/40 score=0.2353 leak=False
+2026-03-27 08:09:25,804 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=32/40 score=0.0000 leak=True
+2026-03-27 08:09:41,929 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=33/40 score=0.0000 leak=False
+2026-03-27 08:09:58,746 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=34/40 score=0.1111 leak=False
+2026-03-27 08:10:11,220 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=35/40 score=0.0000 leak=False
+2026-03-27 08:10:26,197 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=36/40 score=0.0000 leak=True
+2026-03-27 08:10:42,800 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=37/40 score=0.0000 leak=True
+2026-03-27 08:10:53,318 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=38/40 score=0.5000 leak=False
+2026-03-27 08:11:07,976 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=39/40 score=0.0000 leak=False
+2026-03-27 08:11:25,901 INFO narrativeqa_failure_analysis: task=narrativeqa config=pure_int2 mode=shared sample=40/40 score=0.0000 leak=False
+2026-03-27 08:11:25,901 INFO narrativeqa_failure_analysis: summary=/root/ActivationPerturbationAnalysis/results_narrativeqa_failure_analysis/narrativeqa_pure_int2_shared_int8table_formal/summary.json

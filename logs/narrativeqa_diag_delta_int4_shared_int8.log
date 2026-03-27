@@ -1,0 +1,45 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.03s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.05it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.11it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.10it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.12it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.12it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.14it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.09it/s]
+2026-03-27 07:51:43,511 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=1/40 score=0.4615 leak=False
+2026-03-27 07:52:08,038 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=2/40 score=0.2759 leak=False
+2026-03-27 07:52:23,217 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=3/40 score=0.2000 leak=False
+2026-03-27 07:52:28,027 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=4/40 score=0.2353 leak=False
+2026-03-27 07:52:44,293 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=5/40 score=0.0870 leak=True
+2026-03-27 07:53:01,372 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=6/40 score=0.6667 leak=False
+2026-03-27 07:53:12,644 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=7/40 score=0.0000 leak=False
+2026-03-27 07:53:29,855 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=8/40 score=0.0000 leak=False
+2026-03-27 07:53:46,275 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=9/40 score=0.5000 leak=False
+2026-03-27 07:53:56,117 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=10/40 score=0.6667 leak=False
+2026-03-27 07:54:11,644 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=11/40 score=0.0000 leak=False
+2026-03-27 07:54:26,104 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=12/40 score=0.0000 leak=False
+2026-03-27 07:54:31,633 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=13/40 score=0.5000 leak=False
+2026-03-27 07:54:36,461 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=14/40 score=0.0000 leak=False
+2026-03-27 07:54:41,958 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=15/40 score=0.6667 leak=False
+2026-03-27 07:54:55,447 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=16/40 score=0.0000 leak=False
+2026-03-27 07:55:09,104 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=17/40 score=0.1053 leak=False
+2026-03-27 07:55:27,215 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=18/40 score=0.0000 leak=False
+2026-03-27 07:55:43,384 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=19/40 score=0.2000 leak=False
+2026-03-27 07:55:52,081 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=20/40 score=1.0000 leak=False
+2026-03-27 07:55:57,267 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=21/40 score=0.1538 leak=False
+2026-03-27 07:56:11,705 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=22/40 score=0.0000 leak=True
+2026-03-27 07:56:30,342 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=23/40 score=0.0000 leak=True
+2026-03-27 07:56:39,392 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=24/40 score=0.1818 leak=False
+2026-03-27 07:56:49,270 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=25/40 score=0.3333 leak=False
+2026-03-27 07:57:18,472 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=26/40 score=0.0000 leak=True
+2026-03-27 07:57:25,655 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=27/40 score=0.3000 leak=False
+2026-03-27 07:57:55,314 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=28/40 score=0.0000 leak=True
+2026-03-27 07:58:06,726 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=29/40 score=0.5455 leak=False
+2026-03-27 07:58:37,465 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=30/40 score=0.0000 leak=False
+2026-03-27 07:58:46,007 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=31/40 score=0.2500 leak=False
+2026-03-27 07:59:00,075 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=32/40 score=0.0000 leak=True
+2026-03-27 07:59:14,335 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=33/40 score=0.3333 leak=False
+2026-03-27 07:59:29,843 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=34/40 score=0.3333 leak=False
+2026-03-27 07:59:42,030 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=35/40 score=0.0000 leak=False
+2026-03-27 07:59:56,301 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=36/40 score=0.0000 leak=True
+2026-03-27 08:00:13,255 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=37/40 score=0.0000 leak=True
+2026-03-27 08:00:22,872 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=38/40 score=0.2000 leak=False
+2026-03-27 08:00:36,837 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=39/40 score=0.0000 leak=False
+2026-03-27 08:00:53,627 INFO narrativeqa_failure_analysis: task=narrativeqa config=delta_int4_k1_unigram_int4 mode=shared sample=40/40 score=0.0000 leak=False
+2026-03-27 08:00:53,627 INFO narrativeqa_failure_analysis: summary=/root/ActivationPerturbationAnalysis/results_narrativeqa_failure_analysis/narrativeqa_delta_int4_k1_unigram_int4_shared_int8table_formal/summary.json
