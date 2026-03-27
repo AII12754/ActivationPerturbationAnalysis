@@ -81,6 +81,10 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--layer-boundary", type=int, default=6)
     parser.add_argument("--group-size", type=int, default=128)
     parser.add_argument("--max-table-entries", type=int, default=100000)
+    parser.add_argument("--table-placement", choices=("cpu", "gpu"), default="cpu")
+    parser.add_argument("--gpu-hot-cache-entries", type=int, default=0)
+    parser.add_argument("--disable-pinned-cpu-table-copy", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--disable-async-cpu-table-copy", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--tp-size", type=int, default=1)
     parser.add_argument("--score-only", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=False)
@@ -179,6 +183,10 @@ def _build_official_pipeline(model, tokenizer, device: torch.device, args: argpa
         max_new_tokens=max_decode_tokens,
         max_seq_len=args.max_seq_len,
         score_only=args.score_only,
+        table_placement=args.table_placement,
+        gpu_hot_cache_entries=args.gpu_hot_cache_entries,
+        disable_pinned_cpu_table_copy=args.disable_pinned_cpu_table_copy,
+        disable_async_cpu_table_copy=args.disable_async_cpu_table_copy,
     )
     return _build_pipeline(model, tokenizer, device, pipeline_args, config_name)
 
@@ -257,6 +265,25 @@ def _run_eval(model_label: str, evaluate_e: bool) -> None:
     subprocess.run(cmd, cwd=OFFICIAL_ROOT, check=True)
 
 
+def _result_path(model_label: str, evaluate_e: bool) -> Path:
+    pred_dir = "pred_e" if evaluate_e else "pred"
+    return OFFICIAL_ROOT / pred_dir / model_label / "result.json"
+
+
+def _load_result_scores(model_label: str, evaluate_e: bool) -> Dict[str, object]:
+    path = _result_path(model_label, evaluate_e)
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _write_task_summary(output_dir: Path, task_results: Dict[str, object]) -> None:
+    summary_path = output_dir / "task_results.json"
+    with summary_path.open("w", encoding="utf-8") as handle:
+        json.dump(task_results, handle, ensure_ascii=False, indent=2)
+
+
 def main() -> None:
     args = _parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -281,6 +308,7 @@ def main() -> None:
             model_label = f"{args.label_prefix}{config_name}"
             output_dir = OFFICIAL_ROOT / ("pred_e" if args.e else "pred") / model_label
             output_dir.mkdir(parents=True, exist_ok=True)
+            task_results: Dict[str, object] = {}
 
             pipeline = None if config_name == FP16_CONFIG_NAME else _build_official_pipeline(
                 model,
@@ -324,8 +352,41 @@ def main() -> None:
                         if idx % 10 == 0 or idx == len(records):
                             LOGGER.info("config=%s task=%s progress=%d/%d", config_name, task_name, idx, len(records))
 
+                    if rank == 0:
+                        if args.run_official_eval:
+                            _run_eval(model_label, args.e)
+                            scores = _load_result_scores(model_label, args.e)
+                            task_score = scores.get(task_name)
+                            task_results[task_name] = {
+                                "score": task_score,
+                                "num_samples": len(records),
+                                "prediction_file": output_path.name,
+                            }
+                            _write_task_summary(output_dir, task_results)
+                            LOGGER.info(
+                                "task completed config=%s task=%s score=%s samples=%d summary=%s",
+                                config_name,
+                                task_name,
+                                task_score,
+                                len(records),
+                                output_dir / "task_results.json",
+                            )
+                        else:
+                            task_results[task_name] = {
+                                "score": None,
+                                "num_samples": len(records),
+                                "prediction_file": output_path.name,
+                            }
+                            _write_task_summary(output_dir, task_results)
+                            LOGGER.info(
+                                "task completed config=%s task=%s samples=%d summary=%s",
+                                config_name,
+                                task_name,
+                                len(records),
+                                output_dir / "task_results.json",
+                            )
+
                 if args.run_official_eval and rank == 0:
-                    _run_eval(model_label, args.e)
                     LOGGER.info("Official eval completed for %s", model_label)
             finally:
                 if pipeline is not None:

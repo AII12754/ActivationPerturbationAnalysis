@@ -34,6 +34,10 @@ CONFIGS = {
         "delta_strategy": "delta_noaffine_int4_k1",
         "unigram_strategy": "unigram_int4_k4",
     },
+    "delta_int4_k1_unigram_int4": {
+        "delta_strategy": "delta_noaffine_int4_k1",
+        "unigram_strategy": "unigram_int4_k4",
+    },
     "pure_int2": {
         "delta_strategy": "direct_int2",
         "unigram_strategy": "unigram_int2_k4",
@@ -298,6 +302,10 @@ def _build_pipeline(model, tokenizer, device: torch.device, args, config_name: s
         max_seq_len=args.max_seq_len,
         device=device,
         domain_aware=False,
+        table_placement=getattr(args, "table_placement", "cpu"),
+        pin_cpu_output_copy=not getattr(args, "disable_pinned_cpu_table_copy", False),
+        enable_async_cpu_output_copy=not getattr(args, "disable_async_cpu_table_copy", False),
+        gpu_hot_cache_entries=getattr(args, "gpu_hot_cache_entries", 0),
         delta_strategy=cfg["delta_strategy"],
         unigram_strategy=cfg["unigram_strategy"],
         track_transfer_bytes=not args.score_only,

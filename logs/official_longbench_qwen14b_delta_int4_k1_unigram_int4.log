@@ -1,8 +1,8 @@
 /usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
   import pynvml  # type: ignore[import]
 Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:06,  1.08it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.21it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.25it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.25it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.28it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.35it/s]
-2026-03-26 16:22:06,386 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=10/200
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:09,  1.34s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.06s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:03<00:04,  1.05it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.13it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.12it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.14it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.16it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.15it/s]
+2026-03-26 16:22:34,735 INFO longbench_official_benchmark: config=delta_int4_k1_unigram_int4 task=narrativeqa progress=10/200
 Traceback (most recent call last):
   File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 338, in <module>
     main()
@@ -32,4 +32,4 @@ Traceback (most recent call last):
     packet = self._merge_int8_packets(packet_batch)
   File "/root/ActivationPerturbationAnalysis/delta_coding_system/table.py", line 175, in _merge_int8_packets
     quantized=torch.cat([item.quantized for item in stored_batch], dim=0),
-RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:1! (when checking argument for argument tensors in method wrapper_CUDA_cat)
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:5! (when checking argument for argument tensors in method wrapper_CUDA_cat)

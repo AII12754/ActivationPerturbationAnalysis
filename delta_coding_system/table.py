@@ -402,9 +402,11 @@ class NgramTable:
         self_ref_sources: List[Optional[int]] = []
         first_occurrence_map: Dict[Tuple[int, int, int], int] = {}
 
-        # Collect matched references and decode in one batch.
-        ref_positions: List[int] = []
-        ref_tensors: List[StoredHidden] = []
+        # Collect matched references and materialize them in per-device batches.
+        ref_positions_gpu: List[int] = []
+        ref_tensors_gpu: List[StoredHidden] = []
+        ref_positions_cpu: List[int] = []
+        ref_tensors_cpu: List[StoredHidden] = []
         gpu_hot_hits = 0
         lookup_start = time.perf_counter()
 
@@ -419,8 +421,8 @@ class NgramTable:
                     hot_tri_ref = hot_cache.get_trigram(a, b, c)
                     if hot_tri_ref is not None:
                         tiers.append("trigram")
-                        ref_positions.append(i)
-                        ref_tensors.append(hot_tri_ref)
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(hot_tri_ref)
                         self_ref_sources.append(None)
                         first_occurrence_map.setdefault(trigram, i)
                         gpu_hot_hits += 1
@@ -432,8 +434,12 @@ class NgramTable:
                     node_ab.hit_count += 1
                     node_ab.last_access = self._request_counter
                     tiers.append("trigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(node_ab.suffixes[c])
+                    if self.device.type == "cuda":
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(node_ab.suffixes[c])
+                    else:
+                        ref_positions_cpu.append(i)
+                        ref_tensors_cpu.append(node_ab.suffixes[c])
                     self_ref_sources.append(None)
                     first_occurrence_map.setdefault(trigram, i)
                     continue
@@ -452,8 +458,8 @@ class NgramTable:
                     hot_bi_ref = hot_cache.get_bigram(b_tok, c_tok)
                     if hot_bi_ref is not None:
                         tiers.append("bigram")
-                        ref_positions.append(i)
-                        ref_tensors.append(hot_bi_ref)
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(hot_bi_ref)
                         self_ref_sources.append(None)
                         if trigram is not None:
                             first_occurrence_map.setdefault(trigram, i)
@@ -464,8 +470,12 @@ class NgramTable:
                     node_bc.hit_count += 1
                     node_bc.last_access = self._request_counter
                     tiers.append("bigram")
-                    ref_positions.append(i)
-                    ref_tensors.append(node_bc.bigram_hidden)
+                    if self.device.type == "cuda":
+                        ref_positions_gpu.append(i)
+                        ref_tensors_gpu.append(node_bc.bigram_hidden)
+                    else:
+                        ref_positions_cpu.append(i)
+                        ref_tensors_cpu.append(node_bc.bigram_hidden)
                     self_ref_sources.append(None)
                     if trigram is not None:
                         first_occurrence_map.setdefault(trigram, i)
@@ -479,12 +489,17 @@ class NgramTable:
 
         lookup_ms = (time.perf_counter() - lookup_start) * 1000.0
 
-        # Decode all matched references in one batch.
+        # Decode matched references in separate batches so CPU-resident table entries
+        # and GPU hot-cache entries are never concatenated together before transfer.
         materialize_start = time.perf_counter()
         ref_acts = torch.zeros(seq_len, hidden_dim, device=output_device, dtype=torch.float16)
-        if ref_tensors:
-            converted = self._decode_stored_batch(ref_tensors, output_device)
-            idx = torch.tensor(ref_positions, dtype=torch.long, device=output_device)
+        if ref_tensors_gpu:
+            converted = self._decode_stored_batch(ref_tensors_gpu, output_device)
+            idx = torch.tensor(ref_positions_gpu, dtype=torch.long, device=output_device)
+            ref_acts[idx] = converted
+        if ref_tensors_cpu:
+            converted = self._decode_stored_batch(ref_tensors_cpu, output_device)
+            idx = torch.tensor(ref_positions_cpu, dtype=torch.long, device=output_device)
             ref_acts[idx] = converted
 
         self._last_classify_stats = {
@@ -492,7 +507,7 @@ class NgramTable:
             "output_device": str(output_device),
             "lookup_ms": lookup_ms,
             "materialize_ms": (time.perf_counter() - materialize_start) * 1000.0,
-            "num_refs": len(ref_tensors),
+            "num_refs": len(ref_tensors_gpu) + len(ref_tensors_cpu),
             "gpu_hot_hits": gpu_hot_hits,
             "seq_len": seq_len,
         }

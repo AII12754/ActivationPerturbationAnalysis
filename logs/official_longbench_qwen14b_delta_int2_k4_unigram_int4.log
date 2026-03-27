@@ -1,142 +1,8 @@
 /usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
   import pynvml  # type: ignore[import]
 Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:10,  1.44s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.06s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.12it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.18it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.24it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.28it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.31it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.63it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.29it/s]
-2026-03-24 05:53:17,259 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=10/200
-2026-03-24 05:54:22,483 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=20/200
-2026-03-24 05:56:02,678 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=30/200
-2026-03-24 05:57:24,218 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=40/200
-2026-03-24 05:58:56,853 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=50/200
-2026-03-24 06:00:58,885 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=60/200
-2026-03-24 06:02:13,919 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=70/200
-2026-03-24 06:03:46,800 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=80/200
-2026-03-24 06:05:21,035 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=90/200
-2026-03-24 06:06:28,388 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=100/200
-2026-03-24 06:08:16,910 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=110/200
-2026-03-24 06:10:01,350 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=120/200
-2026-03-24 06:11:56,164 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=130/200
-2026-03-24 06:13:03,442 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=140/200
-2026-03-24 06:14:26,796 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=150/200
-2026-03-24 06:15:57,504 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=160/200
-2026-03-24 06:16:34,401 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=narrativeqa sample=8afafdee3d1ecc8c8c3ed128add65835b825bc8958b760a2 OOM at max_seq_len=32768, retrying with smaller budget
-2026-03-24 06:16:42,931 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=narrativeqa sample=8afafdee3d1ecc8c8c3ed128add65835b825bc8958b760a2 lowered max_seq_len from 32768 to 8192 after OOM
-2026-03-24 06:17:15,244 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=170/200
-2026-03-24 06:18:36,090 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=180/200
-2026-03-24 06:19:56,897 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=190/200
-2026-03-24 06:21:17,692 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=200/200
-2026-03-24 06:21:34,419 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=10/200
-2026-03-24 06:22:11,880 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=20/200
-2026-03-24 06:22:34,064 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=30/200
-2026-03-24 06:22:56,048 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=40/200
-2026-03-24 06:23:11,025 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=50/200
-2026-03-24 06:23:36,987 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=60/200
-2026-03-24 06:23:58,916 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=70/200
-2026-03-24 06:24:19,788 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=80/200
-2026-03-24 06:24:34,937 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=90/200
-2026-03-24 06:24:48,005 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=100/200
-2026-03-24 06:25:06,193 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=110/200
-2026-03-24 06:25:28,571 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=120/200
-2026-03-24 06:25:47,344 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=130/200
-2026-03-24 06:26:13,701 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=140/200
-2026-03-24 06:26:29,405 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=150/200
-2026-03-24 06:26:45,184 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=160/200
-2026-03-24 06:26:59,738 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=170/200
-2026-03-24 06:27:22,889 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=180/200
-2026-03-24 06:27:37,116 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=190/200
-2026-03-24 06:27:56,723 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=qasper progress=200/200
-2026-03-24 06:28:31,586 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=10/150
-2026-03-24 06:29:09,268 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=20/150
-2026-03-24 06:29:38,160 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=30/150
-2026-03-24 06:30:00,600 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=40/150
-2026-03-24 06:30:25,177 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=50/150
-2026-03-24 06:30:43,368 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=60/150
-2026-03-24 06:31:13,219 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=70/150
-2026-03-24 06:31:41,921 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=80/150
-2026-03-24 06:32:06,065 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=90/150
-2026-03-24 06:32:42,753 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=100/150
-2026-03-24 06:33:17,284 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=110/150
-2026-03-24 06:33:53,457 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=120/150
-2026-03-24 06:34:18,968 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=130/150
-2026-03-24 06:34:52,982 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=140/150
-2026-03-24 06:35:22,223 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_en progress=150/150
-2026-03-24 06:35:34,710 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=10/200
-2026-03-24 06:35:50,956 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=20/200
-2026-03-24 06:36:07,416 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=30/200
-2026-03-24 06:36:22,443 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=40/200
-2026-03-24 06:36:39,483 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=50/200
-2026-03-24 06:36:54,633 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=60/200
-2026-03-24 06:37:15,438 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=70/200
-2026-03-24 06:37:28,393 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=80/200
-2026-03-24 06:37:45,675 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=90/200
-2026-03-24 06:37:59,934 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=100/200
-2026-03-24 06:38:15,472 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=110/200
-2026-03-24 06:38:28,164 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=120/200
-2026-03-24 06:38:42,744 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=130/200
-2026-03-24 06:39:03,722 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=140/200
-2026-03-24 06:39:25,644 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=150/200
-2026-03-24 06:39:47,020 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=160/200
-2026-03-24 06:40:11,265 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=170/200
-2026-03-24 06:40:28,880 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=180/200
-2026-03-24 06:40:45,188 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=multifieldqa_zh sample=cf2086b8e30e2266ea8626d2d7748c0997cb5c5ad6d6e453 OOM at max_seq_len=8192, retrying with smaller budget
-2026-03-24 06:40:46,811 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=multifieldqa_zh sample=cf2086b8e30e2266ea8626d2d7748c0997cb5c5ad6d6e453 OOM at max_seq_len=6144, retrying with smaller budget
-2026-03-24 06:40:47,486 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=multifieldqa_zh sample=cf2086b8e30e2266ea8626d2d7748c0997cb5c5ad6d6e453 OOM at max_seq_len=4096, retrying with smaller budget
-2026-03-24 06:40:50,942 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=multifieldqa_zh sample=cf2086b8e30e2266ea8626d2d7748c0997cb5c5ad6d6e453 lowered max_seq_len from 8192 to 3072 after OOM
-2026-03-24 06:40:50,942 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=190/200
-2026-03-24 06:41:14,215 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=multifieldqa_zh progress=200/200
-2026-03-24 06:41:31,305 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=10/200
-2026-03-24 06:41:49,290 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=20/200
-2026-03-24 06:42:07,106 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=30/200
-2026-03-24 06:42:25,149 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=40/200
-2026-03-24 06:42:43,091 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=50/200
-2026-03-24 06:43:00,838 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=60/200
-2026-03-24 06:43:19,251 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=70/200
-2026-03-24 06:43:37,338 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=80/200
-2026-03-24 06:43:55,277 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=90/200
-2026-03-24 06:44:13,286 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=100/200
-2026-03-24 06:44:31,542 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=110/200
-2026-03-24 06:44:49,545 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=120/200
-2026-03-24 06:45:05,995 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=130/200
-2026-03-24 06:45:23,657 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=140/200
-2026-03-24 06:45:41,657 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=150/200
-2026-03-24 06:45:59,445 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=160/200
-2026-03-24 06:46:17,205 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=170/200
-2026-03-24 06:46:35,181 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=180/200
-2026-03-24 06:46:53,090 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=190/200
-2026-03-24 06:46:57,175 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=hotpotqa sample=0d6a7aae6f7e00180107c47a73dedda18caf3949666c4d55 OOM at max_seq_len=3072, retrying with smaller budget
-2026-03-24 06:46:58,698 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=hotpotqa sample=0d6a7aae6f7e00180107c47a73dedda18caf3949666c4d55 lowered max_seq_len from 3072 to 2048 after OOM
-2026-03-24 06:47:09,808 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=hotpotqa progress=200/200
-2026-03-24 06:47:25,215 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=10/200
-2026-03-24 06:47:39,492 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=20/200
-2026-03-24 06:47:53,577 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=30/200
-2026-03-24 06:48:09,197 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=40/200
-2026-03-24 06:48:23,548 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=50/200
-2026-03-24 06:48:39,008 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=60/200
-2026-03-24 06:48:54,508 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=70/200
-2026-03-24 06:49:08,560 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=80/200
-2026-03-24 06:49:24,157 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=90/200
-2026-03-24 06:49:39,626 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=100/200
-2026-03-24 06:49:55,097 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=110/200
-2026-03-24 06:50:09,315 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=120/200
-2026-03-24 06:50:24,735 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=130/200
-2026-03-24 06:50:40,286 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=140/200
-2026-03-24 06:50:49,893 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=2wikimqa sample=13dde588b81d1de4a9984418bf3d6791de7d1b1edf21d61b OOM at max_seq_len=2048, retrying with smaller budget
-2026-03-24 06:50:51,324 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=2wikimqa sample=13dde588b81d1de4a9984418bf3d6791de7d1b1edf21d61b lowered max_seq_len from 2048 to 1536 after OOM
-2026-03-24 06:50:55,956 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=150/200
-2026-03-24 06:51:10,642 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=160/200
-2026-03-24 06:51:24,963 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=170/200
-2026-03-24 06:51:25,241 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=2wikimqa sample=29ec971fbdf0df2d0c41c497de945024db6159c0c30be307 OOM at max_seq_len=1536, retrying with smaller budget
-2026-03-24 06:51:26,608 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=2wikimqa sample=29ec971fbdf0df2d0c41c497de945024db6159c0c30be307 lowered max_seq_len from 1536 to 1024 after OOM
-2026-03-24 06:51:39,239 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=180/200
-2026-03-24 06:51:52,589 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=190/200
-2026-03-24 06:52:06,524 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=2wikimqa progress=200/200
-2026-03-24 06:52:20,953 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=musique progress=10/200
-2026-03-24 06:52:27,388 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=musique sample=26bd6d08ea272ac11bebcf5250b16ff90f92352cdac405c1 OOM at max_seq_len=1024, retrying with smaller budget
-2026-03-24 06:52:28,706 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=musique sample=26bd6d08ea272ac11bebcf5250b16ff90f92352cdac405c1 lowered max_seq_len from 1024 to 768 after OOM
-2026-03-24 06:52:35,623 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=musique progress=20/200
-2026-03-24 06:52:49,477 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=musique progress=30/200
-2026-03-24 06:53:03,241 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=musique progress=40/200
-2026-03-24 06:53:12,495 WARNING longbench_benchmark: Config=delta_int2_k4_unigram_int4 task=musique sample=73b7efc9538e65dda454b5be9d9b84a35decf082cd4091be OOM at max_seq_len=768, retrying with smaller budget
-2026-03-24 06:53:12,496 ERROR longbench_official_benchmark: OOM config=delta_int2_k4_unigram_int4 task=musique sample=73b7efc9538e65dda454b5be9d9b84a35decf082cd4091be max_seq_len=32768
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:07,  1.03s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.08it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.14it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.19it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.15it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.17it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.18it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.17it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.15it/s]
+2026-03-26 16:22:25,349 INFO longbench_official_benchmark: config=delta_int2_k4_unigram_int4 task=narrativeqa progress=10/200
 Traceback (most recent call last):
   File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 338, in <module>
     main()
@@ -144,24 +10,26 @@ Traceback (most recent call last):
     prediction = _compressed_generate(pipeline, tokenizer, final_prompt, task_name, config_name, row_id)
   File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_official_benchmark.py", line 210, in _compressed_generate
     _prefill, decode_res, _stats = _run_request_with_retry(
-  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_benchmark.py", line 370, in _run_request_with_retry
-    torch.cuda.empty_cache()
-  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_benchmark.py", line 342, in _run_request_with_retry
-    
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/benchmarks/run_longbench_benchmark.py", line 350, in _run_request_with_retry
+    result = pipeline.process_request(prompt, phase=phase)
   File "/usr/local/lib/python3.10/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
     return func(*args, **kwargs)
-  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 1046, in process_request
-    ) -> None:
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 1374, in process_request
+    prefill_outputs = self.process_prefill(
   File "/usr/local/lib/python3.10/dist-packages/torch/utils/_contextlib.py", line 116, in decorate_context
     return func(*args, **kwargs)
-  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 754, in process_prefill
-    "recon_cosine_min": 0.0, "mse_mean": 0.0, "mse_max": 0.0,
-  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 261, in _run_suffix_prefill
-    logits = self.model.lm_head(suffix_hidden)
-  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1762, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/linear.py", line 125, in forward
-    return F.linear(input, self.weight, self.bias)
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 224.00 MiB. GPU 0 has a total capacity of 79.32 GiB of which 117.00 MiB is free. Process 2908582 has 79.20 GiB memory in use. Of the allocated memory 77.92 GiB is allocated by PyTorch, and 797.57 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/pipeline.py", line 877, in process_prefill
+    tiers, ref_acts, self_ref_sources, first_occ_map = classify_future.result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/table.py", line 486, in classify_and_build_refs
+    converted = self._decode_stored_batch(ref_tensors, output_device)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/table.py", line 217, in _decode_stored_batch
+    packet = self._merge_int8_packets(packet_batch)
+  File "/root/ActivationPerturbationAnalysis/delta_coding_system/table.py", line 175, in _merge_int8_packets
+    quantized=torch.cat([item.quantized for item in stored_batch], dim=0),
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cpu and cuda:3! (when checking argument for argument tensors in method wrapper_CUDA_cat)

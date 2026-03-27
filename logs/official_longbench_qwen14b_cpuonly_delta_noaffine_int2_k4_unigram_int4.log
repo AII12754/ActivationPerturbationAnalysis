@@ -1,0 +1,612 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:06,  1.08it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.30it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.35it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.28it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:03<00:02,  1.30it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.36it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.42it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.35it/s]
+2026-03-26 17:09:46,193 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=10/200
+2026-03-26 17:11:38,546 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=20/200
+2026-03-26 17:14:10,269 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=30/200
+2026-03-26 17:16:30,271 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=40/200
+2026-03-26 17:19:07,266 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=50/200
+2026-03-26 17:22:07,800 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=60/200
+2026-03-26 17:24:07,760 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=70/200
+2026-03-26 17:26:07,434 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=80/200
+2026-03-26 17:28:41,860 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=90/200
+2026-03-26 17:30:37,649 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=100/200
+2026-03-26 17:33:11,910 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=110/200
+2026-03-26 17:36:13,158 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=120/200
+2026-03-26 17:38:48,649 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=130/200
+2026-03-26 17:40:50,406 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=140/200
+2026-03-26 17:43:04,594 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=150/200
+2026-03-26 17:45:15,499 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=160/200
+2026-03-26 17:47:24,667 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=170/200
+2026-03-26 17:49:47,837 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=180/200
+2026-03-26 17:51:49,989 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=190/200
+2026-03-26 17:54:21,843 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-26 17:54:22,078 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa score=15.36 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 17:54:51,346 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=10/200
+2026-03-26 17:55:34,793 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=20/200
+2026-03-26 17:56:02,489 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=30/200
+2026-03-26 17:56:31,748 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=40/200
+2026-03-26 17:56:57,153 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=50/200
+2026-03-26 17:57:34,789 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=60/200
+2026-03-26 17:58:01,762 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=70/200
+2026-03-26 17:58:27,896 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=80/200
+2026-03-26 17:58:53,381 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=90/200
+2026-03-26 17:59:16,308 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=100/200
+2026-03-26 17:59:44,103 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=110/200
+2026-03-26 18:00:11,151 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=120/200
+2026-03-26 18:00:40,118 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=130/200
+2026-03-26 18:01:12,520 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=140/200
+2026-03-26 18:01:38,698 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=150/200
+2026-03-26 18:02:04,680 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=160/200
+2026-03-26 18:02:29,304 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=170/200
+2026-03-26 18:02:59,803 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=180/200
+2026-03-26 18:03:23,826 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=190/200
+2026-03-26 18:03:51,157 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qasper progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json']
+2026-03-26 18:03:51,402 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=qasper score=45.0 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 18:04:34,519 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=10/150
+2026-03-26 18:05:24,338 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=20/150
+2026-03-26 18:06:05,031 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=30/150
+2026-03-26 18:06:42,550 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=40/150
+2026-03-26 18:07:17,649 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=50/150
+2026-03-26 18:07:45,780 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=60/150
+2026-03-26 18:08:26,860 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=70/150
+2026-03-26 18:09:08,228 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=80/150
+2026-03-26 18:09:45,252 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=90/150
+2026-03-26 18:10:39,711 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=100/150
+2026-03-26 18:11:29,445 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=110/150
+2026-03-26 18:12:18,688 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=120/150
+2026-03-26 18:12:54,082 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=130/150
+2026-03-26 18:13:40,147 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=140/150
+2026-03-26 18:14:23,308 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en progress=150/150
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_en.jsonl']
+2026-03-26 18:14:23,623 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_en score=54.63 samples=150 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 18:14:43,697 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=10/200
+2026-03-26 18:15:08,032 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=20/200
+2026-03-26 18:15:33,339 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=30/200
+2026-03-26 18:15:56,296 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=40/200
+2026-03-26 18:16:22,038 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=50/200
+2026-03-26 18:16:45,637 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=60/200
+2026-03-26 18:17:13,581 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=70/200
+2026-03-26 18:17:33,071 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=80/200
+2026-03-26 18:18:02,651 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=90/200
+2026-03-26 18:18:22,056 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=100/200
+2026-03-26 18:18:43,626 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=110/200
+2026-03-26 18:19:04,208 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=120/200
+2026-03-26 18:19:29,553 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=130/200
+2026-03-26 18:20:02,241 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=140/200
+2026-03-26 18:20:33,305 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=150/200
+2026-03-26 18:21:00,413 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=160/200
+2026-03-26 18:21:31,562 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=170/200
+2026-03-26 18:21:59,943 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=180/200
+2026-03-26 18:22:28,141 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=190/200
+2026-03-26 18:22:53,879 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.569 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl']
+2026-03-26 18:22:54,786 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=multifieldqa_zh score=62.57 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 18:23:53,687 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=10/200
+2026-03-26 18:24:55,811 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=20/200
+2026-03-26 18:25:49,527 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=30/200
+2026-03-26 18:27:03,841 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=40/200
+2026-03-26 18:28:06,704 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=50/200
+2026-03-26 18:29:06,768 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=60/200
+2026-03-26 18:30:09,961 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=70/200
+2026-03-26 18:31:05,124 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=80/200
+2026-03-26 18:32:05,783 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=90/200
+2026-03-26 18:33:11,630 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=100/200
+2026-03-26 18:34:17,548 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=110/200
+2026-03-26 18:35:20,070 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=120/200
+2026-03-26 18:36:07,813 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=130/200
+2026-03-26 18:37:05,259 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=140/200
+2026-03-26 18:38:15,761 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=150/200
+2026-03-26 18:39:16,780 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=160/200
+2026-03-26 18:40:13,126 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=170/200
+2026-03-26 18:41:16,146 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=180/200
+2026-03-26 18:42:11,850 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=190/200
+2026-03-26 18:43:01,408 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.576 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'hotpotqa.jsonl']
+2026-03-26 18:43:02,352 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=hotpotqa score=63.02 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 18:43:37,947 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=10/200
+2026-03-26 18:44:09,727 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=20/200
+2026-03-26 18:44:42,748 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=30/200
+2026-03-26 18:45:18,200 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=40/200
+2026-03-26 18:45:48,268 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=50/200
+2026-03-26 18:46:19,376 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=60/200
+2026-03-26 18:46:44,353 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=70/200
+2026-03-26 18:47:18,274 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=80/200
+2026-03-26 18:47:56,743 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=90/200
+2026-03-26 18:48:37,225 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=100/200
+2026-03-26 18:49:05,420 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=110/200
+2026-03-26 18:49:33,924 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=120/200
+2026-03-26 18:50:05,453 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=130/200
+2026-03-26 18:50:38,628 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=140/200
+2026-03-26 18:51:15,135 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=150/200
+2026-03-26 18:52:00,239 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=160/200
+2026-03-26 18:52:34,593 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=170/200
+2026-03-26 18:53:17,526 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=180/200
+2026-03-26 18:53:43,973 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=190/200
+2026-03-26 18:54:21,872 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.574 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'hotpotqa.jsonl']
+2026-03-26 18:54:22,799 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=2wikimqa score=58.52 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 18:55:36,942 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=10/200
+2026-03-26 18:56:51,184 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=20/200
+2026-03-26 18:58:06,855 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=30/200
+2026-03-26 18:59:15,928 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=40/200
+2026-03-26 19:00:33,915 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=50/200
+2026-03-26 19:01:48,693 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=60/200
+2026-03-26 19:02:56,817 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=70/200
+2026-03-26 19:04:13,021 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=80/200
+2026-03-26 19:05:30,640 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=90/200
+2026-03-26 19:06:44,601 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=100/200
+2026-03-26 19:07:56,738 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=110/200
+2026-03-26 19:09:13,211 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=120/200
+2026-03-26 19:10:27,267 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=130/200
+2026-03-26 19:11:39,422 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=140/200
+2026-03-26 19:12:58,358 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=150/200
+2026-03-26 19:14:23,156 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=160/200
+2026-03-26 19:15:36,045 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=170/200
+2026-03-26 19:16:49,133 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=180/200
+2026-03-26 19:18:03,721 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=190/200
+2026-03-26 19:19:12,264 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=musique progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.563 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 19:19:13,222 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=musique score=39.19 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 19:21:03,403 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=10/200
+2026-03-26 19:22:49,231 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=20/200
+2026-03-26 19:24:44,052 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=30/200
+2026-03-26 19:26:37,872 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=40/200
+2026-03-26 19:28:30,603 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=50/200
+2026-03-26 19:30:22,606 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=60/200
+2026-03-26 19:32:15,103 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=70/200
+2026-03-26 19:34:02,278 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=80/200
+2026-03-26 19:35:57,366 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=90/200
+2026-03-26 19:37:35,405 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=100/200
+2026-03-26 19:39:38,564 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=110/200
+2026-03-26 19:41:34,231 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=120/200
+2026-03-26 19:43:29,886 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=130/200
+2026-03-26 19:45:22,310 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=140/200
+2026-03-26 19:47:17,709 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=150/200
+2026-03-26 19:48:59,976 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=160/200
+2026-03-26 19:51:02,301 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=170/200
+2026-03-26 19:52:48,147 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=180/200
+2026-03-26 19:54:35,777 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=190/200
+2026-03-26 19:56:22,352 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=dureader progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.571 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'dureader.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 19:56:25,336 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=dureader score=31.33 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 20:01:16,961 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=10/200
+2026-03-26 20:06:21,542 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=20/200
+2026-03-26 20:11:25,993 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=30/200
+2026-03-26 20:15:26,353 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=40/200
+2026-03-26 20:21:10,753 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=50/200
+2026-03-26 20:26:52,221 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=60/200
+2026-03-26 20:31:30,553 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=70/200
+2026-03-26 20:36:08,236 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=80/200
+2026-03-26 20:40:20,465 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=90/200
+2026-03-26 20:45:26,165 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=100/200
+2026-03-26 20:49:13,874 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=110/200
+2026-03-26 20:54:05,754 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=120/200
+2026-03-26 20:59:39,610 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=130/200
+2026-03-26 21:03:40,044 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=140/200
+2026-03-26 21:07:27,786 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=150/200
+2026-03-26 21:11:59,288 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=160/200
+2026-03-26 21:15:21,859 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=170/200
+2026-03-26 21:20:46,982 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=180/200
+2026-03-26 21:25:09,997 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=190/200
+2026-03-26 21:29:05,710 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=gov_report progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.570 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'dureader.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 21:29:29,845 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=gov_report score=32.22 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 21:31:22,072 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=10/200
+2026-03-26 21:33:28,921 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=20/200
+2026-03-26 21:35:49,666 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=30/200
+2026-03-26 21:38:09,834 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=40/200
+2026-03-26 21:39:52,226 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=50/200
+2026-03-26 21:41:32,271 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=60/200
+2026-03-26 21:43:41,934 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=70/200
+2026-03-26 21:45:42,719 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=80/200
+2026-03-26 21:48:18,153 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=90/200
+2026-03-26 21:50:40,064 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=100/200
+2026-03-26 21:52:34,719 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=110/200
+2026-03-26 21:54:52,832 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=120/200
+2026-03-26 21:56:59,318 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=130/200
+2026-03-26 21:59:19,353 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=140/200
+2026-03-26 22:01:30,549 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=150/200
+2026-03-26 22:03:29,888 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=160/200
+2026-03-26 22:05:37,917 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=170/200
+2026-03-26 22:07:49,828 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=180/200
+2026-03-26 22:10:27,338 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=190/200
+2026-03-26 22:12:20,605 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=qmsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.563 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 22:12:45,546 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=qmsum score=24.5 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 22:15:19,779 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=10/200
+2026-03-26 22:18:06,111 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=20/200
+2026-03-26 22:21:06,464 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=30/200
+2026-03-26 22:23:44,102 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=40/200
+2026-03-26 22:26:41,863 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=50/200
+2026-03-26 22:29:54,599 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=60/200
+2026-03-26 22:32:26,247 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=70/200
+2026-03-26 22:35:42,771 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=80/200
+2026-03-26 22:38:55,503 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=90/200
+2026-03-26 22:41:27,706 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=100/200
+2026-03-26 22:44:32,663 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=110/200
+2026-03-26 22:47:26,403 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=120/200
+2026-03-26 22:50:11,488 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=130/200
+2026-03-26 22:53:04,914 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=140/200
+2026-03-26 22:55:50,068 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=150/200
+2026-03-26 22:58:35,272 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=160/200
+2026-03-26 23:01:18,053 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=170/200
+2026-03-26 23:03:46,212 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=180/200
+2026-03-26 23:06:37,931 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=190/200
+2026-03-26 23:09:00,166 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=multi_news progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.579 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 23:09:33,703 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=multi_news score=24.43 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-26 23:12:49,429 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=10/200
+2026-03-26 23:16:05,909 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=20/200
+2026-03-26 23:20:21,783 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=30/200
+2026-03-26 23:23:54,015 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=40/200
+2026-03-26 23:27:43,494 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=50/200
+2026-03-26 23:31:17,511 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=60/200
+2026-03-26 23:34:59,292 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=70/200
+2026-03-26 23:38:10,330 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=80/200
+2026-03-26 23:41:55,354 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=90/200
+2026-03-26 23:44:57,696 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=100/200
+2026-03-26 23:48:36,614 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=110/200
+2026-03-26 23:51:26,348 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=120/200
+2026-03-26 23:54:33,479 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=130/200
+2026-03-26 23:57:27,258 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=140/200
+2026-03-27 00:01:06,335 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=150/200
+2026-03-27 00:05:39,538 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=160/200
+2026-03-27 00:08:52,045 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=170/200
+2026-03-27 00:11:58,236 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=180/200
+2026-03-27 00:16:03,031 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=190/200
+2026-03-27 00:19:17,703 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=vcsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.567 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-27 00:19:56,805 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=vcsum score=15.73 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 00:20:52,750 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=10/200
+2026-03-27 00:21:47,380 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=20/200
+2026-03-27 00:22:44,037 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=30/200
+2026-03-27 00:23:32,955 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=40/200
+2026-03-27 00:24:32,074 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=50/200
+2026-03-27 00:25:24,432 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=60/200
+2026-03-27 00:26:14,818 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=70/200
+2026-03-27 00:27:18,348 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=80/200
+2026-03-27 00:28:21,019 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=90/200
+2026-03-27 00:29:32,062 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=100/200
+2026-03-27 00:30:25,774 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=110/200
+2026-03-27 00:31:27,447 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=120/200
+2026-03-27 00:32:22,879 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=130/200
+2026-03-27 00:33:24,301 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=140/200
+2026-03-27 00:34:27,614 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=150/200
+2026-03-27 00:35:25,285 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=160/200
+2026-03-27 00:36:25,537 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=170/200
+2026-03-27 00:37:21,385 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=180/200
+2026-03-27 00:38:18,892 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=190/200
+2026-03-27 00:39:18,033 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=trec progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.568 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-27 00:39:57,116 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=trec score=76.5 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 00:41:00,375 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=10/200
+2026-03-27 00:42:07,027 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=20/200
+2026-03-27 00:43:17,983 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=30/200
+2026-03-27 00:44:38,648 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=40/200
+2026-03-27 00:45:38,778 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=50/200
+2026-03-27 00:46:53,605 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=60/200
+2026-03-27 00:48:02,336 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=70/200
+2026-03-27 00:49:13,347 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=80/200
+2026-03-27 00:50:14,608 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=90/200
+2026-03-27 00:51:33,262 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=100/200
+2026-03-27 00:53:15,570 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=110/200
+2026-03-27 00:54:21,001 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=120/200
+2026-03-27 00:55:40,895 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=130/200
+2026-03-27 00:56:48,010 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=140/200
+2026-03-27 00:58:04,501 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=150/200
+2026-03-27 00:59:24,023 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=160/200
+2026-03-27 01:00:27,293 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=170/200
+2026-03-27 01:01:42,068 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=180/200
+2026-03-27 01:02:48,996 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=190/200
+2026-03-27 01:03:58,461 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.564 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 01:04:37,631 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=triviaqa score=90.11 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 01:06:32,046 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=10/200
+2026-03-27 01:08:08,269 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=20/200
+2026-03-27 01:10:10,941 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=30/200
+2026-03-27 01:11:57,541 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=40/200
+2026-03-27 01:13:33,762 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=50/200
+2026-03-27 01:15:15,876 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=60/200
+2026-03-27 01:16:52,066 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=70/200
+2026-03-27 01:18:42,651 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=80/200
+2026-03-27 01:20:21,145 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=90/200
+2026-03-27 01:22:13,278 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=100/200
+2026-03-27 01:23:49,210 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=110/200
+2026-03-27 01:25:24,060 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=120/200
+2026-03-27 01:27:02,662 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=130/200
+2026-03-27 01:28:38,886 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=140/200
+2026-03-27 01:30:36,855 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=150/200
+2026-03-27 01:32:19,050 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=160/200
+2026-03-27 01:34:10,324 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=170/200
+2026-03-27 01:35:55,152 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=180/200
+2026-03-27 01:37:42,444 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=190/200
+2026-03-27 01:39:30,077 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=samsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.557 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 01:40:09,228 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=samsum score=47.93 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 01:41:29,482 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=10/200
+2026-03-27 01:43:31,059 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=20/200
+2026-03-27 01:45:01,312 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=30/200
+2026-03-27 01:46:29,301 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=40/200
+2026-03-27 01:47:52,790 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=50/200
+2026-03-27 01:49:41,484 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=60/200
+2026-03-27 01:51:19,237 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=70/200
+2026-03-27 01:53:18,611 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=80/200
+2026-03-27 01:55:13,131 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=90/200
+2026-03-27 01:57:23,869 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=100/200
+2026-03-27 01:59:20,289 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=110/200
+2026-03-27 02:00:59,843 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=120/200
+2026-03-27 02:02:43,732 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=130/200
+2026-03-27 02:04:40,220 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=140/200
+2026-03-27 02:06:07,075 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=150/200
+2026-03-27 02:07:53,529 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=160/200
+2026-03-27 02:09:45,371 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=170/200
+2026-03-27 02:11:23,060 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=180/200
+2026-03-27 02:12:52,909 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=190/200
+2026-03-27 02:14:31,912 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lsht progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.576 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 02:15:10,992 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=lsht score=49.0 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 02:16:29,598 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=10/200
+2026-03-27 02:17:48,502 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=20/200
+2026-03-27 02:19:03,239 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=30/200
+2026-03-27 02:20:29,153 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=40/200
+2026-03-27 02:21:51,457 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=50/200
+2026-03-27 02:23:03,488 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=60/200
+2026-03-27 02:24:17,706 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=70/200
+2026-03-27 02:25:25,826 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=80/200
+2026-03-27 02:26:30,600 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=90/200
+2026-03-27 02:27:44,690 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=100/200
+2026-03-27 02:29:07,118 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=110/200
+2026-03-27 02:30:17,232 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=120/200
+2026-03-27 02:31:37,314 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=130/200
+2026-03-27 02:32:50,429 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=140/200
+2026-03-27 02:34:20,735 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=150/200
+2026-03-27 02:35:29,415 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=160/200
+2026-03-27 02:36:53,290 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=170/200
+2026-03-27 02:38:06,343 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=180/200
+2026-03-27 02:39:26,553 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=190/200
+2026-03-27 02:40:48,702 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_count progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.566 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 02:41:27,832 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=passage_count score=13.25 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 02:42:23,924 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=10/200
+2026-03-27 02:43:30,311 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=20/200
+2026-03-27 02:44:31,555 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=30/200
+2026-03-27 02:45:29,805 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=40/200
+2026-03-27 02:46:31,527 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=50/200
+2026-03-27 02:47:32,452 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=60/200
+2026-03-27 02:48:35,083 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=70/200
+2026-03-27 02:49:34,284 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=80/200
+2026-03-27 02:50:33,225 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=90/200
+2026-03-27 02:51:33,491 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=100/200
+2026-03-27 02:52:35,451 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=110/200
+2026-03-27 02:53:35,163 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=120/200
+2026-03-27 02:54:34,491 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=130/200
+2026-03-27 02:55:35,153 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=140/200
+2026-03-27 02:56:36,044 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=150/200
+2026-03-27 02:57:35,294 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=160/200
+2026-03-27 02:58:32,531 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=170/200
+2026-03-27 02:59:31,812 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=180/200
+2026-03-27 03:00:33,848 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=190/200
+2026-03-27 03:01:33,776 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.576 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 03:02:12,938 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_en score=98.75 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 03:02:34,575 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=10/200
+2026-03-27 03:02:55,701 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=20/200
+2026-03-27 03:03:17,862 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=30/200
+2026-03-27 03:03:41,571 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=40/200
+2026-03-27 03:04:03,291 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=50/200
+2026-03-27 03:04:26,658 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=60/200
+2026-03-27 03:04:50,809 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=70/200
+2026-03-27 03:05:13,585 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=80/200
+2026-03-27 03:05:35,439 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=90/200
+2026-03-27 03:05:59,259 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=100/200
+2026-03-27 03:06:21,631 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=110/200
+2026-03-27 03:06:46,587 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=120/200
+2026-03-27 03:07:09,465 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=130/200
+2026-03-27 03:07:31,603 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=140/200
+2026-03-27 03:07:55,497 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=150/200
+2026-03-27 03:08:16,543 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=160/200
+2026-03-27 03:08:39,151 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=170/200
+2026-03-27 03:09:01,640 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=180/200
+2026-03-27 03:09:23,817 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=190/200
+2026-03-27 03:09:47,905 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.570 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', 'passage_retrieval_zh.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 03:10:26,927 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=passage_retrieval_zh score=98.75 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 03:11:06,121 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=10/500
+2026-03-27 03:11:40,655 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=20/500
+2026-03-27 03:12:27,074 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=30/500
+2026-03-27 03:13:01,141 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=40/500
+2026-03-27 03:13:36,248 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=50/500
+2026-03-27 03:14:17,307 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=60/500
+2026-03-27 03:14:50,943 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=70/500
+2026-03-27 03:15:25,605 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=80/500
+2026-03-27 03:16:03,820 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=90/500
+2026-03-27 03:16:41,315 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=100/500
+2026-03-27 03:17:20,562 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=110/500
+2026-03-27 03:17:58,402 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=120/500
+2026-03-27 03:18:33,572 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=130/500
+2026-03-27 03:19:08,284 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=140/500
+2026-03-27 03:19:43,249 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=150/500
+2026-03-27 03:20:19,808 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=160/500
+2026-03-27 03:20:58,310 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=170/500
+2026-03-27 03:21:37,646 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=180/500
+2026-03-27 03:22:13,315 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=190/500
+2026-03-27 03:22:47,488 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=200/500
+2026-03-27 03:23:27,681 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=210/500
+2026-03-27 03:24:01,348 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=220/500
+2026-03-27 03:24:36,827 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=230/500
+2026-03-27 03:25:10,250 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=240/500
+2026-03-27 03:26:01,081 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=250/500
+2026-03-27 03:26:44,870 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=260/500
+2026-03-27 03:27:49,698 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=270/500
+2026-03-27 03:28:33,018 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=280/500
+2026-03-27 03:29:05,838 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=290/500
+2026-03-27 03:29:47,841 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=300/500
+2026-03-27 03:30:26,194 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=310/500
+2026-03-27 03:31:01,524 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=320/500
+2026-03-27 03:31:44,992 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=330/500
+2026-03-27 03:32:24,931 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=340/500
+2026-03-27 03:33:01,047 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=350/500
+2026-03-27 03:33:36,507 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=360/500
+2026-03-27 03:34:14,370 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=370/500
+2026-03-27 03:34:51,279 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=380/500
+2026-03-27 03:35:26,126 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=390/500
+2026-03-27 03:36:03,976 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=400/500
+2026-03-27 03:36:39,688 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=410/500
+2026-03-27 03:37:16,468 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=420/500
+2026-03-27 03:37:52,282 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=430/500
+2026-03-27 03:38:27,740 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=440/500
+2026-03-27 03:39:02,881 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=450/500
+2026-03-27 03:39:42,785 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=460/500
+2026-03-27 03:40:23,615 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=470/500
+2026-03-27 03:40:58,625 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=480/500
+2026-03-27 03:41:34,945 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=490/500
+2026-03-27 03:42:11,251 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=lcc progress=500/500
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.567 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'lcc.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', 'passage_retrieval_zh.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 03:42:50,417 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=lcc score=64.46 samples=500 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 03:44:37,452 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=10/500
+2026-03-27 03:45:48,376 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=20/500
+2026-03-27 03:47:14,090 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=30/500
+2026-03-27 03:48:39,404 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=40/500
+2026-03-27 03:50:09,604 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=50/500
+2026-03-27 03:51:39,981 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=60/500
+2026-03-27 03:52:57,286 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=70/500
+2026-03-27 03:54:33,858 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=80/500
+2026-03-27 03:55:45,650 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=90/500
+2026-03-27 03:57:13,771 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=100/500
+2026-03-27 03:58:17,107 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=110/500
+2026-03-27 03:59:27,451 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=120/500
+2026-03-27 04:00:57,277 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=130/500
+2026-03-27 04:02:18,827 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=140/500
+2026-03-27 04:03:31,178 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=150/500
+2026-03-27 04:04:52,823 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=160/500
+2026-03-27 04:06:20,613 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=170/500
+2026-03-27 04:07:39,558 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=180/500
+2026-03-27 04:09:08,120 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=190/500
+2026-03-27 04:10:25,195 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=200/500
+2026-03-27 04:11:19,148 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=210/500
+2026-03-27 04:12:33,270 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=220/500
+2026-03-27 04:13:58,634 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=230/500
+2026-03-27 04:15:30,288 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=240/500
+2026-03-27 04:16:49,435 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=250/500
+2026-03-27 04:18:27,725 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=260/500
+2026-03-27 04:20:07,199 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=270/500
+2026-03-27 04:21:28,650 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=280/500
+2026-03-27 04:22:48,356 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=290/500
+2026-03-27 04:23:59,020 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=300/500
+2026-03-27 04:25:47,333 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=310/500
+2026-03-27 04:27:29,502 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=320/500
+2026-03-27 04:28:51,046 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=330/500
+2026-03-27 04:30:01,942 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=340/500
+2026-03-27 04:31:27,385 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=repobench-p progress=350/500

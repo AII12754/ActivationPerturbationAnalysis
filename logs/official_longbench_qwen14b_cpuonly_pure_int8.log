@@ -1,0 +1,636 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:06,  1.03it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.26it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.30it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.26it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:03<00:02,  1.28it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.34it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.42it/s]
+2026-03-26 17:08:46,324 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=10/200
+2026-03-26 17:10:39,345 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=20/200
+2026-03-26 17:13:24,873 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=30/200
+2026-03-26 17:15:42,517 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=40/200
+2026-03-26 17:18:21,971 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=50/200
+2026-03-26 17:21:20,970 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=60/200
+2026-03-26 17:23:16,296 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=70/200
+2026-03-26 17:25:42,157 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=80/200
+2026-03-26 17:28:11,810 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=90/200
+2026-03-26 17:30:19,014 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=100/200
+2026-03-26 17:33:02,456 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=110/200
+2026-03-26 17:35:57,247 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=120/200
+2026-03-26 17:38:46,532 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=130/200
+2026-03-26 17:40:47,795 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=140/200
+2026-03-26 17:42:58,263 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=150/200
+2026-03-26 17:45:20,379 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=160/200
+2026-03-26 17:47:25,427 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=170/200
+2026-03-26 17:49:36,267 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=180/200
+2026-03-26 17:51:40,222 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=190/200
+2026-03-26 17:54:15,381 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-26 17:54:15,612 INFO longbench_official_benchmark: task completed config=pure_int8 task=narrativeqa score=16.26 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 17:54:44,745 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=10/200
+2026-03-26 17:55:28,653 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=20/200
+2026-03-26 17:55:55,836 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=30/200
+2026-03-26 17:56:24,458 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=40/200
+2026-03-26 17:56:49,890 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=50/200
+2026-03-26 17:57:27,845 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=60/200
+2026-03-26 17:57:55,544 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=70/200
+2026-03-26 17:58:20,209 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=80/200
+2026-03-26 17:58:45,888 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=90/200
+2026-03-26 17:59:08,161 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=100/200
+2026-03-26 17:59:35,640 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=110/200
+2026-03-26 18:00:02,431 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=120/200
+2026-03-26 18:00:31,360 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=130/200
+2026-03-26 18:01:01,589 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=140/200
+2026-03-26 18:01:27,572 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=150/200
+2026-03-26 18:01:52,864 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=160/200
+2026-03-26 18:02:17,165 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=170/200
+2026-03-26 18:02:46,499 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=180/200
+2026-03-26 18:03:09,750 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=190/200
+2026-03-26 18:03:36,898 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json']
+2026-03-26 18:03:37,142 INFO longbench_official_benchmark: task completed config=pure_int8 task=qasper score=45.57 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 18:04:19,641 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=10/150
+2026-03-26 18:05:09,079 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=20/150
+2026-03-26 18:05:49,285 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=30/150
+2026-03-26 18:06:27,348 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=40/150
+2026-03-26 18:07:03,227 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=50/150
+2026-03-26 18:07:31,171 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=60/150
+2026-03-26 18:08:12,348 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=70/150
+2026-03-26 18:08:54,124 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=80/150
+2026-03-26 18:09:30,765 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=90/150
+2026-03-26 18:10:25,274 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=100/150
+2026-03-26 18:11:16,119 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=110/150
+2026-03-26 18:12:05,276 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=120/150
+2026-03-26 18:12:40,456 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=130/150
+2026-03-26 18:13:26,599 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=140/150
+2026-03-26 18:14:09,513 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_en progress=150/150
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_en.jsonl']
+2026-03-26 18:14:09,768 INFO longbench_official_benchmark: task completed config=pure_int8 task=multifieldqa_en score=54.57 samples=150 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 18:14:32,088 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=10/200
+2026-03-26 18:14:56,470 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=20/200
+2026-03-26 18:15:21,669 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=30/200
+2026-03-26 18:15:47,336 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=40/200
+2026-03-26 18:16:12,663 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=50/200
+2026-03-26 18:16:35,957 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=60/200
+2026-03-26 18:17:04,510 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=70/200
+2026-03-26 18:17:23,749 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=80/200
+2026-03-26 18:17:54,181 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=90/200
+2026-03-26 18:18:13,871 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=100/200
+2026-03-26 18:18:35,242 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=110/200
+2026-03-26 18:18:55,715 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=120/200
+2026-03-26 18:19:20,733 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=130/200
+2026-03-26 18:19:52,691 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=140/200
+2026-03-26 18:20:24,310 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=150/200
+2026-03-26 18:20:51,564 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=160/200
+2026-03-26 18:21:22,982 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=170/200
+2026-03-26 18:21:51,765 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=180/200
+2026-03-26 18:22:19,722 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=190/200
+2026-03-26 18:22:45,476 INFO longbench_official_benchmark: config=pure_int8 task=multifieldqa_zh progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.574 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl']
+2026-03-26 18:22:46,368 INFO longbench_official_benchmark: task completed config=pure_int8 task=multifieldqa_zh score=62.84 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 18:23:45,681 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=10/200
+2026-03-26 18:24:49,715 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=20/200
+2026-03-26 18:25:43,568 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=30/200
+2026-03-26 18:26:54,990 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=40/200
+2026-03-26 18:27:56,192 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=50/200
+2026-03-26 18:28:55,322 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=60/200
+2026-03-26 18:29:56,260 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=70/200
+2026-03-26 18:30:48,355 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=80/200
+2026-03-26 18:31:48,599 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=90/200
+2026-03-26 18:32:54,410 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=100/200
+2026-03-26 18:33:59,590 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=110/200
+2026-03-26 18:35:01,453 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=120/200
+2026-03-26 18:35:48,208 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=130/200
+2026-03-26 18:36:43,016 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=140/200
+2026-03-26 18:37:50,374 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=150/200
+2026-03-26 18:38:47,475 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=160/200
+2026-03-26 18:39:41,702 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=170/200
+2026-03-26 18:40:42,937 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=180/200
+2026-03-26 18:41:37,569 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=190/200
+2026-03-26 18:42:26,419 INFO longbench_official_benchmark: config=pure_int8 task=hotpotqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.574 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'hotpotqa.jsonl']
+2026-03-26 18:42:27,627 INFO longbench_official_benchmark: task completed config=pure_int8 task=hotpotqa score=62.55 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 18:43:01,431 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=10/200
+2026-03-26 18:43:31,672 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=20/200
+2026-03-26 18:44:03,929 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=30/200
+2026-03-26 18:44:38,691 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=40/200
+2026-03-26 18:45:08,222 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=50/200
+2026-03-26 18:45:40,257 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=60/200
+2026-03-26 18:46:05,701 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=70/200
+2026-03-26 18:46:38,996 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=80/200
+2026-03-26 18:47:15,262 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=90/200
+2026-03-26 18:47:55,232 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=100/200
+2026-03-26 18:48:23,931 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=110/200
+2026-03-26 18:48:51,491 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=120/200
+2026-03-26 18:49:22,471 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=130/200
+2026-03-26 18:49:53,329 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=140/200
+2026-03-26 18:50:28,483 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=150/200
+2026-03-26 18:51:12,534 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=160/200
+2026-03-26 18:51:45,046 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=170/200
+2026-03-26 18:52:26,139 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=180/200
+2026-03-26 18:52:51,921 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=190/200
+2026-03-26 18:53:28,842 INFO longbench_official_benchmark: config=pure_int8 task=2wikimqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.569 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'hotpotqa.jsonl']
+2026-03-26 18:53:29,789 INFO longbench_official_benchmark: task completed config=pure_int8 task=2wikimqa score=58.52 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 18:54:39,795 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=10/200
+2026-03-26 18:55:52,146 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=20/200
+2026-03-26 18:57:05,756 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=30/200
+2026-03-26 18:58:15,295 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=40/200
+2026-03-26 18:59:31,889 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=50/200
+2026-03-26 19:00:45,312 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=60/200
+2026-03-26 19:01:53,805 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=70/200
+2026-03-26 19:03:08,723 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=80/200
+2026-03-26 19:04:26,826 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=90/200
+2026-03-26 19:05:40,395 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=100/200
+2026-03-26 19:06:51,198 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=110/200
+2026-03-26 19:08:06,787 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=120/200
+2026-03-26 19:09:20,381 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=130/200
+2026-03-26 19:10:31,199 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=140/200
+2026-03-26 19:11:48,388 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=150/200
+2026-03-26 19:13:11,502 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=160/200
+2026-03-26 19:14:24,846 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=170/200
+2026-03-26 19:15:37,012 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=180/200
+2026-03-26 19:16:51,129 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=190/200
+2026-03-26 19:17:58,682 INFO longbench_official_benchmark: config=pure_int8 task=musique progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.579 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 19:17:59,591 INFO longbench_official_benchmark: task completed config=pure_int8 task=musique score=37.71 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 19:19:48,653 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=10/200
+2026-03-26 19:21:36,073 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=20/200
+2026-03-26 19:23:21,994 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=30/200
+2026-03-26 19:25:14,331 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=40/200
+2026-03-26 19:27:05,076 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=50/200
+2026-03-26 19:28:55,715 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=60/200
+2026-03-26 19:30:48,333 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=70/200
+2026-03-26 19:32:33,513 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=80/200
+2026-03-26 19:34:27,543 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=90/200
+2026-03-26 19:36:05,290 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=100/200
+2026-03-26 19:38:07,680 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=110/200
+2026-03-26 19:40:01,496 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=120/200
+2026-03-26 19:41:55,452 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=130/200
+2026-03-26 19:43:47,426 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=140/200
+2026-03-26 19:45:44,736 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=150/200
+2026-03-26 19:47:24,490 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=160/200
+2026-03-26 19:49:25,517 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=170/200
+2026-03-26 19:51:10,156 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=180/200
+2026-03-26 19:52:56,646 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=190/200
+2026-03-26 19:54:43,552 INFO longbench_official_benchmark: config=pure_int8 task=dureader progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.559 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'result.json', 'dureader.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 19:54:46,635 INFO longbench_official_benchmark: task completed config=pure_int8 task=dureader score=32.1 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 19:59:43,489 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=10/200
+2026-03-26 20:04:36,911 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=20/200
+2026-03-26 20:09:49,641 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=30/200
+2026-03-26 20:14:06,773 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=40/200
+2026-03-26 20:20:05,416 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=50/200
+2026-03-26 20:26:00,051 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=60/200
+2026-03-26 20:30:41,403 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=70/200
+2026-03-26 20:35:20,775 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=80/200
+2026-03-26 20:39:27,524 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=90/200
+2026-03-26 20:44:47,411 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=100/200
+2026-03-26 20:48:26,532 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=110/200
+2026-03-26 20:53:22,674 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=120/200
+2026-03-26 20:58:56,388 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=130/200
+2026-03-26 21:02:52,035 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=140/200
+2026-03-26 21:06:35,498 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=150/200
+2026-03-26 21:11:31,263 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=160/200
+2026-03-26 21:14:47,325 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=170/200
+2026-03-26 21:20:10,938 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=180/200
+2026-03-26 21:24:31,530 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=190/200
+2026-03-26 21:28:19,431 INFO longbench_official_benchmark: config=pure_int8 task=gov_report progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.576 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'dureader.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 21:28:43,898 INFO longbench_official_benchmark: task completed config=pure_int8 task=gov_report score=32.38 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 21:30:36,549 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=10/200
+2026-03-26 21:32:41,077 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=20/200
+2026-03-26 21:34:56,940 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=30/200
+2026-03-26 21:37:14,134 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=40/200
+2026-03-26 21:38:48,589 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=50/200
+2026-03-26 21:40:28,485 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=60/200
+2026-03-26 21:42:39,976 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=70/200
+2026-03-26 21:44:39,545 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=80/200
+2026-03-26 21:47:12,135 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=90/200
+2026-03-26 21:49:32,892 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=100/200
+2026-03-26 21:51:20,332 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=110/200
+2026-03-26 21:53:41,349 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=120/200
+2026-03-26 21:55:50,932 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=130/200
+2026-03-26 21:58:09,974 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=140/200
+2026-03-26 22:00:24,120 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=150/200
+2026-03-26 22:02:19,978 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=160/200
+2026-03-26 22:04:25,566 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=170/200
+2026-03-26 22:06:36,489 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=180/200
+2026-03-26 22:09:16,130 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=190/200
+2026-03-26 22:11:02,212 INFO longbench_official_benchmark: config=pure_int8 task=qmsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.564 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 22:11:27,410 INFO longbench_official_benchmark: task completed config=pure_int8 task=qmsum score=24.87 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 22:14:09,086 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=10/200
+2026-03-26 22:16:56,137 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=20/200
+2026-03-26 22:19:42,284 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=30/200
+2026-03-26 22:22:12,503 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=40/200
+2026-03-26 22:25:23,708 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=50/200
+2026-03-26 22:28:36,425 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=60/200
+2026-03-26 22:31:05,025 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=70/200
+2026-03-26 22:34:06,221 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=80/200
+2026-03-26 22:37:16,466 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=90/200
+2026-03-26 22:39:52,362 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=100/200
+2026-03-26 22:42:58,525 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=110/200
+2026-03-26 22:45:46,057 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=120/200
+2026-03-26 22:48:32,510 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=130/200
+2026-03-26 22:51:33,229 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=140/200
+2026-03-26 22:54:27,097 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=150/200
+2026-03-26 22:57:16,196 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=160/200
+2026-03-26 22:59:50,366 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=170/200
+2026-03-26 23:02:22,033 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=180/200
+2026-03-26 23:05:17,453 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=190/200
+2026-03-26 23:07:45,054 INFO longbench_official_benchmark: config=pure_int8 task=multi_news progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.564 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-26 23:08:18,933 INFO longbench_official_benchmark: task completed config=pure_int8 task=multi_news score=24.6 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-26 23:11:30,703 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=10/200
+2026-03-26 23:14:53,766 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=20/200
+2026-03-26 23:19:06,617 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=30/200
+2026-03-26 23:22:44,467 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=40/200
+2026-03-26 23:26:33,071 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=50/200
+2026-03-26 23:30:08,942 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=60/200
+2026-03-26 23:33:43,251 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=70/200
+2026-03-26 23:36:58,366 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=80/200
+2026-03-26 23:40:37,044 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=90/200
+2026-03-26 23:43:49,993 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=100/200
+2026-03-26 23:47:15,114 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=110/200
+2026-03-26 23:50:05,042 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=120/200
+2026-03-26 23:53:09,203 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=130/200
+2026-03-26 23:56:00,482 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=140/200
+2026-03-26 23:59:30,450 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=150/200
+2026-03-27 00:04:12,742 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=160/200
+2026-03-27 00:07:22,326 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=170/200
+2026-03-27 00:10:24,379 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=180/200
+2026-03-27 00:14:30,558 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=190/200
+2026-03-27 00:17:41,450 INFO longbench_official_benchmark: config=pure_int8 task=vcsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.563 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-27 00:18:20,637 INFO longbench_official_benchmark: task completed config=pure_int8 task=vcsum score=16.06 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 00:19:16,969 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=10/200
+2026-03-27 00:20:11,586 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=20/200
+2026-03-27 00:21:07,538 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=30/200
+2026-03-27 00:21:55,892 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=40/200
+2026-03-27 00:22:54,997 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=50/200
+2026-03-27 00:23:46,672 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=60/200
+2026-03-27 00:24:36,844 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=70/200
+2026-03-27 00:25:39,881 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=80/200
+2026-03-27 00:26:43,408 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=90/200
+2026-03-27 00:27:54,032 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=100/200
+2026-03-27 00:28:47,617 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=110/200
+2026-03-27 00:29:48,547 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=120/200
+2026-03-27 00:30:44,860 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=130/200
+2026-03-27 00:31:46,068 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=140/200
+2026-03-27 00:32:50,036 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=150/200
+2026-03-27 00:33:47,003 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=160/200
+2026-03-27 00:34:47,073 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=170/200
+2026-03-27 00:35:42,689 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=180/200
+2026-03-27 00:36:39,752 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=190/200
+2026-03-27 00:37:38,641 INFO longbench_official_benchmark: config=pure_int8 task=trec progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.564 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-27 00:38:17,811 INFO longbench_official_benchmark: task completed config=pure_int8 task=trec score=77.5 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 00:39:21,999 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=10/200
+2026-03-27 00:40:30,250 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=20/200
+2026-03-27 00:41:39,139 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=30/200
+2026-03-27 00:42:58,833 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=40/200
+2026-03-27 00:44:01,844 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=50/200
+2026-03-27 00:45:18,601 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=60/200
+2026-03-27 00:46:25,722 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=70/200
+2026-03-27 00:47:36,170 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=80/200
+2026-03-27 00:48:37,396 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=90/200
+2026-03-27 00:49:55,942 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=100/200
+2026-03-27 00:51:35,720 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=110/200
+2026-03-27 00:52:40,208 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=120/200
+2026-03-27 00:53:57,386 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=130/200
+2026-03-27 00:55:02,283 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=140/200
+2026-03-27 00:56:19,417 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=150/200
+2026-03-27 00:57:36,951 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=160/200
+2026-03-27 00:58:38,441 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=170/200
+2026-03-27 00:59:53,919 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=180/200
+2026-03-27 01:01:00,862 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=190/200
+2026-03-27 01:02:10,389 INFO longbench_official_benchmark: config=pure_int8 task=triviaqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.558 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 01:02:49,608 INFO longbench_official_benchmark: task completed config=pure_int8 task=triviaqa score=90.06 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 01:04:41,062 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=10/200
+2026-03-27 01:06:17,831 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=20/200
+2026-03-27 01:08:20,548 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=30/200
+2026-03-27 01:10:05,226 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=40/200
+2026-03-27 01:11:40,506 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=50/200
+2026-03-27 01:13:26,978 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=60/200
+2026-03-27 01:15:02,969 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=70/200
+2026-03-27 01:16:53,468 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=80/200
+2026-03-27 01:18:32,551 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=90/200
+2026-03-27 01:20:24,149 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=100/200
+2026-03-27 01:22:00,695 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=110/200
+2026-03-27 01:23:35,566 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=120/200
+2026-03-27 01:25:12,818 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=130/200
+2026-03-27 01:26:48,892 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=140/200
+2026-03-27 01:28:49,899 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=150/200
+2026-03-27 01:30:32,001 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=160/200
+2026-03-27 01:32:21,996 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=170/200
+2026-03-27 01:34:06,215 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=180/200
+2026-03-27 01:35:53,946 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=190/200
+2026-03-27 01:37:40,465 INFO longbench_official_benchmark: config=pure_int8 task=samsum progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.569 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 01:38:19,854 INFO longbench_official_benchmark: task completed config=pure_int8 task=samsum score=47.45 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 01:39:38,902 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=10/200
+2026-03-27 01:41:35,935 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=20/200
+2026-03-27 01:43:05,885 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=30/200
+2026-03-27 01:44:33,550 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=40/200
+2026-03-27 01:45:57,335 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=50/200
+2026-03-27 01:47:43,738 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=60/200
+2026-03-27 01:49:21,634 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=70/200
+2026-03-27 01:51:17,852 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=80/200
+2026-03-27 01:53:10,485 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=90/200
+2026-03-27 01:55:22,605 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=100/200
+2026-03-27 01:57:19,826 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=110/200
+2026-03-27 01:58:59,517 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=120/200
+2026-03-27 02:00:43,119 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=130/200
+2026-03-27 02:02:39,555 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=140/200
+2026-03-27 02:04:05,614 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=150/200
+2026-03-27 02:05:53,222 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=160/200
+2026-03-27 02:07:42,622 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=170/200
+2026-03-27 02:09:19,366 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=180/200
+2026-03-27 02:10:48,722 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=190/200
+2026-03-27 02:12:26,980 INFO longbench_official_benchmark: config=pure_int8 task=lsht progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.581 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 02:13:06,442 INFO longbench_official_benchmark: task completed config=pure_int8 task=lsht score=49.17 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 02:14:23,366 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=10/200
+2026-03-27 02:15:40,324 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=20/200
+2026-03-27 02:16:55,786 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=30/200
+2026-03-27 02:18:23,214 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=40/200
+2026-03-27 02:19:45,484 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=50/200
+2026-03-27 02:20:58,244 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=60/200
+2026-03-27 02:22:12,306 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=70/200
+2026-03-27 02:23:21,421 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=80/200
+2026-03-27 02:24:24,987 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=90/200
+2026-03-27 02:25:33,922 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=100/200
+2026-03-27 02:26:53,624 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=110/200
+2026-03-27 02:28:06,740 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=120/200
+2026-03-27 02:29:28,076 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=130/200
+2026-03-27 02:30:41,141 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=140/200
+2026-03-27 02:32:11,993 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=150/200
+2026-03-27 02:33:16,716 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=160/200
+2026-03-27 02:34:41,037 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=170/200
+2026-03-27 02:35:53,188 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=180/200
+2026-03-27 02:37:14,726 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=190/200
+2026-03-27 02:38:36,057 INFO longbench_official_benchmark: config=pure_int8 task=passage_count progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.568 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 02:39:15,458 INFO longbench_official_benchmark: task completed config=pure_int8 task=passage_count score=13.38 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 02:40:09,654 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=10/200
+2026-03-27 02:41:13,828 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=20/200
+2026-03-27 02:42:13,370 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=30/200
+2026-03-27 02:43:10,526 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=40/200
+2026-03-27 02:44:11,714 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=50/200
+2026-03-27 02:45:13,640 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=60/200
+2026-03-27 02:46:13,475 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=70/200
+2026-03-27 02:47:12,009 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=80/200
+2026-03-27 02:48:09,849 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=90/200
+2026-03-27 02:49:08,826 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=100/200
+2026-03-27 02:50:10,323 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=110/200
+2026-03-27 02:51:08,323 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=120/200
+2026-03-27 02:52:05,392 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=130/200
+2026-03-27 02:53:03,611 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=140/200
+2026-03-27 02:54:01,783 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=150/200
+2026-03-27 02:55:00,000 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=160/200
+2026-03-27 02:55:54,779 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=170/200
+2026-03-27 02:56:53,534 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=180/200
+2026-03-27 02:57:55,097 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=190/200
+2026-03-27 02:58:55,633 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_en progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.573 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 02:59:35,009 INFO longbench_official_benchmark: task completed config=pure_int8 task=passage_retrieval_en score=98.75 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 02:59:57,266 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=10/200
+2026-03-27 03:00:18,772 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=20/200
+2026-03-27 03:00:41,213 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=30/200
+2026-03-27 03:01:04,836 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=40/200
+2026-03-27 03:01:27,575 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=50/200
+2026-03-27 03:01:49,742 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=60/200
+2026-03-27 03:02:12,324 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=70/200
+2026-03-27 03:02:35,128 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=80/200
+2026-03-27 03:02:57,000 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=90/200
+2026-03-27 03:03:20,786 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=100/200
+2026-03-27 03:03:43,503 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=110/200
+2026-03-27 03:04:08,401 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=120/200
+2026-03-27 03:04:31,068 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=130/200
+2026-03-27 03:04:53,150 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=140/200
+2026-03-27 03:05:16,418 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=150/200
+2026-03-27 03:05:36,963 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=160/200
+2026-03-27 03:05:58,949 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=170/200
+2026-03-27 03:06:20,660 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=180/200
+2026-03-27 03:06:42,467 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=190/200
+2026-03-27 03:07:05,928 INFO longbench_official_benchmark: config=pure_int8 task=passage_retrieval_zh progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.572 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', 'passage_retrieval_zh.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 03:07:45,679 INFO longbench_official_benchmark: task completed config=pure_int8 task=passage_retrieval_zh score=98.58 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 03:08:24,702 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=10/500
+2026-03-27 03:08:59,148 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=20/500
+2026-03-27 03:09:45,450 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=30/500
+2026-03-27 03:10:20,354 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=40/500
+2026-03-27 03:10:56,659 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=50/500
+2026-03-27 03:11:39,041 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=60/500
+2026-03-27 03:12:13,047 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=70/500
+2026-03-27 03:12:48,514 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=80/500
+2026-03-27 03:13:26,841 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=90/500
+2026-03-27 03:14:04,595 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=100/500
+2026-03-27 03:14:43,994 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=110/500
+2026-03-27 03:15:21,320 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=120/500
+2026-03-27 03:15:57,419 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=130/500
+2026-03-27 03:16:31,880 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=140/500
+2026-03-27 03:17:07,265 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=150/500
+2026-03-27 03:17:44,387 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=160/500
+2026-03-27 03:18:22,586 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=170/500
+2026-03-27 03:19:02,105 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=180/500
+2026-03-27 03:19:38,093 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=190/500
+2026-03-27 03:20:12,277 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=200/500
+2026-03-27 03:20:52,643 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=210/500
+2026-03-27 03:21:27,389 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=220/500
+2026-03-27 03:22:04,148 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=230/500
+2026-03-27 03:22:36,967 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=240/500
+2026-03-27 03:23:27,594 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=250/500
+2026-03-27 03:24:11,365 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=260/500
+2026-03-27 03:25:15,495 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=270/500
+2026-03-27 03:25:58,582 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=280/500
+2026-03-27 03:26:31,859 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=290/500
+2026-03-27 03:27:13,010 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=300/500
+2026-03-27 03:27:51,662 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=310/500
+2026-03-27 03:28:27,459 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=320/500
+2026-03-27 03:29:11,245 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=330/500
+2026-03-27 03:29:50,821 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=340/500
+2026-03-27 03:30:26,919 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=350/500
+2026-03-27 03:31:02,473 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=360/500
+2026-03-27 03:31:40,184 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=370/500
+2026-03-27 03:32:16,678 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=380/500
+2026-03-27 03:32:51,246 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=390/500
+2026-03-27 03:33:29,079 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=400/500
+2026-03-27 03:34:04,917 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=410/500
+2026-03-27 03:34:41,957 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=420/500
+2026-03-27 03:35:18,058 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=430/500
+2026-03-27 03:35:53,555 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=440/500
+2026-03-27 03:36:29,338 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=450/500
+2026-03-27 03:37:09,439 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=460/500
+2026-03-27 03:37:50,402 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=470/500
+2026-03-27 03:38:25,166 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=480/500
+2026-03-27 03:39:00,900 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=490/500
+2026-03-27 03:39:37,577 INFO longbench_official_benchmark: config=pure_int8 task=lcc progress=500/500
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.558 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'lcc.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', 'passage_retrieval_zh.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 03:40:16,988 INFO longbench_official_benchmark: task completed config=pure_int8 task=lcc score=65.08 samples=500 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 03:42:04,398 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=10/500
+2026-03-27 03:43:15,246 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=20/500
+2026-03-27 03:44:40,091 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=30/500
+2026-03-27 03:46:04,234 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=40/500
+2026-03-27 03:47:34,546 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=50/500
+2026-03-27 03:49:04,623 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=60/500
+2026-03-27 03:50:20,803 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=70/500
+2026-03-27 03:51:56,767 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=80/500
+2026-03-27 03:53:08,852 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=90/500
+2026-03-27 03:54:36,563 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=100/500
+2026-03-27 03:55:38,688 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=110/500
+2026-03-27 03:56:47,947 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=120/500
+2026-03-27 03:58:17,455 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=130/500
+2026-03-27 03:59:38,551 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=140/500
+2026-03-27 04:00:49,784 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=150/500
+2026-03-27 04:02:11,210 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=160/500
+2026-03-27 04:03:37,997 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=170/500
+2026-03-27 04:04:56,122 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=180/500
+2026-03-27 04:06:24,923 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=190/500
+2026-03-27 04:07:41,733 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=200/500
+2026-03-27 04:08:35,999 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=210/500
+2026-03-27 04:09:49,358 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=220/500
+2026-03-27 04:11:12,510 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=230/500
+2026-03-27 04:12:43,514 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=240/500
+2026-03-27 04:14:01,846 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=250/500
+2026-03-27 04:15:39,369 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=260/500
+2026-03-27 04:17:18,827 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=270/500
+2026-03-27 04:18:40,173 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=280/500
+2026-03-27 04:19:59,310 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=290/500
+2026-03-27 04:21:09,968 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=300/500
+2026-03-27 04:22:57,101 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=310/500
+2026-03-27 04:24:38,725 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=320/500
+2026-03-27 04:26:00,284 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=330/500
+2026-03-27 04:27:10,971 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=340/500
+2026-03-27 04:28:35,504 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=350/500
+2026-03-27 04:30:19,923 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=360/500
+2026-03-27 04:31:36,662 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=370/500
+2026-03-27 04:33:15,786 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=380/500
+2026-03-27 04:34:42,247 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=390/500
+2026-03-27 04:35:51,381 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=400/500
+2026-03-27 04:37:05,552 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=410/500
+2026-03-27 04:38:27,803 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=420/500
+2026-03-27 04:39:37,018 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=430/500
+2026-03-27 04:40:59,658 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=440/500
+2026-03-27 04:42:05,066 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=450/500
+2026-03-27 04:43:32,749 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=460/500
+2026-03-27 04:44:49,635 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=470/500
+2026-03-27 04:46:05,521 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=480/500
+2026-03-27 04:47:35,876 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=490/500
+2026-03-27 04:48:52,155 INFO longbench_official_benchmark: config=pure_int8 task=repobench-p progress=500/500
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.565 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['trec.jsonl', 'qasper.jsonl', 'gov_report.jsonl', 'result.json', 'vcsum.jsonl', 'lcc.jsonl', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', 'passage_retrieval_zh.jsonl', '2wikimqa.jsonl', 'passage_retrieval_en.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'samsum.jsonl', 'multifieldqa_zh.jsonl', 'lsht.jsonl', 'multifieldqa_en.jsonl', 'passage_count.jsonl', 'repobench-p.jsonl', 'musique.jsonl', 'hotpotqa.jsonl', 'triviaqa.jsonl']
+2026-03-27 04:49:31,726 INFO longbench_official_benchmark: task completed config=pure_int8 task=repobench-p score=52.71 samples=500 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_pure_int8/task_results.json
+2026-03-27 04:49:31,726 INFO longbench_official_benchmark: Official eval completed for qwen14b_cpuonly_pure_int8

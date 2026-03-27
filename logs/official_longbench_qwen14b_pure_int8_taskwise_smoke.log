@@ -1,0 +1,15 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:10,  1.43s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:05,  1.02it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.17it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.19it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.25it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.32it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.73it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.35it/s]
+2026-03-26 17:04:51,392 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=8/8
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-26 17:04:51,615 INFO longbench_official_benchmark: task completed config=pure_int8 task=narrativeqa score=29.24 samples=8 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/taskwise_pure_int8/task_results.json
+2026-03-26 17:05:18,754 INFO longbench_official_benchmark: config=pure_int8 task=qasper progress=8/8
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['qasper.jsonl', 'result.json', 'narrativeqa.jsonl', 'task_results.json']
+2026-03-26 17:05:19,160 INFO longbench_official_benchmark: task completed config=pure_int8 task=qasper score=50.73 samples=8 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/taskwise_pure_int8/task_results.json
+2026-03-26 17:05:19,160 INFO longbench_official_benchmark: Official eval completed for taskwise_pure_int8

@@ -154,7 +154,7 @@ class OverlappedPipeline:
         table_placement: str = "cpu",
         pin_cpu_output_copy: bool = True,
         enable_async_cpu_output_copy: bool = True,
-        gpu_hot_cache_entries: int = 4096,
+        gpu_hot_cache_entries: int = 0,
         auto_topic_routing: bool = True,
         topic_keywords: Optional[Dict[str, Sequence[str]]] = None,
         delta_strategy: str = "delta_noaffine_int4_k1",
