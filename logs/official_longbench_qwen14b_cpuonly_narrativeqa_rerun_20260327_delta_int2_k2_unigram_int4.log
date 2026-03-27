@@ -1,0 +1,29 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:06,  1.07it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.24it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.27it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.23it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.27it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.64it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.38it/s]
+2026-03-27 06:15:30,158 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=10/200
+2026-03-27 06:17:24,268 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=20/200
+2026-03-27 06:20:16,033 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=30/200
+2026-03-27 06:22:34,933 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=40/200
+2026-03-27 06:25:13,344 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=50/200
+2026-03-27 06:28:21,191 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=60/200
+2026-03-27 06:30:22,924 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=70/200
+2026-03-27 06:32:55,676 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=80/200
+2026-03-27 06:35:27,467 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=90/200
+2026-03-27 06:37:36,944 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=100/200
+2026-03-27 06:40:36,412 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=110/200
+2026-03-27 06:43:34,638 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=120/200
+2026-03-27 06:46:22,509 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=130/200
+2026-03-27 06:48:23,400 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=140/200
+2026-03-27 06:50:40,804 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=150/200
+2026-03-27 06:53:08,006 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=160/200
+2026-03-27 06:55:15,766 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=170/200
+2026-03-27 06:57:39,207 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=180/200
+2026-03-27 06:59:31,586 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=190/200
+2026-03-27 07:02:07,708 INFO longbench_official_benchmark: config=delta_int2_k2_unigram_int4 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-27 07:02:07,938 INFO longbench_official_benchmark: task completed config=delta_int2_k2_unigram_int4 task=narrativeqa score=15.84 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_narrativeqa_rerun_20260327_delta_int2_k2_unigram_int4/task_results.json
+2026-03-27 07:02:07,938 INFO longbench_official_benchmark: Official eval completed for qwen14b_cpuonly_narrativeqa_rerun_20260327_delta_int2_k2_unigram_int4

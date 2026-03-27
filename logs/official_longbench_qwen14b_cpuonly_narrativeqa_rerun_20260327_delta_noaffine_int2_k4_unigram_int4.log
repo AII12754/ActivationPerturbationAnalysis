@@ -1,0 +1,29 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:05,  1.13it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.23it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.26it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.32it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.56it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.34it/s]
+2026-03-27 06:15:44,818 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=10/200
+2026-03-27 06:17:42,768 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=20/200
+2026-03-27 06:20:20,292 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=30/200
+2026-03-27 06:22:43,106 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=40/200
+2026-03-27 06:25:24,195 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=50/200
+2026-03-27 06:28:27,012 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=60/200
+2026-03-27 06:30:30,392 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=70/200
+2026-03-27 06:32:35,077 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=80/200
+2026-03-27 06:35:11,243 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=90/200
+2026-03-27 06:37:09,829 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=100/200
+2026-03-27 06:39:51,315 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=110/200
+2026-03-27 06:42:55,202 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=120/200
+2026-03-27 06:45:32,109 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=130/200
+2026-03-27 06:47:36,081 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=140/200
+2026-03-27 06:49:53,955 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=150/200
+2026-03-27 06:52:08,628 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=160/200
+2026-03-27 06:54:16,936 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=170/200
+2026-03-27 06:56:43,104 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=180/200
+2026-03-27 06:58:47,285 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=190/200
+2026-03-27 07:01:24,561 INFO longbench_official_benchmark: config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-27 07:01:24,792 INFO longbench_official_benchmark: task completed config=delta_noaffine_int2_k4_unigram_int4 task=narrativeqa score=15.37 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_narrativeqa_rerun_20260327_delta_noaffine_int2_k4_unigram_int4/task_results.json
+2026-03-27 07:01:24,792 INFO longbench_official_benchmark: Official eval completed for qwen14b_cpuonly_narrativeqa_rerun_20260327_delta_noaffine_int2_k4_unigram_int4

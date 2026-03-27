@@ -1,0 +1,34 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:10,  1.48s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.11s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:03<00:04,  1.02it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.10it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.10it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.12it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.14it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.23it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.10it/s]
+/usr/local/lib/python3.10/dist-packages/transformers/generation/configuration_utils.py:636: UserWarning: `do_sample` is set to `False`. However, `top_p` is set to `0.8` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_p`.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/transformers/generation/configuration_utils.py:653: UserWarning: `do_sample` is set to `False`. However, `top_k` is set to `20` -- this flag is only used in sample-based generation modes. You should set `do_sample=True` or unset `top_k`.
+  warnings.warn(
+This is a friendly reminder - the current text generation call will exceed the model's predefined maximum length (32768). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+2026-03-27 07:08:10,312 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=10/200
+2026-03-27 07:09:05,882 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=20/200
+2026-03-27 07:10:11,334 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=30/200
+2026-03-27 07:11:19,246 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=40/200
+2026-03-27 07:12:23,859 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=50/200
+2026-03-27 07:13:43,159 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=60/200
+2026-03-27 07:14:35,763 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=70/200
+2026-03-27 07:15:35,475 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=80/200
+2026-03-27 07:16:34,366 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=90/200
+2026-03-27 07:17:30,305 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=100/200
+2026-03-27 07:18:44,016 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=110/200
+2026-03-27 07:20:00,384 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=120/200
+2026-03-27 07:21:02,935 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=130/200
+2026-03-27 07:21:53,923 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=140/200
+2026-03-27 07:22:58,992 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=150/200
+2026-03-27 07:23:57,017 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=160/200
+2026-03-27 07:24:55,506 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=170/200
+2026-03-27 07:25:56,405 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=180/200
+2026-03-27 07:26:50,243 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=190/200
+2026-03-27 07:27:49,531 INFO longbench_official_benchmark: config=fp16_baseline task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-27 07:27:49,758 INFO longbench_official_benchmark: task completed config=fp16_baseline task=narrativeqa score=28.01 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_narrativeqa_rerun_20260327_retry_fp16_baseline/task_results.json
+2026-03-27 07:27:49,759 INFO longbench_official_benchmark: Official eval completed for qwen14b_narrativeqa_rerun_20260327_retry_fp16_baseline

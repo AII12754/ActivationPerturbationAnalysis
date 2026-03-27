@@ -1,0 +1,29 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:06,  1.11it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.31it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:03,  1.36it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.30it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:03<00:02,  1.32it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:04<00:01,  1.37it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.43it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.75it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.47it/s]
+2026-03-27 05:25:39,310 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=10/200
+2026-03-27 05:27:32,359 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=20/200
+2026-03-27 05:30:20,249 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=30/200
+2026-03-27 05:32:41,905 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=40/200
+2026-03-27 05:35:21,396 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=50/200
+2026-03-27 05:38:19,255 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=60/200
+2026-03-27 05:40:18,678 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=70/200
+2026-03-27 05:42:41,137 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=80/200
+2026-03-27 05:45:10,781 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=90/200
+2026-03-27 05:47:21,273 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=100/200
+2026-03-27 05:50:09,356 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=110/200
+2026-03-27 05:53:09,590 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=120/200
+2026-03-27 05:56:00,009 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=130/200
+2026-03-27 05:58:01,338 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=140/200
+2026-03-27 06:00:13,667 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=150/200
+2026-03-27 06:02:39,926 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=160/200
+2026-03-27 06:04:48,662 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=170/200
+2026-03-27 06:07:04,248 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=180/200
+2026-03-27 06:09:09,729 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=190/200
+2026-03-27 06:11:47,033 INFO longbench_official_benchmark: config=pure_int8 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-27 06:11:47,261 INFO longbench_official_benchmark: task completed config=pure_int8 task=narrativeqa score=16.26 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_narrativeqa_rerun_20260327_pure_int8/task_results.json
+2026-03-27 06:11:47,261 INFO longbench_official_benchmark: Official eval completed for qwen14b_cpuonly_narrativeqa_rerun_20260327_pure_int8

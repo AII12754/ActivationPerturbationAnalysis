@@ -1,0 +1,29 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:05,  1.03it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.12it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.17it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.16it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.19it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:06<00:00,  1.21it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.20it/s]
+2026-03-27 05:25:49,364 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=10/200
+2026-03-27 05:27:43,609 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=20/200
+2026-03-27 05:30:39,146 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=30/200
+2026-03-27 05:32:55,630 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=40/200
+2026-03-27 05:35:34,812 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=50/200
+2026-03-27 05:38:38,950 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=60/200
+2026-03-27 05:40:35,950 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=70/200
+2026-03-27 05:42:59,196 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=80/200
+2026-03-27 05:45:26,066 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=90/200
+2026-03-27 05:47:36,610 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=100/200
+2026-03-27 05:50:31,825 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=110/200
+2026-03-27 05:53:32,064 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=120/200
+2026-03-27 05:56:19,548 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=130/200
+2026-03-27 05:58:20,889 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=140/200
+2026-03-27 06:00:31,584 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=150/200
+2026-03-27 06:02:44,569 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=160/200
+2026-03-27 06:04:51,500 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=170/200
+2026-03-27 06:07:06,840 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=180/200
+2026-03-27 06:09:10,325 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=190/200
+2026-03-27 06:11:46,046 INFO longbench_official_benchmark: config=pure_int4 task=narrativeqa progress=200/200
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Evaluating on: ['narrativeqa.jsonl']
+2026-03-27 06:11:46,281 INFO longbench_official_benchmark: task completed config=pure_int4 task=narrativeqa score=16.4 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen14b_cpuonly_narrativeqa_rerun_20260327_pure_int4/task_results.json
+2026-03-27 06:11:46,281 INFO longbench_official_benchmark: Official eval completed for qwen14b_cpuonly_narrativeqa_rerun_20260327_pure_int4
