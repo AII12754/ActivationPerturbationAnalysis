@@ -306,6 +306,14 @@ def _build_pipeline(model, tokenizer, device: torch.device, args, config_name: s
         pin_cpu_output_copy=not getattr(args, "disable_pinned_cpu_table_copy", False),
         enable_async_cpu_output_copy=not getattr(args, "disable_async_cpu_table_copy", False),
         gpu_hot_cache_entries=getattr(args, "gpu_hot_cache_entries", 0),
+        enable_disk_offload=getattr(args, "enable_disk_offload", False),
+        disk_offload_dir=getattr(args, "disk_offload_dir", None),
+        table_backend=getattr(args, "table_backend", "trie"),
+        block_size=getattr(args, "block_size", 256),
+        enable_async_block_paging=getattr(args, "enable_async_block_paging", False),
+        max_resident_blocks=getattr(args, "max_resident_blocks", 0),
+        block_pager_workers=getattr(args, "block_pager_workers", 1),
+        pinned_block_budget=getattr(args, "pinned_block_budget", 2),
         delta_strategy=cfg["delta_strategy"],
         unigram_strategy=cfg["unigram_strategy"],
         track_transfer_bytes=not args.score_only,
@@ -565,6 +573,14 @@ def main() -> None:
     parser.add_argument("--score-only", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--interleave-configs-per-sample", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--tp-size", type=int, default=1)
+    parser.add_argument("--enable-disk-offload", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--disk-offload-dir", default=None)
+    parser.add_argument("--table-backend", choices=["trie", "block"], default="trie")
+    parser.add_argument("--block-size", type=int, default=256)
+    parser.add_argument("--enable-async-block-paging", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--max-resident-blocks", type=int, default=0)
+    parser.add_argument("--block-pager-workers", type=int, default=1)
+    parser.add_argument("--pinned-block-budget", type=int, default=2)
     args = parser.parse_args()
 
     rank, local_rank, distributed = _setup_tp(args.tp_size)

@@ -34,6 +34,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from delta_coding_system.pipeline import OverlappedPipeline, PrefillResult, DecodeResult
+from delta_coding_system.table import create_activation_table
 
 logging.basicConfig(
     level=logging.INFO,
@@ -280,10 +281,24 @@ def run_dataset(pipeline: OverlappedPipeline, dataset_name: str, cfg: Dict[str, 
     if pipeline.domain_aware:
         pipeline.select_domain(dataset_name)
     else:
-        pipeline.table = type(pipeline.table)(
+        pipeline.table = create_activation_table(
+            backend=pipeline.table_backend,
             device=pipeline.device,
             dtype=pipeline.table.dtype,
             max_entries=pipeline.table.max_entries,
+            storage_format=pipeline.table.storage_format,
+            int8_group_size=pipeline.table.int8_group_size,
+            int8_top_k=pipeline.table.int8_top_k,
+            pin_cpu_output_copy=pipeline.pin_cpu_output_copy,
+            enable_async_cpu_output_copy=pipeline.enable_async_cpu_output_copy,
+            gpu_hot_cache_entries=pipeline.gpu_hot_cache_entries,
+            gpu_hot_cache_device=pipeline.device,
+            block_size=pipeline.block_size,
+            enable_async_paging=pipeline.enable_async_block_paging,
+            page_directory=pipeline.disk_offload_dir,
+            max_resident_blocks=pipeline.max_resident_blocks,
+            pager_workers=pipeline.block_pager_workers,
+            pinned_block_budget=pipeline.pinned_block_budget,
         )
 
     prefill_records: List[Dict] = []
@@ -456,6 +471,16 @@ def main():
                         help="Use per-dataset domain-aware tables with GPU/CPU tiering")
     parser.add_argument("--max-gpu-tables", type=int, default=3,
                         help="Max domain tables to keep on GPU (domain-aware mode)")
+    parser.add_argument("--enable-disk-offload", action="store_true",
+                        help="Offload inactive domain tables to disk in domain-aware mode")
+    parser.add_argument("--disk-offload-dir", default=None,
+                        help="Directory for disk-offloaded domain tables")
+    parser.add_argument("--table-backend", choices=["trie", "block"], default="trie")
+    parser.add_argument("--block-size", type=int, default=256)
+    parser.add_argument("--enable-async-block-paging", action="store_true")
+    parser.add_argument("--max-resident-blocks", type=int, default=0)
+    parser.add_argument("--block-pager-workers", type=int, default=1)
+    parser.add_argument("--pinned-block-budget", type=int, default=2)
     parser.add_argument("--seed", type=int, default=DEFAULTS["seed"])
     parser.add_argument("--output-dir", default=DEFAULTS["output_dir"])
     parser.add_argument("--datasets", nargs="+", default=ALL_DATASETS)
@@ -520,6 +545,14 @@ def main():
         device=device,
         domain_aware=args.domain_aware,
         max_gpu_tables=args.max_gpu_tables,
+        enable_disk_offload=args.enable_disk_offload,
+        disk_offload_dir=args.disk_offload_dir,
+        table_backend=args.table_backend,
+        block_size=args.block_size,
+        enable_async_block_paging=args.enable_async_block_paging,
+        max_resident_blocks=args.max_resident_blocks,
+        block_pager_workers=args.block_pager_workers,
+        pinned_block_budget=args.pinned_block_budget,
         delta_strategy=DEFAULTS["delta_strategy"],
         unigram_strategy=DEFAULTS["unigram_strategy"],
     )

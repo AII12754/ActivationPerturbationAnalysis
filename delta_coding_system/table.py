@@ -17,8 +17,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 import math
+from pathlib import Path
+import re
 import time
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import torch
 
@@ -556,6 +558,25 @@ class NgramTable:
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
         return self._num_trigrams - old_tri, self._num_bigrams - old_bi, elapsed_ms
 
+    def update_with_decode_step(
+        self,
+        a: int,
+        b: int,
+        c: int,
+        bigram_hidden: torch.Tensor,
+        trigram_hidden: torch.Tensor,
+    ) -> None:
+        if self.has_trigram(a, b, c):
+            return
+        stored_bigram = self._encode_hidden_batch_for_storage(bigram_hidden.unsqueeze(0))[0]
+        stored_trigram = self._encode_hidden_batch_for_storage(trigram_hidden.unsqueeze(0))[0]
+        node = self._get_or_create_node(a, b, stored_bigram)
+        if c not in node.suffixes:
+            node.suffixes[c] = stored_trigram
+            self._num_trigrams += 1
+        self._request_counter += 1
+        self._last_evicted = self.evict()
+
     def evict(self) -> int:
         """Evict lowest-scoring entries if table exceeds max_entries."""
         total = self._num_trigrams + self._num_bigrams
@@ -626,6 +647,29 @@ class NgramTable:
         self.device = device
         return self
 
+    def export_state(self) -> Dict[str, Any]:
+        """Export the table into a CPU-serializable payload."""
+        if self.device.type != "cpu":
+            self.to_device(torch.device("cpu"))
+        return {
+            "dag": self._dag,
+            "num_trigrams": self._num_trigrams,
+            "num_bigrams": self._num_bigrams,
+            "request_counter": self._request_counter,
+            "last_evicted": self._last_evicted,
+        }
+
+    def load_state(self, payload: Dict[str, Any]) -> None:
+        """Restore the table from a serialized payload."""
+        self._dag = payload.get("dag", {})
+        self._num_trigrams = int(payload.get("num_trigrams", 0))
+        self._num_bigrams = int(payload.get("num_bigrams", 0))
+        self._request_counter = int(payload.get("request_counter", 0))
+        self._last_evicted = int(payload.get("last_evicted", 0))
+        self._last_classify_stats = {}
+        if self.device.type != "cpu":
+            self.to_device(self.device)
+
     @property
     def stats(self) -> Dict[str, Any]:
         """Return table statistics."""
@@ -652,6 +696,7 @@ class NgramTable:
             "int8_group_size": self.int8_group_size,
             "int8_top_k": self.int8_top_k,
             "gpu_hot_cache": None if self.gpu_hot_cache is None else self.gpu_hot_cache.stats,
+            "backend": "trie",
         }
 
     @property
@@ -691,6 +736,14 @@ class DomainTableManager:
         pin_cpu_output_copy: bool = False,
         enable_async_cpu_output_copy: bool = False,
         gpu_hot_cache_entries: int = 0,
+        enable_disk_offload: bool = False,
+        disk_offload_dir: Optional[str] = None,
+        table_backend: str = "trie",
+        block_size: int = 256,
+        enable_async_block_paging: bool = False,
+        max_resident_blocks: int = 0,
+        block_pager_workers: int = 1,
+        pinned_block_budget: int = 2,
     ):
         self.gpu_device = gpu_device
         self.cpu_device = torch.device("cpu")
@@ -704,15 +757,66 @@ class DomainTableManager:
         self.pin_cpu_output_copy = pin_cpu_output_copy
         self.enable_async_cpu_output_copy = enable_async_cpu_output_copy
         self.gpu_hot_cache_entries = max(0, gpu_hot_cache_entries)
+        self.enable_disk_offload = enable_disk_offload
+        self.table_backend = table_backend
+        self.block_size = max(16, block_size)
+        self.enable_async_block_paging = enable_async_block_paging
+        self.max_resident_blocks = max(0, max_resident_blocks)
+        self.block_pager_workers = max(1, block_pager_workers)
+        self.pinned_block_budget = max(0, pinned_block_budget)
+        self.disk_offload_dir = Path(disk_offload_dir).expanduser() if disk_offload_dir else None
+        if self.enable_disk_offload:
+            if self.disk_offload_dir is None:
+                self.disk_offload_dir = Path(".cache") / "domain_table_offload"
+            self.disk_offload_dir.mkdir(parents=True, exist_ok=True)
 
         # domain_key -> NgramTable
         self._tables: Dict[str, NgramTable] = {}
         # Ordered list of domain keys on GPU (most-recently-used last)
         self._gpu_lru: List[str] = []
         self._access_counter = 0
+        self._disk_domains: Set[str] = set()
 
-    def _create_table(self, device: torch.device) -> NgramTable:
-        return NgramTable(
+    def _disk_path(self, domain: str) -> Path:
+        safe_domain = re.sub(r"[^a-zA-Z0-9_.:+-]+", "_", domain).strip("_") or "misc"
+        assert self.disk_offload_dir is not None
+        return self.disk_offload_dir / f"{safe_domain}.pt"
+
+    def _load_from_disk(self, domain: str) -> Optional[NgramTable]:
+        if not self.enable_disk_offload or self.disk_offload_dir is None:
+            return None
+        path = self._disk_path(domain)
+        if not path.exists():
+            self._disk_domains.discard(domain)
+            return None
+        payload = torch.load(path, map_location=self.cpu_device, weights_only=False)
+        table = self._create_table(self.cpu_device, domain=domain)
+        table.load_state(payload)
+        self._tables[domain] = table
+        self._disk_domains.discard(domain)
+        path.unlink(missing_ok=True)
+        return table
+
+    def _spill_to_disk(self, domain: str) -> None:
+        if not self.enable_disk_offload or self.disk_offload_dir is None:
+            return
+        table = self._tables.get(domain)
+        if table is None:
+            return
+        if domain in self._gpu_lru:
+            self._gpu_lru.remove(domain)
+        table.to_device(self.cpu_device)
+        torch.save(table.export_state(), self._disk_path(domain))
+        self._disk_domains.add(domain)
+        del self._tables[domain]
+
+    def _create_table(self, device: torch.device, domain: Optional[str] = None):
+        page_directory = None
+        if self.table_backend == "block" and self.enable_async_block_paging and self.disk_offload_dir is not None:
+            safe_domain = re.sub(r"[^a-zA-Z0-9_.:+-]+", "_", (domain or "default")).strip("_") or "misc"
+            page_directory = str(self.disk_offload_dir / "blocks" / safe_domain)
+        return create_activation_table(
+            backend=self.table_backend,
             device=device,
             dtype=self.table_dtype,
             max_entries=self.max_entries_per_table,
@@ -723,6 +827,12 @@ class DomainTableManager:
             enable_async_cpu_output_copy=self.enable_async_cpu_output_copy,
             gpu_hot_cache_entries=self.gpu_hot_cache_entries if device.type == "cpu" else 0,
             gpu_hot_cache_device=self.gpu_device if device.type == "cpu" and self.gpu_hot_cache_entries > 0 else None,
+            block_size=self.block_size,
+            enable_async_paging=self.enable_async_block_paging,
+            page_directory=page_directory,
+            max_resident_blocks=self.max_resident_blocks,
+            pager_workers=self.block_pager_workers,
+            pinned_block_budget=self.pinned_block_budget,
         )
 
     # ------------------------------------------------------------------
@@ -737,18 +847,22 @@ class DomainTableManager:
         if self.table_placement == "cpu":
             tbl = self._tables.get(domain)
             if tbl is None:
-                tbl = self._create_table(self.cpu_device)
-                self._tables[domain] = tbl
+                tbl = self._load_from_disk(domain)
+                if tbl is None:
+                    tbl = self._create_table(self.cpu_device, domain=domain)
+                    self._tables[domain] = tbl
             self._access_counter += 1
             return tbl
 
         tbl = self._tables.get(domain)
+        if tbl is None:
+            tbl = self._load_from_disk(domain)
         already_on_gpu = domain in self._gpu_lru
 
         if tbl is None:
             # Brand-new domain - needs a GPU slot
             self._evict_one_if_full()
-            tbl = self._create_table(self.gpu_device)
+            tbl = self._create_table(self.gpu_device, domain=domain)
             self._tables[domain] = tbl
             self._gpu_lru.append(domain)
         elif not already_on_gpu:
@@ -799,6 +913,10 @@ class DomainTableManager:
 
         Does NOT offload eagerly - just deprioritizes in LRU.
         """
+        if self.table_placement == "cpu":
+            if domain in self._tables and self.enable_disk_offload:
+                self._spill_to_disk(domain)
+            return
         if domain in self._gpu_lru:
             self._gpu_lru.remove(domain)
             self._gpu_lru.insert(0, domain)  # move to front (oldest)
@@ -810,11 +928,16 @@ class DomainTableManager:
             if tbl is not None:
                 tbl.to_device(self.cpu_device)
             self._gpu_lru.remove(domain)
+            if self.enable_disk_offload:
+                self._spill_to_disk(domain)
 
     def offload_all(self) -> None:
-        """Move every table to CPU."""
+        """Move every table to CPU or disk, depending on configuration."""
         for domain in list(self._gpu_lru):
             self.offload(domain)
+        if self.enable_disk_offload:
+            for domain in list(self._tables.keys()):
+                self._spill_to_disk(domain)
 
     def release_many(self, domains: Sequence[str]) -> None:
         for domain in domains:
@@ -871,13 +994,11 @@ class DomainTableManager:
                     trigram_hit = False
                     for domain in ordered_domains:
                         table = tables[domain]
-                        node_ab = table._get_node(a, b)
-                        if node_ab is not None and c in node_ab.suffixes:
-                            node_ab.hit_count += 1
-                            node_ab.last_access = table._request_counter
+                        trigram_hidden = table.get_trigram(a, b, c)
+                        if trigram_hidden is not None:
                             tiers.append("trigram")
                             ref_positions.append(i)
-                            ref_hidden_batch.append(node_ab.suffixes[c])
+                            ref_hidden_batch.append(trigram_hidden)
                             self_ref_sources.append(None)
                             first_occurrence_map.setdefault(trigram, i)
                             matched_domains[i] = domain
@@ -897,13 +1018,11 @@ class DomainTableManager:
                     bigram_hit = False
                     for domain in ordered_domains:
                         table = tables[domain]
-                        node_bc = table._get_node(b_tok, c_tok)
-                        if node_bc is not None:
-                            node_bc.hit_count += 1
-                            node_bc.last_access = table._request_counter
+                        bigram_hidden = table.get_bigram(b_tok, c_tok)
+                        if bigram_hidden is not None:
                             tiers.append("bigram")
                             ref_positions.append(i)
-                            ref_hidden_batch.append(node_bc.bigram_hidden)
+                            ref_hidden_batch.append(bigram_hidden)
                             self_ref_sources.append(None)
                             if trigram is not None:
                                 first_occurrence_map.setdefault(trigram, i)
@@ -943,10 +1062,10 @@ class DomainTableManager:
         ref_tensors: List[torch.Tensor] = []
         domain_weights = domain_weights or {}
 
-        def materialize_hidden(table: NgramTable, stored_hidden: StoredHidden) -> torch.Tensor:
-            return table._decode_stored_batch([stored_hidden], self.gpu_device)[0]
+        def materialize_hidden(table, stored_hidden: StoredHidden) -> torch.Tensor:
+            return table.materialize_hidden(stored_hidden, self.gpu_device)
 
-        def fuse_candidates(candidates: List[Tuple[str, NgramTable, StoredHidden]]) -> Tuple[str, torch.Tensor]:
+        def fuse_candidates(candidates: List[Tuple[str, Any, StoredHidden]]) -> Tuple[str, torch.Tensor]:
             if len(candidates) == 1:
                 domain, table, stored_hidden = candidates[0]
                 return domain, materialize_hidden(table, stored_hidden)
@@ -977,11 +1096,9 @@ class DomainTableManager:
                 trigram_candidates: List[Tuple[str, NgramTable, StoredHidden]] = []
                 for domain in ordered_domains:
                     table = tables[domain]
-                    node_ab = table._get_node(a, b)
-                    if node_ab is not None and c in node_ab.suffixes:
-                        node_ab.hit_count += 1
-                        node_ab.last_access = table._request_counter
-                        trigram_candidates.append((domain, table, node_ab.suffixes[c]))
+                    trigram_hidden = table.get_trigram(a, b, c)
+                    if trigram_hidden is not None:
+                        trigram_candidates.append((domain, table, trigram_hidden))
                 if trigram_candidates:
                     best_domain, fused_ref = fuse_candidates(trigram_candidates)
                     tiers.append("trigram")
@@ -1003,11 +1120,9 @@ class DomainTableManager:
                 bigram_candidates: List[Tuple[str, NgramTable, StoredHidden]] = []
                 for domain in ordered_domains:
                     table = tables[domain]
-                    node_bc = table._get_node(b_tok, c_tok)
-                    if node_bc is not None:
-                        node_bc.hit_count += 1
-                        node_bc.last_access = table._request_counter
-                        bigram_candidates.append((domain, table, node_bc.bigram_hidden))
+                    bigram_hidden = table.get_bigram(b_tok, c_tok)
+                    if bigram_hidden is not None:
+                        bigram_candidates.append((domain, table, bigram_hidden))
                 if bigram_candidates:
                     best_domain, fused_ref = fuse_candidates(bigram_candidates)
                     tiers.append("bigram")
@@ -1043,10 +1158,15 @@ class DomainTableManager:
         self._tables.pop(domain, None)
         if domain in self._gpu_lru:
             self._gpu_lru.remove(domain)
+        self._disk_domains.discard(domain)
+        if self.enable_disk_offload and self.disk_offload_dir is not None:
+            path = self._disk_path(domain)
+            if path.exists():
+                path.unlink()
 
     def domains(self) -> List[str]:
         """Return all registered domain keys."""
-        return list(self._tables.keys())
+        return sorted(set(self._tables.keys()) | self._disk_domains)
 
     def gpu_domains(self) -> List[str]:
         """Return domain keys currently on GPU (LRU order, oldest first)."""
@@ -1056,23 +1176,69 @@ class DomainTableManager:
         """Return domain keys currently on CPU."""
         return [d for d in self._tables if d not in self._gpu_lru]
 
+    def disk_domains(self) -> List[str]:
+        """Return domain keys currently offloaded to disk."""
+        return sorted(self._disk_domains)
+
     @property
     def stats(self) -> Dict[str, Any]:
         per_domain = {}
+        pager_totals = {
+            "cold_miss_enqueued": 0,
+            "load_completed": 0,
+            "load_failed": 0,
+            "spill_count": 0,
+        }
         for d, tbl in self._tables.items():
             s = tbl.stats
             s["on_gpu"] = (d in self._gpu_lru)
+            s["on_disk"] = False
             per_domain[d] = s
+            pager = s.get("pager")
+            if isinstance(pager, dict):
+                for key in pager_totals:
+                    pager_totals[key] += int(pager.get(key, 0))
+        for d in self._disk_domains:
+            if d in per_domain:
+                continue
+            per_domain[d] = {
+                "num_trigrams": None,
+                "num_bigrams": None,
+                "memory_bytes": None,
+                "device": "disk",
+                "storage_format": self.table_storage_format,
+                "int8_group_size": self.int8_group_size,
+                "int8_top_k": self.int8_top_k,
+                "gpu_hot_cache": None,
+                "on_gpu": False,
+                "on_disk": True,
+            }
         return {
-            "num_domains": len(self._tables),
+            "num_domains": len(set(self._tables.keys()) | self._disk_domains),
             "gpu_resident": len(self._gpu_lru),
             "max_gpu_tables": self.max_gpu_tables,
             "table_placement": self.table_placement,
             "storage_format": self.table_storage_format,
             "int8_group_size": self.int8_group_size,
             "int8_top_k": self.int8_top_k,
+            "table_backend": self.table_backend,
+            "block_size": self.block_size,
+            "enable_async_block_paging": self.enable_async_block_paging,
+            "max_resident_blocks": self.max_resident_blocks,
+            "block_pager_workers": self.block_pager_workers,
+            "pinned_block_budget": self.pinned_block_budget,
+            "disk_offload_enabled": self.enable_disk_offload,
+            "disk_resident": len(self._disk_domains),
+            "disk_offload_dir": None if self.disk_offload_dir is None else str(self.disk_offload_dir),
+            "pager": pager_totals,
             "per_domain": per_domain,
         }
+
+    def shutdown(self) -> None:
+        for table in self._tables.values():
+            shutdown = getattr(table, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -1088,3 +1254,60 @@ class DomainTableManager:
                 logger.info("Offloading domain '%s' table to CPU (%d tri, %d bi)",
                             victim, victim_tbl._num_trigrams, victim_tbl._num_bigrams)
                 victim_tbl.to_device(self.cpu_device)
+
+
+def create_activation_table(
+    backend: str,
+    device: torch.device,
+    dtype: torch.dtype = torch.float16,
+    max_entries: int = 0,
+    storage_format: str = "int8",
+    int8_group_size: int = 128,
+    int8_top_k: int = 4,
+    pin_cpu_output_copy: bool = False,
+    enable_async_cpu_output_copy: bool = False,
+    gpu_hot_cache_entries: int = 0,
+    gpu_hot_cache_device: Optional[torch.device] = None,
+    block_size: int = 256,
+    enable_async_paging: bool = False,
+    page_directory: Optional[str] = None,
+    max_resident_blocks: int = 0,
+    pager_workers: int = 1,
+    pinned_block_budget: int = 2,
+):
+    normalized = (backend or "trie").strip().lower()
+    if normalized == "trie":
+        return NgramTable(
+            device=device,
+            dtype=dtype,
+            max_entries=max_entries,
+            storage_format=storage_format,
+            int8_group_size=int8_group_size,
+            int8_top_k=int8_top_k,
+            pin_cpu_output_copy=pin_cpu_output_copy,
+            enable_async_cpu_output_copy=enable_async_cpu_output_copy,
+            gpu_hot_cache_entries=gpu_hot_cache_entries,
+            gpu_hot_cache_device=gpu_hot_cache_device,
+        )
+    if normalized == "block":
+        from delta_coding_system.block_table import BlockTable
+
+        return BlockTable(
+            device=device,
+            dtype=dtype,
+            max_entries=max_entries,
+            storage_format=storage_format,
+            int8_group_size=int8_group_size,
+            int8_top_k=int8_top_k,
+            pin_cpu_output_copy=pin_cpu_output_copy,
+            enable_async_cpu_output_copy=enable_async_cpu_output_copy,
+            gpu_hot_cache_entries=gpu_hot_cache_entries,
+            gpu_hot_cache_device=gpu_hot_cache_device,
+            block_size=block_size,
+            enable_async_paging=enable_async_paging,
+            page_directory=page_directory,
+            max_resident_blocks=max_resident_blocks,
+            pager_workers=pager_workers,
+            pinned_block_budget=pinned_block_budget,
+        )
+    raise ValueError(f"Unknown activation table backend: {backend}")

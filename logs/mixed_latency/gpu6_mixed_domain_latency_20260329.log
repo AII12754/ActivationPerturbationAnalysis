@@ -1,0 +1,13 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:04<00:30,  4.30s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:10<00:33,  5.58s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:12<00:19,  3.96s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:17<00:16,  4.16s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:18<00:09,  3.22s/it]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:20<00:05,  2.53s/it]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:21<00:02,  2.09s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:22<00:00,  1.71s/it]Loading checkpoint shards: 100%|██████████| 8/8 [00:22<00:00,  2.76s/it]
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:00<00:05,  1.20it/s]Loading checkpoint shards:  25%|██▌       | 2/8 [00:01<00:04,  1.24it/s]Loading checkpoint shards:  38%|███▊      | 3/8 [00:02<00:04,  1.21it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.18it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.18it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:05<00:00,  1.15it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:06<00:00,  1.28it/s]
+{
+  "prefill_mean_delta_ms": 534.5728395041078,
+  "decode_mean_delta_ms": -106.23734440499294,
+  "e2e_mean_delta_ms": 428.3354950991149,
+  "prefill_mean_delta_pct": 1140.4447270669573,
+  "decode_mean_delta_pct": -30.653773292959784,
+  "e2e_mean_delta_pct": 108.8676975074395
+}

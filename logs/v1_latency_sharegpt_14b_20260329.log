@@ -1,0 +1,49 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-29 13:07:22,611 INFO v1_latency_benchmark: Cleaning existing output directory: results_v1_latency/sharegpt_14b_20260329
+2026-03-29 13:07:22,611 INFO v1_latency_benchmark: Config: {
+  "model": "/root/share/models/Qwen2.5-14B-Instruct",
+  "gpu": 0,
+  "warmup_requests": 1,
+  "test_requests": 2,
+  "max_decode_tokens": 4,
+  "layer_boundary": 6,
+  "group_size": 128,
+  "max_seq_len": 1024,
+  "max_table_entries": 100000,
+  "seed": 42,
+  "output_dir": "results_v1_latency/sharegpt_14b_20260329",
+  "clean_output": true,
+  "datasets": [
+    "sharegpt"
+  ],
+  "domain_aware": false,
+  "max_gpu_tables": 3,
+  "max_active_tables_per_request": 4,
+  "table_placement": "cpu",
+  "disable_pinned_cpu_table_copy": false,
+  "disable_async_cpu_table_copy": false,
+  "gpu_hot_cache_entries": 0,
+  "enable_disk_offload": false,
+  "disk_offload_dir": null,
+  "block_size": 256,
+  "max_resident_blocks": 64,
+  "block_pager_workers": 2,
+  "pinned_block_budget": 8,
+  "disable_auto_topic_routing": false,
+  "bandwidths_mbps": [
+    200,
+    500,
+    1000
+  ],
+  "request_domains": null
+}
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:11,  1.62s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:03<00:05,  1.07s/it]Loading checkpoint shards:  50%|█████     | 4/8 [00:04<00:04,  1.02s/it]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:05<00:02,  1.00it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:06<00:01,  1.02it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:07<00:00,  1.03it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.27it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:07<00:00,  1.04it/s]
+2026-03-29 13:07:37,871 INFO v1_latency_benchmark: v1 policy: {"runtime": {"layer_boundary": 6, "decode_tokens": 4, "max_seq_len": 1024, "max_table_entries": 100000, "group_size": 128, "top_k": 1, "int8_group_size": 128, "int8_outlier_top_k": 1, "extra_stop_token_ids": []}, "transport": {"delta_strategy": "delta_noaffine_int4_k1", "unigram_strategy": "unigram_int4_k4", "decode_use_raw_fp16": true, "prefill_use_raw_fp16": false, "track_transfer_bytes": true}, "table": {"table_placement": "cpu", "pin_cpu_output_copy": true, "enable_async_cpu_output_copy": true, "gpu_hot_cache_entries": 0, "enable_disk_offload": false, "disk_offload_dir": null, "block_size": 256, "enable_async_paging": true, "max_resident_blocks": 64, "pager_workers": 2, "pinned_block_budget": 8, "table_backend": "block"}, "routing": {"domain_aware": false, "max_gpu_tables": 3, "max_active_tables_per_request": 4, "auto_topic_routing": true, "topic_keywords": null, "low_latency_multidomain_classify": true}}
+2026-03-29 13:07:37,872 INFO v1_latency_benchmark: Warmup 1 requests for dataset=sharegpt
+2026-03-29 13:07:38,738 INFO v1_latency_benchmark: Test 2 requests for dataset=sharegpt
+2026-03-29 13:07:42,193 INFO v1_latency_benchmark: Saved 2 records to results_v1_latency/sharegpt_14b_20260329/sharegpt/request_summary.parquet
+2026-03-29 13:07:42,194 INFO v1_latency_benchmark: Saved 8 records to results_v1_latency/sharegpt_14b_20260329/sharegpt/decode_step_breakdown.parquet
+2026-03-29 13:07:42,195 INFO v1_latency_benchmark: Saved 2 records to results_v1_latency/sharegpt_14b_20260329/sharegpt/decode_drift.parquet
+2026-03-29 13:07:42,198 INFO v1_latency_benchmark: Saved 1 records to results_v1_latency/sharegpt_14b_20260329/sharegpt/latency_summary.parquet

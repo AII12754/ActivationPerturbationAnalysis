@@ -1,0 +1,57 @@
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+W0329 09:46:16.595000 532235 torch/distributed/run.py:766] 
+W0329 09:46:16.595000 532235 torch/distributed/run.py:766] *****************************************
+W0329 09:46:16.595000 532235 torch/distributed/run.py:766] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0329 09:46:16.595000 532235 torch/distributed/run.py:766] *****************************************
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/usr/local/lib/python3.10/dist-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-03-29 09:46:18,348 INFO longbench_benchmark: Initialized TP rank=0 local_rank=0 world_size=2
+Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   0%|          | 0/17 [00:00<?, ?it/s]Sliding Window Attention is enabled but not implemented for `sdpa`; unexpected results may be encountered.
+Loading checkpoint shards:   6%|▌         | 1/17 [00:05<01:24,  5.27s/it]Loading checkpoint shards:  12%|█▏        | 2/17 [00:17<02:21,  9.46s/it]Loading checkpoint shards:  18%|█▊        | 3/17 [00:33<02:54, 12.48s/it]Loading checkpoint shards:  24%|██▎       | 4/17 [00:44<02:31, 11.65s/it]Loading checkpoint shards:  29%|██▉       | 5/17 [00:54<02:13, 11.13s/it]Loading checkpoint shards:  35%|███▌      | 6/17 [01:04<01:57, 10.72s/it]Loading checkpoint shards:  41%|████      | 7/17 [01:14<01:44, 10.49s/it]Loading checkpoint shards:  47%|████▋     | 8/17 [01:24<01:33, 10.34s/it]Loading checkpoint shards:  53%|█████▎    | 9/17 [01:34<01:22, 10.33s/it]Loading checkpoint shards:  59%|█████▉    | 10/17 [01:44<01:12, 10.33s/it]Loading checkpoint shards:  65%|██████▍   | 11/17 [01:55<01:01, 10.27s/it]Loading checkpoint shards:  71%|███████   | 12/17 [02:05<00:51, 10.31s/it]Loading checkpoint shards:  76%|███████▋  | 13/17 [02:16<00:41, 10.39s/it]Loading checkpoint shards:  82%|████████▏ | 14/17 [02:26<00:31, 10.38s/it]Loading checkpoint shards:  88%|████████▊ | 15/17 [02:36<00:20, 10.32s/it]Loading checkpoint shards:  94%|█████████▍| 16/17 [02:46<00:10, 10.32s/it]Loading checkpoint shards: 100%|██████████| 17/17 [02:55<00:00,  9.82s/it]Loading checkpoint shards: 100%|██████████| 17/17 [02:55<00:00, 10.33s/it]
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.582 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-29 09:50:14,787 INFO longbench_official_benchmark: task completed config=pure_int8 task=narrativeqa score=23.02 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen32b_tp2_longbench_20260327_pure_int8/task_results.json
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.598 seconds.
+Prefix dict has been built successfully.
+Evaluating on: ['qasper.jsonl', 'gov_report.jsonl', 'result.json', 'multi_news.jsonl', 'dureader.jsonl', 'qmsum.jsonl', '2wikimqa.jsonl', 'narrativeqa.jsonl', 'task_results.json', 'multifieldqa_zh.jsonl', 'multifieldqa_en.jsonl', 'musique.jsonl', 'hotpotqa.jsonl']
+2026-03-29 09:51:12,741 INFO longbench_official_benchmark: task completed config=pure_int8 task=qasper score=45.51 samples=200 summary=/root/ActivationPerturbationAnalysis/official_longbench/LongBench/pred/qwen32b_tp2_longbench_20260327_pure_int8/task_results.json
+/usr/local/lib/python3.10/dist-packages/fuzzywuzzy/fuzz.py:11: UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning
+  warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+W0329 09:51:59.347000 532235 torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGTERM death signal, shutting down workers
+W0329 09:51:59.350000 532235 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 532419 closing signal SIGTERM
+W0329 09:51:59.351000 532235 torch/distributed/elastic/multiprocessing/api.py:900] Sending process 532420 closing signal SIGTERM
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 532235 got signal: 15

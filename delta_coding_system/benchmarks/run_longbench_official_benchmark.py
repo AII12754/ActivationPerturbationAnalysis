@@ -85,6 +85,14 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--gpu-hot-cache-entries", type=int, default=0)
     parser.add_argument("--disable-pinned-cpu-table-copy", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--disable-async-cpu-table-copy", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--enable-disk-offload", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--disk-offload-dir", default=None)
+    parser.add_argument("--table-backend", choices=["trie", "block"], default="trie")
+    parser.add_argument("--block-size", type=int, default=256)
+    parser.add_argument("--enable-async-block-paging", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("--max-resident-blocks", type=int, default=0)
+    parser.add_argument("--block-pager-workers", type=int, default=1)
+    parser.add_argument("--pinned-block-budget", type=int, default=2)
     parser.add_argument("--tp-size", type=int, default=1)
     parser.add_argument("--score-only", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--resume", action=argparse.BooleanOptionalAction, default=False)
@@ -124,9 +132,8 @@ def _truncate_in_middle(tokenizer, prompt: str, max_seq_len: int) -> str:
     if len(tokenized) <= max_seq_len:
         return prompt
     half = max_seq_len // 2
-    left = tokenizer.decode(tokenized[:half], skip_special_tokens=True)
-    right = tokenizer.decode(tokenized[-half:], skip_special_tokens=True)
-    return left + right
+    clipped = torch.cat((tokenized[:half], tokenized[-(max_seq_len - half) :]))
+    return tokenizer.decode(clipped, skip_special_tokens=True)
 
 
 def _build_chat_prompt(tokenizer, prompt: str, model_path: str, task_name: str) -> str:
@@ -139,6 +146,19 @@ def _build_chat_prompt(tokenizer, prompt: str, model_path: str, task_name: str) 
             add_generation_prompt=True,
         )
     return prompt
+
+
+def _build_final_prompt(
+    tokenizer,
+    prompt_template: str,
+    model_path: str,
+    task_name: str,
+    row: Dict[str, object],
+    max_seq_len: int,
+) -> str:
+    raw_prompt = prompt_template.format(**row)
+    chat_prompt = _build_chat_prompt(tokenizer, raw_prompt, model_path, task_name)
+    return _truncate_in_middle(tokenizer, chat_prompt, max_seq_len)
 
 
 def _newline_stop_ids(tokenizer, task_name: str) -> List[int]:
@@ -187,6 +207,14 @@ def _build_official_pipeline(model, tokenizer, device: torch.device, args: argpa
         gpu_hot_cache_entries=args.gpu_hot_cache_entries,
         disable_pinned_cpu_table_copy=args.disable_pinned_cpu_table_copy,
         disable_async_cpu_table_copy=args.disable_async_cpu_table_copy,
+        enable_disk_offload=args.enable_disk_offload,
+        disk_offload_dir=args.disk_offload_dir,
+        table_backend=args.table_backend,
+        block_size=args.block_size,
+        enable_async_block_paging=args.enable_async_block_paging,
+        max_resident_blocks=args.max_resident_blocks,
+        block_pager_workers=args.block_pager_workers,
+        pinned_block_budget=args.pinned_block_budget,
     )
     return _build_pipeline(model, tokenizer, device, pipeline_args, config_name)
 
@@ -332,9 +360,14 @@ def main() -> None:
                         if row_id in done_ids:
                             continue
 
-                        raw_prompt = str(prompt_map[task_name]).format(**row)
-                        truncated_prompt = _truncate_in_middle(tokenizer, raw_prompt, args.max_seq_len)
-                        final_prompt = _build_chat_prompt(tokenizer, truncated_prompt, args.model, task_name)
+                        final_prompt = _build_final_prompt(
+                            tokenizer,
+                            str(prompt_map[task_name]),
+                            args.model,
+                            task_name,
+                            row,
+                            args.max_seq_len,
+                        )
                         max_new_tokens = int(max_gen_map[task_name])
 
                         try:

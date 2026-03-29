@@ -26,7 +26,7 @@ import torch
 import torch.nn.functional as F
 from transformers.cache_utils import DynamicCache
 
-from delta_coding_system.table import DomainTableManager, NgramTable
+from delta_coding_system.table import DomainTableManager, NgramTable, create_activation_table
 from delta_coding_system.topic_router import DEFAULT_TOPIC_KEYWORDS, LightweightTopicRouter, RoutingDecision
 from delta_coding_system.codec import (
     DeltaPacket,
@@ -128,6 +128,14 @@ class DecodeResult:
     reconstructed_hidden: Optional[torch.Tensor] = None
 
 
+@dataclass
+class DecodeClassifyResult:
+    """Decode-step lookup result with lazy reference materialization."""
+    tier: str
+    stored_ref: Optional[Any] = None
+    ref_is_materialized: bool = False
+
+
 # ===================================================================
 # OverlappedPipeline
 # ===================================================================
@@ -155,6 +163,14 @@ class OverlappedPipeline:
         pin_cpu_output_copy: bool = True,
         enable_async_cpu_output_copy: bool = True,
         gpu_hot_cache_entries: int = 0,
+        enable_disk_offload: bool = False,
+        disk_offload_dir: Optional[str] = None,
+        table_backend: str = "trie",
+        block_size: int = 256,
+        enable_async_block_paging: bool = False,
+        max_resident_blocks: int = 0,
+        block_pager_workers: int = 1,
+        pinned_block_budget: int = 2,
         auto_topic_routing: bool = True,
         topic_keywords: Optional[Dict[str, Sequence[str]]] = None,
         delta_strategy: str = "delta_noaffine_int4_k1",
@@ -187,6 +203,14 @@ class OverlappedPipeline:
         self.pin_cpu_output_copy = pin_cpu_output_copy
         self.enable_async_cpu_output_copy = enable_async_cpu_output_copy
         self.gpu_hot_cache_entries = max(0, gpu_hot_cache_entries)
+        self.enable_disk_offload = enable_disk_offload
+        self.disk_offload_dir = disk_offload_dir
+        self.table_backend = table_backend
+        self.block_size = max(16, block_size)
+        self.enable_async_block_paging = enable_async_block_paging
+        self.max_resident_blocks = max(0, max_resident_blocks)
+        self.block_pager_workers = max(1, block_pager_workers)
+        self.pinned_block_budget = max(0, pinned_block_budget)
         self.auto_topic_routing = auto_topic_routing
         self.topic_keywords = {
             domain: tuple(keywords)
@@ -219,6 +243,14 @@ class OverlappedPipeline:
                 pin_cpu_output_copy=pin_cpu_output_copy,
                 enable_async_cpu_output_copy=enable_async_cpu_output_copy,
                 gpu_hot_cache_entries=gpu_hot_cache_entries,
+                enable_disk_offload=enable_disk_offload,
+                disk_offload_dir=disk_offload_dir,
+                table_backend=table_backend,
+                block_size=block_size,
+                enable_async_block_paging=enable_async_block_paging,
+                max_resident_blocks=max_resident_blocks,
+                block_pager_workers=block_pager_workers,
+                pinned_block_budget=pinned_block_budget,
             )
             self.table = None  # set per-request via select_domains()
             self._current_domains: List[str] = []
@@ -241,7 +273,8 @@ class OverlappedPipeline:
             self._last_routing_info = {}
             self._last_routing_decision = None
             self._last_request_domain_hits = {}
-            self.table = NgramTable(
+            self.table = create_activation_table(
+                backend=table_backend,
                 device=torch.device("cpu") if table_placement == "cpu" else device,
                 dtype=table_dtype,
                 max_entries=max_table_entries,
@@ -252,6 +285,12 @@ class OverlappedPipeline:
                 enable_async_cpu_output_copy=enable_async_cpu_output_copy,
                 gpu_hot_cache_entries=gpu_hot_cache_entries if table_placement == "cpu" else 0,
                 gpu_hot_cache_device=device if table_placement == "cpu" and gpu_hot_cache_entries > 0 else None,
+                block_size=block_size,
+                enable_async_paging=enable_async_block_paging,
+                page_directory=disk_offload_dir,
+                max_resident_blocks=max_resident_blocks,
+                pager_workers=block_pager_workers,
+                pinned_block_budget=pinned_block_budget,
             )
         self.classify_executor = ThreadPoolExecutor(max_workers=1)
         self.update_executor = ThreadPoolExecutor(max_workers=1)
@@ -365,9 +404,13 @@ class OverlappedPipeline:
         manual_domains = list(self._manual_domains)
         if request_domains:
             manual_domains.extend(request_domains)
+        previous_domains = list(self._current_domains)
         decision = self.topic_router.route(text, task_name=task_name, manual_domains=manual_domains)
         tables = self.table_manager.get_many(decision.active_domains)
         self._current_domains = list(tables.keys())
+        stale_domains = [domain for domain in previous_domains if domain not in self._current_domains]
+        if stale_domains:
+            self.table_manager.release_many(stale_domains)
         self._current_domain_weights = {
             domain: decision.domain_weights.get(domain, 1.0)
             for domain in self._current_domains
@@ -391,9 +434,13 @@ class OverlappedPipeline:
     def select_domains(self, domains: Sequence[str]):
         if not self.domain_aware:
             return [self.table]
+        previous_domains = list(self._current_domains)
         self._manual_domains = [re.sub(r"[^a-z0-9_:+-]+", "_", domain.strip().lower()).strip("_") or "misc" for domain in domains if domain]
         tables = self.table_manager.get_many(self._manual_domains)
         self._current_domains = list(tables.keys())
+        stale_domains = [domain for domain in previous_domains if domain not in self._current_domains]
+        if stale_domains:
+            self.table_manager.release_many(stale_domains)
         self._current_domain_weights = {domain: 1.0 for domain in self._current_domains}
         self._current_write_domains = list(self._current_domains)
         self._active_table_cache = [tables[domain] for domain in self._current_domains]
@@ -447,6 +494,13 @@ class OverlappedPipeline:
         )
         return groupwise_int8_dequantize_topk(packet)[0]
 
+    def _materialize_decode_reference(self, result: DecodeClassifyResult) -> Optional[torch.Tensor]:
+        if result.stored_ref is None:
+            return None
+        if result.ref_is_materialized:
+            return result.stored_ref.unsqueeze(0).to(device=self.device, dtype=torch.float16)
+        return self._materialize_stored_hidden(result.stored_ref).unsqueeze(0)
+
     def _active_tables(self) -> List[NgramTable]:
         if not self.domain_aware:
             return [self.table]
@@ -485,6 +539,11 @@ class OverlappedPipeline:
         self.update_executor.shutdown(wait=False)
         if self.domain_aware and self.table_manager is not None:
             self.table_manager.offload_all()
+            self.table_manager.shutdown()
+        elif self.table is not None:
+            shutdown = getattr(self.table, "shutdown", None)
+            if callable(shutdown):
+                shutdown()
 
     def _drain_decode_updates(self, wait: bool = False) -> None:
         if not self._pending_decode_updates:
@@ -1151,12 +1210,18 @@ class OverlappedPipeline:
 
             # Collect classify result
             t_classify_start = time.perf_counter()
-            tier, ref_h, raw_cos = classify_future.result()
+            classify_result = classify_future.result()
+            tier = classify_result.tier
             classify_ms = (time.perf_counter() - t_classify_start) * 1000.0
+
+            ref_h = None
+            raw_cos = 0.0
+            if not self.decode_use_raw_fp16:
+                ref_h = self._materialize_decode_reference(classify_result)
 
             # Encode (GPU, on critical path) — CUDA events, no sync
             real_h_2d = h.unsqueeze(0)
-            if tier == "unigram" and self._unigram_uses_prev_ref():
+            if not self.decode_use_raw_fp16 and tier == "unigram" and self._unigram_uses_prev_ref():
                 if decode_pos - 1 < len(input_ids):
                     prev_ref = prefill_hidden[decode_pos - 1].unsqueeze(0)
                 elif (decode_pos - 1) in reconstructed_hiddens:
@@ -1166,7 +1231,7 @@ class OverlappedPipeline:
             else:
                 prev_ref = None
             evt_enc_start.record()
-            if tier == "unigram" and prev_ref is not None and self._unigram_uses_prev_ref():
+            if not self.decode_use_raw_fp16 and tier == "unigram" and prev_ref is not None and self._unigram_uses_prev_ref():
                 recon, xfer_bytes = self._encode_prev_unigram_batch(real_h_2d, prev_ref)
             else:
                 recon, xfer_bytes = self._encode_decode_step(real_h_2d, ref_h, tier)
@@ -1270,11 +1335,12 @@ class OverlappedPipeline:
         reconstructed_hiddens: Dict[int, torch.Tensor],
         local_prompt_trigrams: Dict[Tuple[int, int, int], torch.Tensor],
         local_prompt_bigrams: Dict[Tuple[int, int], torch.Tensor],
-    ) -> Tuple[str, Optional[torch.Tensor], float]:
+    ) -> DecodeClassifyResult:
         """Classify a single decode position. Runs on CPU thread."""
         tier = "unigram"
-        ref_h = None
-        raw_cos = 0.0
+        stored_ref = None
+        ref_is_materialized = False
+        capture_ref = not self.decode_use_raw_fp16
         single_active_table = None
         if self.domain_aware and len(self._current_domains) == 1 and self.table is not None:
             single_active_table = self.table
@@ -1299,18 +1365,24 @@ class OverlappedPipeline:
                         break
             if tri_ref is not None:
                 tier = "trigram"
-                ref_h = self._materialize_stored_hidden(tri_ref).unsqueeze(0)
+                if capture_ref:
+                    stored_ref = tri_ref
+                    ref_is_materialized = False
                 first_occ_map.setdefault(trigram_key, decode_pos)
             elif trigram_key in local_prompt_trigrams:
                 tier = "trigram"
-                ref_h = local_prompt_trigrams[trigram_key].unsqueeze(0).to(torch.float16)
+                if capture_ref:
+                    stored_ref = local_prompt_trigrams[trigram_key]
+                    ref_is_materialized = True
                 first_occ_map.setdefault(trigram_key, decode_pos)
             # 2. Self-ref
             elif trigram_key in first_occ_map:
                 src_pos = first_occ_map[trigram_key]
                 if src_pos in reconstructed_hiddens:
                     tier = "self_ref"
-                    ref_h = reconstructed_hiddens[src_pos].unsqueeze(0).to(torch.float16)
+                    if capture_ref:
+                        stored_ref = reconstructed_hiddens[src_pos]
+                        ref_is_materialized = True
             # 3. Bigram
             if tier == "unigram":
                 if len(running_token_ids) >= 2:
@@ -1326,17 +1398,25 @@ class OverlappedPipeline:
                                 break
                     if bi_ref is not None:
                         tier = "bigram"
-                        ref_h = self._materialize_stored_hidden(bi_ref).unsqueeze(0)
+                        if capture_ref:
+                            stored_ref = bi_ref
+                            ref_is_materialized = False
                     elif (b_tok, c_tok) in local_prompt_bigrams:
                         tier = "bigram"
-                        ref_h = local_prompt_bigrams[(b_tok, c_tok)].unsqueeze(0).to(torch.float16)
+                        if capture_ref:
+                            stored_ref = local_prompt_bigrams[(b_tok, c_tok)]
+                            ref_is_materialized = True
                 first_occ_map.setdefault(trigram_key, decode_pos)
 
-        return tier, ref_h, raw_cos
+        return DecodeClassifyResult(
+            tier=tier,
+            stored_ref=stored_ref,
+            ref_is_materialized=ref_is_materialized,
+        )
 
     def _update_table_step(
         self,
-        tables: Sequence[NgramTable],
+        tables: Sequence[Any],
         a: int,
         b: int,
         c: int,
@@ -1345,16 +1425,7 @@ class OverlappedPipeline:
     ) -> None:
         """Update table with a single decode step's trigram. Runs on CPU thread."""
         for table in tables:
-            if table.has_trigram(a, b, c):
-                continue
-            stored_bigram = table._encode_hidden_batch_for_storage(bi_hidden.unsqueeze(0))[0]
-            stored_trigram = table._encode_hidden_batch_for_storage(trigram_hidden.unsqueeze(0))[0]
-            node = table._get_or_create_node(a, b, stored_bigram)
-            if c not in node.suffixes:
-                node.suffixes[c] = stored_trigram
-                table._num_trigrams += 1
-            table._request_counter += 1
-            table._last_evicted = table.evict()
+            table.update_with_decode_step(a, b, c, bi_hidden, trigram_hidden)
 
     # ------------------------------------------------------------------
     # Full request processing

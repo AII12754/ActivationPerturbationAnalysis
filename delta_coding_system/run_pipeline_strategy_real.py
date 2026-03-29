@@ -153,6 +153,14 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             pin_cpu_output_copy=not args.disable_pinned_cpu_table_copy,
             enable_async_cpu_output_copy=not args.disable_async_cpu_table_copy,
             gpu_hot_cache_entries=args.gpu_hot_cache_entries,
+            enable_disk_offload=args.enable_disk_offload,
+            disk_offload_dir=args.disk_offload_dir,
+            table_backend=args.table_backend,
+            block_size=args.block_size,
+            enable_async_block_paging=args.enable_async_block_paging,
+            max_resident_blocks=args.max_resident_blocks,
+            block_pager_workers=args.block_pager_workers,
+            pinned_block_budget=args.pinned_block_budget,
             auto_topic_routing=not args.disable_auto_topic_routing,
             delta_strategy=cfg["delta_strategy"],
             unigram_strategy=cfg["unigram_strategy"],
@@ -376,6 +384,14 @@ def main():
     parser.add_argument("--disable-pinned-cpu-table-copy", action="store_true")
     parser.add_argument("--disable-async-cpu-table-copy", action="store_true")
     parser.add_argument("--gpu-hot-cache-entries", type=int, default=4096)
+    parser.add_argument("--enable-disk-offload", action="store_true")
+    parser.add_argument("--disk-offload-dir", default=None)
+    parser.add_argument("--table-backend", choices=["trie", "block"], default="trie")
+    parser.add_argument("--block-size", type=int, default=256)
+    parser.add_argument("--enable-async-block-paging", action="store_true")
+    parser.add_argument("--max-resident-blocks", type=int, default=0)
+    parser.add_argument("--block-pager-workers", type=int, default=1)
+    parser.add_argument("--pinned-block-budget", type=int, default=2)
     parser.add_argument("--disable-auto-topic-routing", action="store_true")
     parser.add_argument("--bandwidths-mbps", nargs="+", type=int, default=BANDWIDTHS_MBPS)
     parser.add_argument("--request-domains", nargs="*", default=None)
