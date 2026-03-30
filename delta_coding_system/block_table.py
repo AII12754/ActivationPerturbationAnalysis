@@ -169,43 +169,18 @@ class BlockTable:
         return packet
 
     def _merge_int8_packets(self, stored_batch: List[Int8OutlierPacket]) -> Int8OutlierPacket:
-        """Merge many small Int8OutlierPackets into one batched packet.
-
-        Uses pre-allocated tensors + indexed fill instead of torch.cat to
-        avoid O(N * per-tensor-overhead) when N is large (thousands of refs
-        in long-context classify).
-        """
+        """Merge many small Int8OutlierPackets into one batched packet."""
         N = len(stored_batch)
         first = stored_batch[0]
         if N == 1:
             return first
 
-        # Pre-allocate output tensors matching first element's shapes.
-        q_shape = first.quantized.shape[1:]
-        s_shape = first.scales.shape[1:]
-        z_shape = first.zero_points.shape[1:]
-        tv_shape = first.topk_values.shape[1:]
-        ti_shape = first.topk_indices.shape[1:]
-
-        out_q = torch.empty((N,) + q_shape, dtype=first.quantized.dtype, device=first.quantized.device)
-        out_s = torch.empty((N,) + s_shape, dtype=first.scales.dtype, device=first.scales.device)
-        out_z = torch.empty((N,) + z_shape, dtype=first.zero_points.dtype, device=first.zero_points.device)
-        out_tv = torch.empty((N,) + tv_shape, dtype=first.topk_values.dtype, device=first.topk_values.device)
-        out_ti = torch.empty((N,) + ti_shape, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
-
-        for i, pkt in enumerate(stored_batch):
-            out_q[i] = pkt.quantized[0]
-            out_s[i] = pkt.scales[0]
-            out_z[i] = pkt.zero_points[0]
-            out_tv[i] = pkt.topk_values[0]
-            out_ti[i] = pkt.topk_indices[0]
-
         return Int8OutlierPacket(
-            quantized=out_q,
-            scales=out_s,
-            zero_points=out_z,
-            topk_values=out_tv,
-            topk_indices=out_ti,
+            quantized=torch.cat([p.quantized for p in stored_batch], dim=0),
+            scales=torch.cat([p.scales for p in stored_batch], dim=0),
+            zero_points=torch.cat([p.zero_points for p in stored_batch], dim=0),
+            topk_values=torch.cat([p.topk_values for p in stored_batch], dim=0),
+            topk_indices=torch.cat([p.topk_indices for p in stored_batch], dim=0),
             group_size=first.group_size,
             top_k=first.top_k,
         )
@@ -395,22 +370,27 @@ class BlockTable:
     def _spill_cold_blocks_if_needed(self) -> None:
         if not self.enable_async_paging or self.max_resident_blocks <= 0:
             return
-        while self._resident_block_count() > self.max_resident_blocks:
-            candidates: List[Tuple[float, str, int]] = []
-            for kind in ("trigram", "bigram"):
-                current = self._current_trigram_block if kind == "trigram" else self._current_bigram_block
-                paged = self._paged_set(kind)
-                for block_id, block in enumerate(self._blocks(kind)):
-                    if not block.entries or block_id in paged or block_id == current or (kind, block_id) in self._pinned_blocks:
-                        continue
-                    score = block.hit_count * 10 + block.last_access
-                    candidates.append((float(score), kind, block_id))
-            if not candidates:
+        resident = self._resident_block_count()
+        if resident <= self.max_resident_blocks:
+            return
+        # Build scored list once, then evict cheapest until under budget.
+        candidates: List[Tuple[float, str, int]] = []
+        for kind in ("trigram", "bigram"):
+            current = self._current_trigram_block if kind == "trigram" else self._current_bigram_block
+            paged = self._paged_set(kind)
+            for block_id, block in enumerate(self._blocks(kind)):
+                if not block.entries or block_id in paged or block_id == current or (kind, block_id) in self._pinned_blocks:
+                    continue
+                score = block.hit_count * 10 + block.last_access
+                candidates.append((float(score), kind, block_id))
+        if not candidates:
+            return
+        candidates.sort(key=lambda item: item[0])
+        for _score, kind, block_id in candidates:
+            if resident <= self.max_resident_blocks:
                 break
-            candidates.sort(key=lambda item: item[0])
-            _score, kind, block_id = candidates[0]
-            if not self._spill_block_to_disk(kind, block_id):
-                break
+            if self._spill_block_to_disk(kind, block_id):
+                resident -= 1
 
     def _get_or_create_append_block(self, kind: str) -> Tuple[List[_EntryBlock], int]:
         blocks, current_id = self._current_block(kind)
@@ -533,10 +513,12 @@ class BlockTable:
         ref_positions_cpu: List[int] = []
         ref_tensors_cpu: List[StoredHidden] = []
         gpu_hot_hits = 0
+        paged_skips = 0
         lookup_start = time.perf_counter()
 
         # Fast-path references: direct dict + block access without per-position
-        # lock acquisition.  Falls back to _get_entry for paged-out blocks.
+        # lock acquisition.  Paged-out blocks are skipped entirely to avoid
+        # disk I/O under lock (they would trigger _spill_cold_blocks_if_needed).
         trigram_idx = self._trigram_index
         bigram_idx = self._bigram_index
         tri_blocks = self._trigram_blocks
@@ -565,6 +547,7 @@ class BlockTable:
                         continue
 
                 # Lockless fast-path: direct dict lookup + block access.
+                # Paged-out blocks are skipped to avoid disk I/O under lock.
                 addr = trigram_idx.get(trigram)
                 if addr is not None:
                     block_id, slot = addr
@@ -581,19 +564,7 @@ class BlockTable:
                         first_occurrence_map.setdefault(trigram, i)
                         continue
                     else:
-                        # Paged-out block: use slow path with lock + page-in.
-                        tri_ref = self.get_trigram(a, b, c)
-                        if tri_ref is not None:
-                            tiers.append("trigram")
-                            if table_on_gpu:
-                                ref_positions_gpu.append(i)
-                                ref_tensors_gpu.append(tri_ref)
-                            else:
-                                ref_positions_cpu.append(i)
-                                ref_tensors_cpu.append(tri_ref)
-                            self_ref_sources.append(None)
-                            first_occurrence_map.setdefault(trigram, i)
-                            continue
+                        paged_skips += 1
 
                 if trigram in first_occurrence_map:
                     tiers.append("self_ref")
@@ -633,19 +604,7 @@ class BlockTable:
                             first_occurrence_map.setdefault(trigram, i)
                         continue
                     else:
-                        bi_ref = self.get_bigram(b_tok, c_tok)
-                        if bi_ref is not None:
-                            tiers.append("bigram")
-                            if table_on_gpu:
-                                ref_positions_gpu.append(i)
-                                ref_tensors_gpu.append(bi_ref)
-                            else:
-                                ref_positions_cpu.append(i)
-                                ref_tensors_cpu.append(bi_ref)
-                            self_ref_sources.append(None)
-                            if trigram is not None:
-                                first_occurrence_map.setdefault(trigram, i)
-                            continue
+                        paged_skips += 1
 
             tiers.append("unigram")
             self_ref_sources.append(None)
@@ -666,10 +625,10 @@ class BlockTable:
         materialize_ms = (time.perf_counter() - materialize_start) * 1000.0
 
         num_refs = len(ref_tensors_gpu) + len(ref_tensors_cpu)
-        if num_refs > 500 or materialize_ms > 500:
+        if num_refs > 500 or materialize_ms > 500 or paged_skips > 0:
             logger.info(
-                "classify: seq_len=%d, lookup=%.1fms, materialize=%.1fms (refs=%d, gpu_hot=%d)",
-                seq_len, lookup_ms, materialize_ms, num_refs, gpu_hot_hits,
+                "classify: seq_len=%d, lookup=%.1fms, materialize=%.1fms (refs=%d, gpu_hot=%d, paged_skips=%d)",
+                seq_len, lookup_ms, materialize_ms, num_refs, gpu_hot_hits, paged_skips,
             )
 
         self._last_classify_stats = {
@@ -679,6 +638,7 @@ class BlockTable:
             "materialize_ms": materialize_ms,
             "num_refs": num_refs,
             "gpu_hot_hits": gpu_hot_hits,
+            "paged_skips": paged_skips,
             "seq_len": seq_len,
             "backend": "block",
             "pager": dict(self._pager_stats),

@@ -172,42 +172,18 @@ class NgramTable:
         return packet
 
     def _merge_int8_packets(self, stored_batch: List[Int8OutlierPacket]) -> Int8OutlierPacket:
-        """Merge many small Int8OutlierPackets into one batched packet.
-
-        Uses pre-allocated tensors + indexed fill instead of torch.cat to
-        avoid O(N * per-tensor-overhead) when N is large (thousands of refs
-        in long-context classify).
-        """
+        """Merge many small Int8OutlierPackets into one batched packet."""
         N = len(stored_batch)
         first = stored_batch[0]
         if N == 1:
             return first
 
-        q_shape = first.quantized.shape[1:]
-        s_shape = first.scales.shape[1:]
-        z_shape = first.zero_points.shape[1:]
-        tv_shape = first.topk_values.shape[1:]
-        ti_shape = first.topk_indices.shape[1:]
-
-        out_q = torch.empty((N,) + q_shape, dtype=first.quantized.dtype, device=first.quantized.device)
-        out_s = torch.empty((N,) + s_shape, dtype=first.scales.dtype, device=first.scales.device)
-        out_z = torch.empty((N,) + z_shape, dtype=first.zero_points.dtype, device=first.zero_points.device)
-        out_tv = torch.empty((N,) + tv_shape, dtype=first.topk_values.dtype, device=first.topk_values.device)
-        out_ti = torch.empty((N,) + ti_shape, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
-
-        for i, pkt in enumerate(stored_batch):
-            out_q[i] = pkt.quantized[0]
-            out_s[i] = pkt.scales[0]
-            out_z[i] = pkt.zero_points[0]
-            out_tv[i] = pkt.topk_values[0]
-            out_ti[i] = pkt.topk_indices[0]
-
         return Int8OutlierPacket(
-            quantized=out_q,
-            scales=out_s,
-            zero_points=out_z,
-            topk_values=out_tv,
-            topk_indices=out_ti,
+            quantized=torch.cat([p.quantized for p in stored_batch], dim=0),
+            scales=torch.cat([p.scales for p in stored_batch], dim=0),
+            zero_points=torch.cat([p.zero_points for p in stored_batch], dim=0),
+            topk_values=torch.cat([p.topk_values for p in stored_batch], dim=0),
+            topk_indices=torch.cat([p.topk_indices for p in stored_batch], dim=0),
             group_size=first.group_size,
             top_k=first.top_k,
         )
