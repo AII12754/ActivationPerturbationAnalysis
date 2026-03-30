@@ -169,13 +169,43 @@ class BlockTable:
         return packet
 
     def _merge_int8_packets(self, stored_batch: List[Int8OutlierPacket]) -> Int8OutlierPacket:
+        """Merge many small Int8OutlierPackets into one batched packet.
+
+        Uses pre-allocated tensors + indexed fill instead of torch.cat to
+        avoid O(N * per-tensor-overhead) when N is large (thousands of refs
+        in long-context classify).
+        """
+        N = len(stored_batch)
         first = stored_batch[0]
+        if N == 1:
+            return first
+
+        # Pre-allocate output tensors matching first element's shapes.
+        q_dim = first.quantized.shape[1]
+        s_dim = first.scales.shape[1]
+        z_dim = first.zero_points.shape[1]
+        tv_dim = first.topk_values.shape[1]
+        ti_dim = first.topk_indices.shape[1]
+
+        out_q = torch.empty(N, q_dim, dtype=first.quantized.dtype, device=first.quantized.device)
+        out_s = torch.empty(N, s_dim, dtype=first.scales.dtype, device=first.scales.device)
+        out_z = torch.empty(N, z_dim, dtype=first.zero_points.dtype, device=first.zero_points.device)
+        out_tv = torch.empty(N, tv_dim, dtype=first.topk_values.dtype, device=first.topk_values.device)
+        out_ti = torch.empty(N, ti_dim, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
+
+        for i, pkt in enumerate(stored_batch):
+            out_q[i] = pkt.quantized[0]
+            out_s[i] = pkt.scales[0]
+            out_z[i] = pkt.zero_points[0]
+            out_tv[i] = pkt.topk_values[0]
+            out_ti[i] = pkt.topk_indices[0]
+
         return Int8OutlierPacket(
-            quantized=torch.cat([item.quantized for item in stored_batch], dim=0),
-            scales=torch.cat([item.scales for item in stored_batch], dim=0),
-            zero_points=torch.cat([item.zero_points for item in stored_batch], dim=0),
-            topk_values=torch.cat([item.topk_values for item in stored_batch], dim=0),
-            topk_indices=torch.cat([item.topk_indices for item in stored_batch], dim=0),
+            quantized=out_q,
+            scales=out_s,
+            zero_points=out_z,
+            topk_values=out_tv,
+            topk_indices=out_ti,
             group_size=first.group_size,
             top_k=first.top_k,
         )
@@ -194,7 +224,15 @@ class BlockTable:
         first = stored_batch[0]
         if isinstance(first, torch.Tensor):
             tensor_batch = [item for item in stored_batch if isinstance(item, torch.Tensor)]
-            stacked = torch.stack(tensor_batch).to(torch.float16)
+            # Pre-allocate + fill instead of torch.stack for large batches.
+            N = len(tensor_batch)
+            if N == 1:
+                stacked = tensor_batch[0].unsqueeze(0).to(torch.float16)
+            else:
+                dim = tensor_batch[0].shape[-1]
+                stacked = torch.empty(N, dim, dtype=torch.float16, device=tensor_batch[0].device)
+                for i, t in enumerate(tensor_batch):
+                    stacked[i] = t
             if stacked.device != output_device:
                 non_blocking = bool(
                     stacked.device.type == "cpu"
@@ -497,14 +535,25 @@ class BlockTable:
         gpu_hot_hits = 0
         lookup_start = time.perf_counter()
 
+        # Fast-path references: direct dict + block access without per-position
+        # lock acquisition.  Falls back to _get_entry for paged-out blocks.
+        trigram_idx = self._trigram_index
+        bigram_idx = self._bigram_index
+        tri_blocks = self._trigram_blocks
+        bi_blocks = self._bigram_blocks
+        paged_tri = self._paged_trigram_blocks
+        paged_bi = self._paged_bigram_blocks
+        table_on_gpu = self.device.type == "cuda"
+        hot_cache = self.gpu_hot_cache
+        use_hot = hot_cache is not None and output_device.type == "cuda"
+
         for i in range(seq_len):
             trigram = None
             if i >= 2:
                 a, b, c = token_ids[i - 2], token_ids[i - 1], token_ids[i]
                 trigram = (a, b, c)
 
-                hot_cache = self.gpu_hot_cache
-                if hot_cache is not None and output_device.type == "cuda":
+                if use_hot:
                     hot_tri_ref = hot_cache.get_trigram(a, b, c)
                     if hot_tri_ref is not None:
                         tiers.append("trigram")
@@ -515,18 +564,36 @@ class BlockTable:
                         gpu_hot_hits += 1
                         continue
 
-                tri_ref = self.get_trigram(a, b, c)
-                if tri_ref is not None:
-                    tiers.append("trigram")
-                    if self.device.type == "cuda":
-                        ref_positions_gpu.append(i)
-                        ref_tensors_gpu.append(tri_ref)
+                # Lockless fast-path: direct dict lookup + block access.
+                addr = trigram_idx.get(trigram)
+                if addr is not None:
+                    block_id, slot = addr
+                    if block_id not in paged_tri:
+                        tri_ref = tri_blocks[block_id].entries[slot][1]
+                        tiers.append("trigram")
+                        if table_on_gpu:
+                            ref_positions_gpu.append(i)
+                            ref_tensors_gpu.append(tri_ref)
+                        else:
+                            ref_positions_cpu.append(i)
+                            ref_tensors_cpu.append(tri_ref)
+                        self_ref_sources.append(None)
+                        first_occurrence_map.setdefault(trigram, i)
+                        continue
                     else:
-                        ref_positions_cpu.append(i)
-                        ref_tensors_cpu.append(tri_ref)
-                    self_ref_sources.append(None)
-                    first_occurrence_map.setdefault(trigram, i)
-                    continue
+                        # Paged-out block: use slow path with lock + page-in.
+                        tri_ref = self.get_trigram(a, b, c)
+                        if tri_ref is not None:
+                            tiers.append("trigram")
+                            if table_on_gpu:
+                                ref_positions_gpu.append(i)
+                                ref_tensors_gpu.append(tri_ref)
+                            else:
+                                ref_positions_cpu.append(i)
+                                ref_tensors_cpu.append(tri_ref)
+                            self_ref_sources.append(None)
+                            first_occurrence_map.setdefault(trigram, i)
+                            continue
 
                 if trigram in first_occurrence_map:
                     tiers.append("self_ref")
@@ -535,8 +602,8 @@ class BlockTable:
 
             if i >= 1:
                 b_tok, c_tok = token_ids[i - 1], token_ids[i]
-                hot_cache = self.gpu_hot_cache
-                if hot_cache is not None and output_device.type == "cuda":
+
+                if use_hot:
                     hot_bi_ref = hot_cache.get_bigram(b_tok, c_tok)
                     if hot_bi_ref is not None:
                         tiers.append("bigram")
@@ -548,19 +615,37 @@ class BlockTable:
                         gpu_hot_hits += 1
                         continue
 
-                bi_ref = self.get_bigram(b_tok, c_tok)
-                if bi_ref is not None:
-                    tiers.append("bigram")
-                    if self.device.type == "cuda":
-                        ref_positions_gpu.append(i)
-                        ref_tensors_gpu.append(bi_ref)
+                bi_key = (b_tok, c_tok)
+                addr = bigram_idx.get(bi_key)
+                if addr is not None:
+                    block_id, slot = addr
+                    if block_id not in paged_bi:
+                        bi_ref = bi_blocks[block_id].entries[slot][1]
+                        tiers.append("bigram")
+                        if table_on_gpu:
+                            ref_positions_gpu.append(i)
+                            ref_tensors_gpu.append(bi_ref)
+                        else:
+                            ref_positions_cpu.append(i)
+                            ref_tensors_cpu.append(bi_ref)
+                        self_ref_sources.append(None)
+                        if trigram is not None:
+                            first_occurrence_map.setdefault(trigram, i)
+                        continue
                     else:
-                        ref_positions_cpu.append(i)
-                        ref_tensors_cpu.append(bi_ref)
-                    self_ref_sources.append(None)
-                    if trigram is not None:
-                        first_occurrence_map.setdefault(trigram, i)
-                    continue
+                        bi_ref = self.get_bigram(b_tok, c_tok)
+                        if bi_ref is not None:
+                            tiers.append("bigram")
+                            if table_on_gpu:
+                                ref_positions_gpu.append(i)
+                                ref_tensors_gpu.append(bi_ref)
+                            else:
+                                ref_positions_cpu.append(i)
+                                ref_tensors_cpu.append(bi_ref)
+                            self_ref_sources.append(None)
+                            if trigram is not None:
+                                first_occurrence_map.setdefault(trigram, i)
+                            continue
 
             tiers.append("unigram")
             self_ref_sources.append(None)
@@ -578,13 +663,21 @@ class BlockTable:
             converted = self._decode_stored_batch(ref_tensors_cpu, output_device)
             idx = torch.tensor(ref_positions_cpu, dtype=torch.long, device=output_device)
             ref_acts[idx] = converted
+        materialize_ms = (time.perf_counter() - materialize_start) * 1000.0
+
+        num_refs = len(ref_tensors_gpu) + len(ref_tensors_cpu)
+        if num_refs > 500 or materialize_ms > 500:
+            logger.info(
+                "classify: seq_len=%d, lookup=%.1fms, materialize=%.1fms (refs=%d, gpu_hot=%d)",
+                seq_len, lookup_ms, materialize_ms, num_refs, gpu_hot_hits,
+            )
 
         self._last_classify_stats = {
             "table_device": str(self.device),
             "output_device": str(output_device),
             "lookup_ms": lookup_ms,
-            "materialize_ms": (time.perf_counter() - materialize_start) * 1000.0,
-            "num_refs": len(ref_tensors_gpu) + len(ref_tensors_cpu),
+            "materialize_ms": materialize_ms,
+            "num_refs": num_refs,
             "gpu_hot_hits": gpu_hot_hits,
             "seq_len": seq_len,
             "backend": "block",

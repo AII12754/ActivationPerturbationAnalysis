@@ -172,13 +172,42 @@ class NgramTable:
         return packet
 
     def _merge_int8_packets(self, stored_batch: List[Int8OutlierPacket]) -> Int8OutlierPacket:
+        """Merge many small Int8OutlierPackets into one batched packet.
+
+        Uses pre-allocated tensors + indexed fill instead of torch.cat to
+        avoid O(N * per-tensor-overhead) when N is large (thousands of refs
+        in long-context classify).
+        """
+        N = len(stored_batch)
         first = stored_batch[0]
+        if N == 1:
+            return first
+
+        q_dim = first.quantized.shape[1]
+        s_dim = first.scales.shape[1]
+        z_dim = first.zero_points.shape[1]
+        tv_dim = first.topk_values.shape[1]
+        ti_dim = first.topk_indices.shape[1]
+
+        out_q = torch.empty(N, q_dim, dtype=first.quantized.dtype, device=first.quantized.device)
+        out_s = torch.empty(N, s_dim, dtype=first.scales.dtype, device=first.scales.device)
+        out_z = torch.empty(N, z_dim, dtype=first.zero_points.dtype, device=first.zero_points.device)
+        out_tv = torch.empty(N, tv_dim, dtype=first.topk_values.dtype, device=first.topk_values.device)
+        out_ti = torch.empty(N, ti_dim, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
+
+        for i, pkt in enumerate(stored_batch):
+            out_q[i] = pkt.quantized[0]
+            out_s[i] = pkt.scales[0]
+            out_z[i] = pkt.zero_points[0]
+            out_tv[i] = pkt.topk_values[0]
+            out_ti[i] = pkt.topk_indices[0]
+
         return Int8OutlierPacket(
-            quantized=torch.cat([item.quantized for item in stored_batch], dim=0),
-            scales=torch.cat([item.scales for item in stored_batch], dim=0),
-            zero_points=torch.cat([item.zero_points for item in stored_batch], dim=0),
-            topk_values=torch.cat([item.topk_values for item in stored_batch], dim=0),
-            topk_indices=torch.cat([item.topk_indices for item in stored_batch], dim=0),
+            quantized=out_q,
+            scales=out_s,
+            zero_points=out_z,
+            topk_values=out_tv,
+            topk_indices=out_ti,
             group_size=first.group_size,
             top_k=first.top_k,
         )
@@ -204,7 +233,14 @@ class NgramTable:
         first = stored_batch[0]
         if isinstance(first, torch.Tensor):
             tensor_batch = [item for item in stored_batch if isinstance(item, torch.Tensor)]
-            stacked = torch.stack(tensor_batch).to(torch.float16)
+            N = len(tensor_batch)
+            if N == 1:
+                stacked = tensor_batch[0].unsqueeze(0).to(torch.float16)
+            else:
+                dim = tensor_batch[0].shape[-1]
+                stacked = torch.empty(N, dim, dtype=torch.float16, device=tensor_batch[0].device)
+                for i, t in enumerate(tensor_batch):
+                    stacked[i] = t
             if stacked.device != output_device:
                 non_blocking = bool(
                     stacked.device.type == "cpu"
@@ -513,6 +549,14 @@ class NgramTable:
             "gpu_hot_hits": gpu_hot_hits,
             "seq_len": seq_len,
         }
+
+        num_refs = self._last_classify_stats["num_refs"]
+        mat_ms = self._last_classify_stats["materialize_ms"]
+        if num_refs > 500 or mat_ms > 500:
+            logger.info(
+                "classify: seq_len=%d, lookup=%.1fms, materialize=%.1fms (refs=%d, gpu_hot=%d)",
+                seq_len, lookup_ms, mat_ms, num_refs, gpu_hot_hits,
+            )
 
         return tiers, ref_acts, self_ref_sources, first_occurrence_map
 
