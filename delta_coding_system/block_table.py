@@ -181,17 +181,17 @@ class BlockTable:
             return first
 
         # Pre-allocate output tensors matching first element's shapes.
-        q_dim = first.quantized.shape[1]
-        s_dim = first.scales.shape[1]
-        z_dim = first.zero_points.shape[1]
-        tv_dim = first.topk_values.shape[1]
-        ti_dim = first.topk_indices.shape[1]
+        q_shape = first.quantized.shape[1:]
+        s_shape = first.scales.shape[1:]
+        z_shape = first.zero_points.shape[1:]
+        tv_shape = first.topk_values.shape[1:]
+        ti_shape = first.topk_indices.shape[1:]
 
-        out_q = torch.empty(N, q_dim, dtype=first.quantized.dtype, device=first.quantized.device)
-        out_s = torch.empty(N, s_dim, dtype=first.scales.dtype, device=first.scales.device)
-        out_z = torch.empty(N, z_dim, dtype=first.zero_points.dtype, device=first.zero_points.device)
-        out_tv = torch.empty(N, tv_dim, dtype=first.topk_values.dtype, device=first.topk_values.device)
-        out_ti = torch.empty(N, ti_dim, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
+        out_q = torch.empty((N,) + q_shape, dtype=first.quantized.dtype, device=first.quantized.device)
+        out_s = torch.empty((N,) + s_shape, dtype=first.scales.dtype, device=first.scales.device)
+        out_z = torch.empty((N,) + z_shape, dtype=first.zero_points.dtype, device=first.zero_points.device)
+        out_tv = torch.empty((N,) + tv_shape, dtype=first.topk_values.dtype, device=first.topk_values.device)
+        out_ti = torch.empty((N,) + ti_shape, dtype=first.topk_indices.dtype, device=first.topk_indices.device)
 
         for i, pkt in enumerate(stored_batch):
             out_q[i] = pkt.quantized[0]
