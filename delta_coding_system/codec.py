@@ -177,6 +177,205 @@ def groupwise_int4_dequantize_topk(
     return dequant.reshape(batch, hidden_dim).to(torch.float16)
 
 
+# ===================================================================
+# Fused quantize-dequantize (skip bit-packing round-trip)
+# ===================================================================
+
+def fused_int4_quantize_dequantize(
+    tensor: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, int]:
+    """Fused Int4 quantize→dequantize without materializing packed representation.
+
+    For the encode path we only need the *reconstructed* output (to measure
+    quantization loss) and the transfer size.  Skipping the uint8 pack/unpack
+    round-trip eliminates ~8 CUDA kernel launches.
+
+    Returns ``(reconstructed_fp16, transfer_bytes)``.
+    """
+    batch, hidden_dim = tensor.shape
+    num_groups = hidden_dim // group_size
+
+    # Work in float32 for precision
+    grouped = tensor.float().reshape(batch, num_groups, group_size)
+
+    # Extract top-k outlier values (kept as-is in fp16)
+    abs_grouped = grouped.abs()
+    _, topk_idx = torch.topk(abs_grouped, top_k, dim=-1)
+    topk_values = grouped.gather(-1, topk_idx)
+
+    # Zero out outlier positions before computing group statistics
+    grouped.scatter_(-1, topk_idx, 0.0)
+
+    g_min = grouped.min(dim=-1, keepdim=True).values
+    g_max = grouped.max(dim=-1, keepdim=True).values
+    scale = (g_max - g_min) / 15.0
+
+    # Quantize→dequantize in float (no int4 packing)
+    q = torch.clamp(torch.round((grouped - g_min) / (scale + 1e-10)), 0, 15)
+    dequant = q * scale + g_min
+
+    # Overlay top-k outliers
+    dequant.scatter_(-1, topk_idx, topk_values)
+
+    # Analytical transfer size:
+    #   packed int4: batch * hidden_dim / 2 (uint8)
+    #   scales:       batch * num_groups * 2 (fp16)
+    #   zero_points:  batch * num_groups * 2 (fp16)
+    #   topk_values:  batch * num_groups * top_k * 2 (fp16)
+    #   topk_indices: batch * num_groups * top_k * 1 (uint8)
+    transfer = batch * (
+        hidden_dim // 2
+        + num_groups * 4
+        + num_groups * top_k * 3
+    )
+
+    return dequant.reshape(batch, hidden_dim).to(torch.float16), transfer
+
+
+def fused_int4_delta_encode(
+    real_batch: torch.Tensor,
+    ref_batch: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, int]:
+    """Fused no-affine delta encode: delta→int4 quantize→dequantize→reconstruct.
+
+    Combines ``compute_delta`` + ``fused_int4_quantize_dequantize`` +
+    ``(ref + dequant)`` into a single function with fewer intermediate tensors.
+
+    Returns ``(reconstructed_fp16, transfer_bytes)``.
+    """
+    batch, hidden_dim = real_batch.shape
+    num_groups = hidden_dim // group_size
+
+    # Delta in float32
+    delta_grouped = (real_batch.float() - ref_batch.float()).reshape(
+        batch, num_groups, group_size
+    )
+
+    # Top-k outlier extraction
+    abs_delta = delta_grouped.abs()
+    _, topk_idx = torch.topk(abs_delta, top_k, dim=-1)
+    topk_values = delta_grouped.gather(-1, topk_idx)
+
+    delta_grouped.scatter_(-1, topk_idx, 0.0)
+
+    g_min = delta_grouped.min(dim=-1, keepdim=True).values
+    g_max = delta_grouped.max(dim=-1, keepdim=True).values
+    scale = (g_max - g_min) / 15.0
+
+    q = torch.clamp(torch.round((delta_grouped - g_min) / (scale + 1e-10)), 0, 15)
+    dequant_delta = q * scale + g_min
+    dequant_delta.scatter_(-1, topk_idx, topk_values)
+
+    # Reconstruct = ref + dequant_delta
+    ref_grouped = ref_batch.float().reshape(batch, num_groups, group_size)
+    recon = (ref_grouped + dequant_delta).reshape(batch, hidden_dim).to(torch.float16)
+
+    transfer = batch * (
+        hidden_dim // 2
+        + num_groups * 4
+        + num_groups * top_k * 3
+    )
+    return recon, transfer
+
+
+def fused_int4_affine_delta_encode(
+    real_batch: torch.Tensor,
+    ref_batch: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, int]:
+    """Fused affine delta encode: affine→delta→int4 quantize→dequantize→reconstruct.
+
+    Returns ``(reconstructed_fp16, transfer_bytes)``.
+    """
+    batch, hidden_dim = real_batch.shape
+    num_groups = hidden_dim // group_size
+
+    # Affine parameters
+    new_f = real_batch.float()
+    ref_f = ref_batch.float()
+    dot_nr = (new_f * ref_f).sum(dim=-1, keepdim=True)
+    dot_rr = (ref_f * ref_f).sum(dim=-1, keepdim=True)
+    aff_scale = dot_nr / (dot_rr + 1e-8)
+    aff_bias = (new_f - aff_scale * ref_f).mean(dim=-1, keepdim=True)
+
+    # Delta from affine-transformed reference
+    ref_t = aff_scale * ref_f + aff_bias
+    delta_grouped = (new_f - ref_t).reshape(batch, num_groups, group_size)
+
+    # Top-k outlier extraction
+    abs_delta = delta_grouped.abs()
+    _, topk_idx = torch.topk(abs_delta, top_k, dim=-1)
+    topk_values = delta_grouped.gather(-1, topk_idx)
+
+    delta_grouped.scatter_(-1, topk_idx, 0.0)
+
+    g_min = delta_grouped.min(dim=-1, keepdim=True).values
+    g_max = delta_grouped.max(dim=-1, keepdim=True).values
+    scale = (g_max - g_min) / 15.0
+
+    q = torch.clamp(torch.round((delta_grouped - g_min) / (scale + 1e-10)), 0, 15)
+    dequant_delta = q * scale + g_min
+    dequant_delta.scatter_(-1, topk_idx, topk_values)
+
+    # Reconstruct = affine(ref) + dequant_delta
+    ref_t_grouped = ref_t.reshape(batch, num_groups, group_size)
+    recon = (ref_t_grouped + dequant_delta).reshape(batch, hidden_dim).to(torch.float16)
+
+    # Transfer: packed + scales + zeros + topk + affine params
+    transfer = batch * (
+        hidden_dim // 2
+        + num_groups * 4
+        + num_groups * top_k * 3
+        + 4  # affine_scale(2) + affine_bias(2)
+    )
+    return recon, transfer
+
+
+def fused_int8_quantize_dequantize(
+    tensor: torch.Tensor,
+    group_size: int,
+    top_k: int,
+) -> Tuple[torch.Tensor, int]:
+    """Fused Int8 quantize→dequantize without materializing the Int8OutlierPacket.
+
+    Returns ``(reconstructed_fp16, transfer_bytes)``.
+    """
+    batch, hidden_dim = tensor.shape
+    effective_group_size = min(group_size, hidden_dim)
+    effective_top_k = min(top_k, effective_group_size)
+    num_groups = hidden_dim // effective_group_size
+
+    grouped = tensor.float().reshape(batch, num_groups, effective_group_size)
+
+    abs_vals = grouped.abs()
+    _, tk_idx = abs_vals.topk(effective_top_k, dim=-1)
+    tk_vals = grouped.gather(-1, tk_idx)
+
+    grouped.scatter_(-1, tk_idx, 0.0)
+
+    g_min = grouped.min(dim=-1, keepdim=True).values
+    g_max = grouped.max(dim=-1, keepdim=True).values
+    scale = (g_max - g_min) / 255.0
+
+    q = torch.clamp(torch.round((grouped - g_min) / (scale + 1e-10)), 0, 255)
+    dequant = q * scale + g_min
+
+    dequant.scatter_(-1, tk_idx, tk_vals)
+
+    # Transfer: quantized(uint8) + scales(fp16) + zeros(fp16) + topk_values(fp16) + topk_indices(uint8)
+    transfer = batch * (
+        hidden_dim  # uint8 quantized
+        + num_groups * 4  # scales + zero_points (fp16 each)
+        + num_groups * effective_top_k * 3  # topk: values(fp16) + indices(uint8)
+    )
+    return dequant.reshape(batch, hidden_dim).to(torch.float16), transfer
+
+
 def groupwise_int2_quantize_topk(
     delta: torch.Tensor,
     group_size: int,

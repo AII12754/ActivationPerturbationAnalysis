@@ -16,6 +16,10 @@ from delta_coding_system.codec import (
     compute_delta,
     compute_transfer_size_int8_outlier,
     entropy_coded_num_bytes,
+    fused_int4_affine_delta_encode,
+    fused_int4_delta_encode,
+    fused_int4_quantize_dequantize,
+    fused_int8_quantize_dequantize,
     groupwise_int2_dequantize_topk,
     groupwise_int2_quantize_topk,
     groupwise_int4_dequantize_topk,
@@ -23,6 +27,11 @@ from delta_coding_system.codec import (
     groupwise_int8_dequantize_topk,
     groupwise_int8_quantize_topk,
     reconstruct_activation,
+)
+from delta_coding_system.fused_kernels import (
+    fused_int4_qdq,
+    fused_int4_delta_qdq,
+    fused_int8_qdq,
 )
 from delta_coding_system.table import NgramTable, create_activation_table
 
@@ -414,22 +423,12 @@ class V1RuntimeBase:
         return recon, transfer
 
     def _encode_direct_int4_batch(self, real_batch: torch.Tensor) -> Tuple[torch.Tensor, int]:
-        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-            real_batch.clone(), self.group_size, 4,
-        )
-        recon = groupwise_int4_dequantize_topk(
-            packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
-        )
-        transfer = self._direct_int4_transfer_size(packed, scales, zeros, tv, ti)
-        return recon, transfer
+        return fused_int4_qdq(real_batch, self.group_size, 4)
 
     def _encode_direct_int8_batch(self, real_batch: torch.Tensor) -> Tuple[torch.Tensor, int]:
-        int8_pkt = groupwise_int8_quantize_topk(
+        return fused_int8_qdq(
             real_batch, self.int8_group_size, self.int8_outlier_top_k,
         )
-        recon = groupwise_int8_dequantize_topk(int8_pkt)
-        transfer = compute_transfer_size_int8_outlier(int8_pkt) if self.track_transfer_bytes else 0
-        return recon, transfer
 
     def _encode_delta_batch(
         self,
@@ -444,37 +443,27 @@ class V1RuntimeBase:
         if self.delta_strategy == "direct_int4":
             return self._encode_direct_int4_batch(real_batch)
         use_affine = self._delta_uses_affine()
-        if use_affine:
-            scale, bias = compute_affine_params(real_batch, ref_batch)
-            ref_t = apply_affine(ref_batch, scale, bias)
-        else:
-            scale = torch.ones(real_batch.shape[0], dtype=torch.float16, device=self.device)
-            bias = torch.zeros(real_batch.shape[0], dtype=torch.float16, device=self.device)
-            ref_t = ref_batch
-        delta = compute_delta(real_batch, ref_t)
         quant_bits, top_k = self._delta_params()
         if quant_bits == 2:
+            # Int2 path: keep original (no fused version yet)
+            delta = compute_delta(real_batch, ref_batch)
             packed, scales, zeros, tv, ti = groupwise_int2_quantize_topk(
                 delta, self.group_size, top_k,
             )
             dequant = groupwise_int2_dequantize_topk(
                 packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
             )
-        else:
-            packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-                delta, self.group_size, top_k,
-            )
-            dequant = groupwise_int4_dequantize_topk(
-                packed, scales, zeros, tv, ti, self.group_size, self.hidden_dim,
-            )
-        if use_affine:
-            recon = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
-        else:
             recon = (ref_batch + dequant).to(torch.float16)
-        transfer = self._delta_transfer_size(
-            packed, scales, zeros, tv, ti, real_batch.shape[0], use_affine, include_ref_idx,
+            transfer = self._direct_int2_transfer_size(packed, scales, zeros, tv, ti)
+            return recon, transfer
+        # Int4 path: fused
+        if use_affine:
+            return fused_int4_affine_delta_encode(
+                real_batch, ref_batch, self.group_size, top_k,
+            )
+        return fused_int4_delta_qdq(
+            real_batch, ref_batch, self.group_size, top_k,
         )
-        return recon, transfer
 
     def _encode_unigram_batch(self, real_batch: torch.Tensor) -> Tuple[torch.Tensor, int]:
         if self._unigram_uses_direct_int2():

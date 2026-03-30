@@ -68,11 +68,13 @@ class LatencyFirstPrefillKernel:
         self._drain_decode_updates(wait=False)
         prev_update_wait_ms = (time.perf_counter() - t_prev_update_start) * 1000.0
 
+        t_tokenize_start = time.perf_counter()
         input_ids = self.tokenizer.encode(text, add_special_tokens=False)
         if len(input_ids) > self.max_seq_len:
             input_ids = input_ids[: self.max_seq_len]
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         seq_len = len(input_ids)
+        tokenize_ms = (time.perf_counter() - t_tokenize_start) * 1000.0
 
         # Submit CPU classify early so it overlaps with GPU prefix forward.
         classify_future = None
@@ -95,6 +97,7 @@ class LatencyFirstPrefillKernel:
             prefix_ms=prefill_fwd_ms,
             prefill_fwd_ms=prefill_fwd_ms,
             prev_update_wait_ms=prev_update_wait_ms,
+            tokenize_ms=tokenize_ms,
         )
 
         if not is_test:
@@ -124,10 +127,19 @@ class LatencyFirstPrefillKernel:
             with torch.cuda.stream(self.hidden_load_stream):
                 ref_acts = ref_acts.to(device=self.device, non_blocking=True)
 
-        trigram_indices = [i for i, tier in enumerate(tiers) if tier == "trigram"]
-        bigram_indices = [i for i, tier in enumerate(tiers) if tier == "bigram"]
-        self_ref_indices = [i for i, tier in enumerate(tiers) if tier == "self_ref"]
-        unigram_indices = [i for i, tier in enumerate(tiers) if tier == "unigram"]
+        # Single-pass tier partitioning (replaces 4 list comprehensions)
+        trigram_indices: List[int] = []
+        bigram_indices: List[int] = []
+        self_ref_indices: List[int] = []
+        unigram_indices: List[int] = []
+        _tier_buckets = {
+            "trigram": trigram_indices,
+            "bigram": bigram_indices,
+            "self_ref": self_ref_indices,
+            "unigram": unigram_indices,
+        }
+        for i, tier in enumerate(tiers):
+            _tier_buckets[tier].append(i)
 
         result.num_trigram = len(trigram_indices)
         result.num_bigram = len(bigram_indices)
