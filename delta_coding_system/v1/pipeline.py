@@ -32,9 +32,6 @@ class LatencyFirstPipeline(LatencyFirstPrefillKernel, LatencyFirstDecodeKernel, 
                 ref = torch.randn(batch_size, self.hidden_dim, device=self.device, dtype=torch.float16)
                 self._encode_delta_batch(real, ref, include_ref_idx=True)
                 self._encode_unigram_batch(real)
-            scalar_real = torch.randn(1, self.hidden_dim, device=self.device, dtype=torch.float16)
-            scalar_ref = torch.randn(1, self.hidden_dim, device=self.device, dtype=torch.float16)
-            self._encode_prev_unigram_batch(scalar_real, scalar_ref)
 
         torch.cuda.synchronize(self.device)
         self._transfer_kernels_warmed = True

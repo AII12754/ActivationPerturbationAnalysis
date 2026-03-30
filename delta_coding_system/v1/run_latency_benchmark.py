@@ -331,24 +331,24 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
                 step_row[f"local_only_{bw}mbps_ms"] = local_ms
             decode_step_records.append(step_row)
 
-        with torch.inference_mode():
-            orig_out = model(input_ids=full_ids, attention_mask=full_mask, use_cache=False)
-            orig_logits = orig_out.logits[:, -decode_res.decode_tokens - 1 :, :]
-            recon_hidden = torch.cat([prefill_res.reconstructed_hidden, decode_res.reconstructed_hidden], dim=0)
-            recon_hidden = recon_hidden.unsqueeze(0).to(device=device, dtype=torch.float16)
-            recon_logits = run_remaining_layers(model, recon_hidden, full_mask, start_layer=pipeline.layer_boundary)
-            recon_logits = recon_logits[:, -decode_res.decode_tokens - 1 :, :]
-            drift_metrics = compute_logit_drift_metrics(orig_logits, recon_logits)
-        drift_metrics.update(
-            {
-                "dataset_name": dataset_name,
-                "config_name": "v1_latency_first",
-                "request_index": request_index,
-            }
-        )
-        drift_records.append(drift_metrics)
-
-        del orig_out, orig_logits, recon_hidden, recon_logits
+        if not args.skip_drift:
+            with torch.inference_mode():
+                orig_out = model(input_ids=full_ids, attention_mask=full_mask, use_cache=False)
+                orig_logits = orig_out.logits[:, -decode_res.decode_tokens - 1 :, :]
+                recon_hidden = torch.cat([prefill_res.reconstructed_hidden, decode_res.reconstructed_hidden], dim=0)
+                recon_hidden = recon_hidden.unsqueeze(0).to(device=device, dtype=torch.float16)
+                recon_logits = run_remaining_layers(model, recon_hidden, full_mask, start_layer=pipeline.layer_boundary)
+                recon_logits = recon_logits[:, -decode_res.decode_tokens - 1 :, :]
+                drift_metrics = compute_logit_drift_metrics(orig_logits, recon_logits)
+            drift_metrics.update(
+                {
+                    "dataset_name": dataset_name,
+                    "config_name": "v1_latency_first",
+                    "request_index": request_index,
+                }
+            )
+            drift_records.append(drift_metrics)
+            del orig_out, orig_logits, recon_hidden, recon_logits
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
@@ -386,6 +386,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--block-pager-workers", type=int, default=2)
     parser.add_argument("--pinned-block-budget", type=int, default=8)
     parser.add_argument("--bandwidths-mbps", nargs="+", type=int, default=DEFAULT_BANDWIDTHS_MBPS)
+    parser.add_argument("--skip-drift", action="store_true", help="Skip logit drift computation for faster benchmark runs")
     return parser
 
 

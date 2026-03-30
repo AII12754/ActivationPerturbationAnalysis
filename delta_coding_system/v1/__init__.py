@@ -10,7 +10,7 @@ from delta_coding_system.v1.base_runtime import V1RuntimeBase
 from delta_coding_system.v1.decode_kernel import LatencyFirstDecodeKernel
 from delta_coding_system.v1.prefill_kernel import LatencyFirstPrefillKernel
 from delta_coding_system.v1.pipeline import LatencyFirstPipeline, build_latency_first_pipeline
-from delta_coding_system.v1.results import DecodeClassifyResult, DecodeResult, DecodeStepRecord, PrefillResult
+from delta_coding_system.v1.results import DecodeResult, DecodeStepRecord, PrefillResult
 
 __all__ = [
     "FINAL_DELTA_STRATEGY",
@@ -23,7 +23,6 @@ __all__ = [
     "PrefillResult",
     "DecodeStepRecord",
     "DecodeResult",
-    "DecodeClassifyResult",
     "LatencyFirstPrefillKernel",
     "LatencyFirstDecodeKernel",
     "LatencyFirstPipeline",

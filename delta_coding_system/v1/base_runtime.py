@@ -61,6 +61,7 @@ class V1RuntimeBase:
         delta_strategy: str = "delta_noaffine_int4_k1",
         unigram_strategy: str = "unigram_int4_k4",
         track_transfer_bytes: bool = True,
+        compute_cosine_similarity: bool = False,
         extra_stop_token_ids: Optional[List[int]] = None,
         decode_use_raw_fp16: bool = True,
         prefill_use_raw_fp16: bool = False,
@@ -78,7 +79,8 @@ class V1RuntimeBase:
         self.delta_strategy = delta_strategy
         self.unigram_strategy = unigram_strategy
         self.track_transfer_bytes = track_transfer_bytes
-        self.decode_use_raw_fp16 = decode_use_raw_fp16
+        self.compute_cosine_similarity = compute_cosine_similarity
+        self.decode_use_raw_fp16 = True  # Always raw FP16 for decode
         self.prefill_use_raw_fp16 = prefill_use_raw_fp16
         self.extra_stop_token_ids: Set[int] = set(extra_stop_token_ids or [])
         self.table_placement = table_placement
@@ -124,7 +126,16 @@ class V1RuntimeBase:
         self.update_executor = ThreadPoolExecutor(max_workers=1)
         self._pending_prefill_update: Optional[Future] = None
         self._pending_decode_updates: List[Future] = []
+        self._decode_update_batch: List[Tuple] = []
+        self._decode_update_flush_every: int = 16
         self._transfer_kernels_warmed = False
+
+        # Dedicated CUDA stream for loading hidden states to HBM during
+        # CPU-side classify (prefill path).  Allows CPU table lookup and
+        # GPU hidden-state materialization to overlap.
+        self.hidden_load_stream: Optional[torch.cuda.Stream] = None
+        if self.device.type == "cuda":
+            self.hidden_load_stream = torch.cuda.Stream(self.device)
 
         from activation_science.core.extraction import select_next_token
 
@@ -181,7 +192,6 @@ class V1RuntimeBase:
         with torch.inference_mode():
             self._encode_delta_batch(real, ref, include_ref_idx=True)
             self._encode_unigram_batch(real)
-            self._encode_prev_unigram_batch(real[:1], ref[:1])
         torch.cuda.synchronize(self.device)
         self._transfer_kernels_warmed = True
 
@@ -270,6 +280,7 @@ class V1RuntimeBase:
         if self._pending_prefill_update is not None:
             self._pending_prefill_update.result()
             self._pending_prefill_update = None
+        self._flush_decode_update_batch()
         self._drain_decode_updates(wait=True)
         self.classify_executor.shutdown(wait=False)
         self.update_executor.shutdown(wait=False)
@@ -292,37 +303,6 @@ class V1RuntimeBase:
             remaining.append(future)
         self._pending_decode_updates = remaining
 
-    def _submit_decode_table_update(
-        self,
-        running_token_ids: List[int],
-        decode_pos: int,
-        h: torch.Tensor,
-        prefill_hidden: torch.Tensor,
-        input_ids: List[int],
-        decode_hidden_by_pos: Dict[int, torch.Tensor],
-    ) -> None:
-        if len(running_token_ids) < 3:
-            return
-        a = running_token_ids[-3]
-        b = running_token_ids[-2]
-        c = running_token_ids[-1]
-        b_abs_pos = decode_pos - 1
-        if b_abs_pos < len(input_ids):
-            bi_hidden = prefill_hidden[b_abs_pos]
-        else:
-            bi_hidden = decode_hidden_by_pos.get(b_abs_pos, h)
-        tables = (self.table,)
-        future = self.update_executor.submit(
-            self._update_table_step,
-            tables,
-            a,
-            b,
-            c,
-            bi_hidden,
-            h,
-        )
-        self._pending_decode_updates.append(future)
-
     def _delta_uses_affine(self) -> bool:
         if self.delta_strategy in {"direct_int8", "direct_int4", "direct_int2"}:
             return False
@@ -344,14 +324,6 @@ class V1RuntimeBase:
 
     def _unigram_uses_direct_int2(self) -> bool:
         return self.unigram_strategy == "unigram_int2_k4"
-
-    def _unigram_uses_prev_ref(self) -> bool:
-        return self.unigram_strategy in {"prev_int4_k2", "prev_gs256_k2"}
-
-    def _unigram_prev_params(self) -> Tuple[int, int]:
-        if self.unigram_strategy == "prev_gs256_k2":
-            return 256, 2
-        return self.group_size, 2
 
     def _delta_transfer_size(
         self,
@@ -511,41 +483,15 @@ class V1RuntimeBase:
             return self._encode_direct_int4_batch(real_batch)
         return self._encode_direct_int8_batch(real_batch)
 
-    def _encode_prev_unigram_batch(
-        self,
-        real_batch: torch.Tensor,
-        ref_batch: torch.Tensor,
-    ) -> Tuple[torch.Tensor, int]:
-        group_size, top_k = self._unigram_prev_params()
-        scale, bias = compute_affine_params(real_batch, ref_batch)
-        ref_t = apply_affine(ref_batch, scale, bias)
-        delta = compute_delta(real_batch, ref_t)
-        packed, scales, zeros, tv, ti = groupwise_int4_quantize_topk(
-            delta, group_size, top_k,
-        )
-        dequant = groupwise_int4_dequantize_topk(
-            packed, scales, zeros, tv, ti, group_size, self.hidden_dim,
-        )
-        recon = reconstruct_activation(dequant, ref_batch, scale, bias).to(torch.float16)
-        transfer = self._delta_transfer_size(
-            packed, scales, zeros, tv, ti, real_batch.shape[0], True, False,
-        )
-        return recon, transfer
-
     def _encode_decode_step(
         self,
         real_h: torch.Tensor,
         ref_h: Optional[torch.Tensor],
         tier: str,
     ) -> Tuple[torch.Tensor, int]:
-        if self.decode_use_raw_fp16:
-            recon = real_h.to(torch.float16).clone()
-            transfer = int(real_h.numel() * 2) if self.track_transfer_bytes else 0
-            return recon, transfer
-        if tier in ("trigram", "bigram", "self_ref") and ref_h is not None:
-            recon, transfer = self._encode_delta_batch(real_h, ref_h, include_ref_idx=True)
-            return recon, transfer
-        recon, transfer = self._encode_unigram_batch(real_h)
+        """Decode always sends raw FP16.  Kept for legacy callers."""
+        recon = real_h.to(torch.float16).clone()
+        transfer = int(real_h.numel() * 2) if self.track_transfer_bytes else 0
         return recon, transfer
 
     def _update_table_step(
@@ -559,3 +505,56 @@ class V1RuntimeBase:
     ) -> None:
         for table in tables:
             table.update_with_decode_step(a, b, c, bi_hidden, trigram_hidden)
+
+    def _submit_decode_table_update_v2(
+        self,
+        running_token_ids: List[int],
+        decode_pos: int,
+        h: torch.Tensor,
+        prev_h: Optional[torch.Tensor],
+        curr_h: Optional[torch.Tensor],
+        prefill_hidden: torch.Tensor,
+        input_ids: List[int],
+    ) -> None:
+        """Buffer a decode table update for batched submission.
+
+        Updates are accumulated and flushed to the update_executor every
+        ``_decode_update_flush_every`` steps to amortise Future creation
+        overhead across multiple tokens (OPT-8).
+        """
+        if len(running_token_ids) < 3:
+            return
+        a = running_token_ids[-3]
+        b = running_token_ids[-2]
+        c = running_token_ids[-1]
+        b_abs_pos = decode_pos - 1
+        if b_abs_pos < len(input_ids):
+            bi_hidden = prefill_hidden[b_abs_pos]
+        elif curr_h is not None:
+            bi_hidden = curr_h
+        else:
+            bi_hidden = h
+        self._decode_update_batch.append((a, b, c, bi_hidden, h))
+        if len(self._decode_update_batch) >= self._decode_update_flush_every:
+            self._flush_decode_update_batch()
+
+    def _update_table_batch(
+        self,
+        tables: Sequence[Any],
+        updates: List[Tuple],
+    ) -> None:
+        """Worker: apply a batch of buffered table updates."""
+        for a, b, c, bi_hidden, tri_hidden in updates:
+            for table in tables:
+                table.update_with_decode_step(a, b, c, bi_hidden, tri_hidden)
+
+    def _flush_decode_update_batch(self) -> None:
+        """Submit all buffered decode table updates as a single Future."""
+        self._drain_decode_updates(wait=False)
+        if not self._decode_update_batch:
+            return
+        batch = list(self._decode_update_batch)
+        self._decode_update_batch.clear()
+        tables = (self.table,)
+        future = self.update_executor.submit(self._update_table_batch, tables, batch)
+        self._pending_decode_updates.append(future)

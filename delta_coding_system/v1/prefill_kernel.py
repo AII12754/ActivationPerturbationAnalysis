@@ -62,6 +62,7 @@ class LatencyFirstPrefillKernel:
         input_tensor = torch.tensor([input_ids], dtype=torch.long, device=self.device)
         seq_len = len(input_ids)
 
+        # Submit CPU classify early so it overlaps with GPU prefix forward.
         classify_future = None
         if is_test:
             classify_future = self.classify_executor.submit(
@@ -95,6 +96,13 @@ class LatencyFirstPrefillKernel:
         classify_ms = (time.perf_counter() - t_classify_start) * 1000.0
         result.classify_ms = classify_ms
         del first_occ_map
+
+        # While CPU was classifying, the GPU prefix forward already finished.
+        # Now use a dedicated stream to start loading matched reference hidden
+        # states to HBM, overlapping with the Python-side tier indexing below.
+        if self.hidden_load_stream is not None and ref_acts is not None:
+            with torch.cuda.stream(self.hidden_load_stream):
+                ref_acts = ref_acts.to(device=self.device, non_blocking=True)
 
         trigram_indices = [i for i, tier in enumerate(tiers) if tier == "trigram"]
         bigram_indices = [i for i, tier in enumerate(tiers) if tier == "bigram"]
@@ -133,6 +141,10 @@ class LatencyFirstPrefillKernel:
             result.encode_unigram_ms = 0.0
             result.encode_self_ref_ms = 0.0
         else:
+            # Wait for ref_acts to arrive on GPU if the stream copy is in flight.
+            if self.hidden_load_stream is not None:
+                torch.cuda.current_stream().wait_stream(self.hidden_load_stream)
+
             torch.cuda.synchronize()
             evt_enc_start = torch.cuda.Event(enable_timing=True)
             evt_after_delta = torch.cuda.Event(enable_timing=True)
@@ -155,25 +167,10 @@ class LatencyFirstPrefillKernel:
             evt_after_delta.record()
 
             if unigram_indices:
-                if self._unigram_uses_prev_ref():
-                    unigram_transfer = 0
-                    for pos in sorted(unigram_indices):
-                        real_uni = real_acts[pos].unsqueeze(0)
-                        if pos > 0:
-                            prev_ref = reconstructed[pos - 1].unsqueeze(0)
-                            if torch.count_nonzero(prev_ref).item() == 0:
-                                prev_ref = real_acts[pos - 1].unsqueeze(0)
-                            recon_uni, xfer = self._encode_prev_unigram_batch(real_uni, prev_ref)
-                        else:
-                            recon_uni, xfer = self._encode_unigram_batch(real_uni)
-                        reconstructed[pos] = recon_uni.squeeze(0)
-                        unigram_transfer += xfer
-                    transfer_bytes_by_tier["unigram"] = unigram_transfer
-                else:
-                    idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
-                    real_uni = real_acts[idx_u]
-                    recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
-                    reconstructed[idx_u] = recon_uni
+                idx_u = torch.tensor(unigram_indices, dtype=torch.long, device=self.device)
+                real_uni = real_acts[idx_u]
+                recon_uni, transfer_bytes_by_tier["unigram"] = self._encode_unigram_batch(real_uni)
+                reconstructed[idx_u] = recon_uni
             evt_after_unigram.record()
 
             if self_ref_indices:
@@ -198,62 +195,64 @@ class LatencyFirstPrefillKernel:
         result.raw_fp16_bytes = seq_len * self.hidden_dim * 2
         result.compression_ratio = result.raw_fp16_bytes / max(result.total_transfer_bytes, 1)
 
-        overall_cos = F.cosine_similarity(real_acts.float(), reconstructed.float(), dim=-1)
-        overall_mse = ((real_acts.float() - reconstructed.float()) ** 2).mean(dim=-1)
-        result.recon_cosine_mean = overall_cos.mean().item()
-        result.recon_cosine_min = overall_cos.min().item()
-        result.mse_mean = overall_mse.mean().item()
-        result.mse_max = overall_mse.max().item()
+        # Cosine similarity / MSE only computed when explicitly requested.
+        if self.compute_cosine_similarity:
+            overall_cos = F.cosine_similarity(real_acts.float(), reconstructed.float(), dim=-1)
+            overall_mse = ((real_acts.float() - reconstructed.float()) ** 2).mean(dim=-1)
+            result.recon_cosine_mean = overall_cos.mean().item()
+            result.recon_cosine_min = overall_cos.min().item()
+            result.mse_mean = overall_mse.mean().item()
+            result.mse_max = overall_mse.max().item()
 
-        non_uni_indices = trigram_indices + bigram_indices + sorted(self_ref_indices)
-        if non_uni_indices:
-            idx_nu = torch.tensor(non_uni_indices, dtype=torch.long, device=self.device)
-            raw_cos = F.cosine_similarity(real_acts[idx_nu].float(), ref_acts[idx_nu].float(), dim=-1)
-            result.raw_cosine_mean = raw_cos.mean().item()
-            result.raw_cosine_min = raw_cos.min().item()
+            non_uni_indices = trigram_indices + bigram_indices + sorted(self_ref_indices)
+            if non_uni_indices:
+                idx_nu = torch.tensor(non_uni_indices, dtype=torch.long, device=self.device)
+                raw_cos = F.cosine_similarity(real_acts[idx_nu].float(), ref_acts[idx_nu].float(), dim=-1)
+                result.raw_cosine_mean = raw_cos.mean().item()
+                result.raw_cosine_min = raw_cos.min().item()
 
-        for tier_name, tier_indices in [
-            ("trigram", trigram_indices),
-            ("bigram", bigram_indices),
-            ("self_ref", self_ref_indices),
-            ("unigram", unigram_indices),
-        ]:
-            if not tier_indices:
+            for tier_name, tier_indices in [
+                ("trigram", trigram_indices),
+                ("bigram", bigram_indices),
+                ("self_ref", self_ref_indices),
+                ("unigram", unigram_indices),
+            ]:
+                if not tier_indices:
+                    result.tier_detail.append(
+                        {
+                            "tier": tier_name,
+                            "count": 0,
+                            "raw_cosine_mean": 0.0,
+                            "recon_cosine_mean": 0.0,
+                            "recon_cosine_min": 0.0,
+                            "mse_mean": 0.0,
+                            "mse_max": 0.0,
+                            "transfer_bytes": 0,
+                        }
+                    )
+                    continue
+                idx_t = torch.tensor(tier_indices, dtype=torch.long, device=self.device)
+                real_tier = real_acts[idx_t]
+                ref_tier = ref_acts[idx_t]
+                recon_tier = reconstructed[idx_t]
+                if tier_name == "unigram":
+                    raw_cos_t = torch.zeros(len(tier_indices), device=self.device)
+                else:
+                    raw_cos_t = F.cosine_similarity(real_tier.float(), ref_tier.float(), dim=-1)
+                recon_cos_t = F.cosine_similarity(real_tier.float(), recon_tier.float(), dim=-1)
+                mse_t = ((real_tier.float() - recon_tier.float()) ** 2).mean(dim=-1)
                 result.tier_detail.append(
                     {
                         "tier": tier_name,
-                        "count": 0,
-                        "raw_cosine_mean": 0.0,
-                        "recon_cosine_mean": 0.0,
-                        "recon_cosine_min": 0.0,
-                        "mse_mean": 0.0,
-                        "mse_max": 0.0,
-                        "transfer_bytes": 0,
+                        "count": len(tier_indices),
+                        "raw_cosine_mean": raw_cos_t.mean().item(),
+                        "recon_cosine_mean": recon_cos_t.mean().item(),
+                        "recon_cosine_min": recon_cos_t.min().item(),
+                        "mse_mean": mse_t.mean().item(),
+                        "mse_max": mse_t.max().item(),
+                        "transfer_bytes": transfer_bytes_by_tier[tier_name],
                     }
                 )
-                continue
-            idx_t = torch.tensor(tier_indices, dtype=torch.long, device=self.device)
-            real_tier = real_acts[idx_t]
-            ref_tier = ref_acts[idx_t]
-            recon_tier = reconstructed[idx_t]
-            if tier_name == "unigram":
-                raw_cos_t = torch.zeros(len(tier_indices), device=self.device)
-            else:
-                raw_cos_t = F.cosine_similarity(real_tier.float(), ref_tier.float(), dim=-1)
-            recon_cos_t = F.cosine_similarity(real_tier.float(), recon_tier.float(), dim=-1)
-            mse_t = ((real_tier.float() - recon_tier.float()) ** 2).mean(dim=-1)
-            result.tier_detail.append(
-                {
-                    "tier": tier_name,
-                    "count": len(tier_indices),
-                    "raw_cosine_mean": raw_cos_t.mean().item(),
-                    "recon_cosine_mean": recon_cos_t.mean().item(),
-                    "recon_cosine_min": recon_cos_t.min().item(),
-                    "mse_mean": mse_t.mean().item(),
-                    "mse_max": mse_t.max().item(),
-                    "transfer_bytes": transfer_bytes_by_tier[tier_name],
-                }
-            )
 
         local_prompt_refs = self._build_local_prompt_refs(input_ids, prefill_hidden)
         t_upd_start = time.perf_counter()

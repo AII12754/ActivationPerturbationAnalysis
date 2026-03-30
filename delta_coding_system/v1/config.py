@@ -10,21 +10,26 @@ FINAL_UNIGRAM_STRATEGY = "unigram_int4_k4"
 
 @dataclass(frozen=True)
 class TransportPolicy:
-    """Transport policy for the latency-first production path."""
+    """Transport policy for the latency-first production path.
+
+    Decode always sends raw FP16 (not configurable).
+    Prefill compresses by default unless ``prefill_use_raw_fp16`` is set.
+    """
 
     delta_strategy: str = FINAL_DELTA_STRATEGY
     unigram_strategy: str = FINAL_UNIGRAM_STRATEGY
-    decode_use_raw_fp16: bool = True
     prefill_use_raw_fp16: bool = False
     track_transfer_bytes: bool = True
+    compute_cosine_similarity: bool = False
 
     def to_legacy_kwargs(self) -> Dict[str, Any]:
         return {
             "delta_strategy": self.delta_strategy,
             "unigram_strategy": self.unigram_strategy,
-            "decode_use_raw_fp16": self.decode_use_raw_fp16,
+            "decode_use_raw_fp16": True,
             "prefill_use_raw_fp16": self.prefill_use_raw_fp16,
             "track_transfer_bytes": self.track_transfer_bytes,
+            "compute_cosine_similarity": self.compute_cosine_similarity,
         }
 
 
