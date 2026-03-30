@@ -94,14 +94,21 @@ class LatencyFirstDecodeKernel:
                         recon_cosine=1.0,
                         transfer_bytes=xfer_bytes,
                         raw_fp16_bytes=raw_fp16_bytes,
+                        prefix_ms=fwd_ms,
                         fwd_ms=fwd_ms,
+                        suffix_ms=0.0,
                         classify_ms=0.0,
                         encode_ms=0.0,
                         table_update_ms=0.0,
                     )
                 )
 
+            t_suffix_start = time.perf_counter()
             suffix_logits = self._run_suffix_decode_step(recon, suffix_cache)
+            suffix_ms = (time.perf_counter() - t_suffix_start) * 1000.0
+            if is_test:
+                decode_result.step_records[-1].suffix_ms = suffix_ms
+                decode_result.step_records[-1].fwd_ms = decode_result.step_records[-1].prefix_ms + suffix_ms
             next_tok = self._select_next_token(suffix_logits, do_sample=False)
 
             if self.tokenizer.eos_token_id is not None and tok_id == self.tokenizer.eos_token_id:
@@ -122,7 +129,9 @@ class LatencyFirstDecodeKernel:
         if actual_steps > 0:
             decode_result.reconstructed_hidden = recon_buffer[:actual_steps]
         if decode_result.step_records:
+            decode_result.total_prefix_ms = sum(s.prefix_ms for s in decode_result.step_records)
             decode_result.total_fwd_ms = sum(s.fwd_ms for s in decode_result.step_records)
+            decode_result.total_suffix_ms = sum(s.suffix_ms for s in decode_result.step_records)
             decode_result.total_classify_ms = 0.0
             decode_result.total_encode_ms = 0.0
             decode_result.total_table_update_ms = 0.0

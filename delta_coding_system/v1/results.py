@@ -24,6 +24,7 @@ class PrefillResult:
     compression_ratio: float = 1.0
     transfer_bytes_by_tier: Dict[str, int] = field(default_factory=dict)
     tier_detail: List[Dict[str, Any]] = field(default_factory=list)
+    prefix_ms: float = 0.0
     prefill_fwd_ms: float = 0.0
     classify_ms: float = 0.0
     encode_delta_ms: float = 0.0
@@ -31,6 +32,7 @@ class PrefillResult:
     encode_unigram_ms: float = 0.0
     table_update_ms: float = 0.0
     prev_update_wait_ms: float = 0.0
+    suffix_ms: float = 0.0
     total_ms: float = 0.0
     reconstructed_hidden: Optional[torch.Tensor] = None
 
@@ -43,7 +45,9 @@ class DecodeStepRecord:
     recon_cosine: float
     transfer_bytes: int
     raw_fp16_bytes: int
+    prefix_ms: float
     fwd_ms: float
+    suffix_ms: float
     classify_ms: float
     encode_ms: float
     table_update_ms: float
@@ -62,7 +66,9 @@ class DecodeResult:
     total_transfer_bytes: int = 0
     raw_fp16_bytes: int = 0
     compression_ratio: float = 1.0
+    total_prefix_ms: float = 0.0
     total_fwd_ms: float = 0.0
+    total_suffix_ms: float = 0.0
     total_classify_ms: float = 0.0
     total_encode_ms: float = 0.0
     total_table_update_ms: float = 0.0

@@ -90,10 +90,18 @@ class LatencyFirstPrefillKernel:
         torch.cuda.synchronize()
         prefill_fwd_ms = (time.perf_counter() - t_fwd_start) * 1000.0
 
-        result = PrefillResult(seq_len=seq_len, prefill_fwd_ms=prefill_fwd_ms, prev_update_wait_ms=prev_update_wait_ms)
+        result = PrefillResult(
+            seq_len=seq_len,
+            prefix_ms=prefill_fwd_ms,
+            prefill_fwd_ms=prefill_fwd_ms,
+            prev_update_wait_ms=prev_update_wait_ms,
+        )
 
         if not is_test:
+            t_suffix_start = time.perf_counter()
             next_logits, suffix_cache = self._run_suffix_prefill(prefill_hidden)
+            result.suffix_ms = (time.perf_counter() - t_suffix_start) * 1000.0
+            result.prefill_fwd_ms = result.prefix_ms + result.suffix_ms
             next_tok = self._select_next_token(next_logits, do_sample=False)
             t_upd_start = time.perf_counter()
             self.table.update_from_hidden_states(input_ids, prefill_hidden)
@@ -274,8 +282,11 @@ class LatencyFirstPrefillKernel:
             prefill_hidden,
         )
         result.table_update_ms = (time.perf_counter() - t_upd_start) * 1000.0
-        result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
         result.reconstructed_hidden = reconstructed
+        t_suffix_start = time.perf_counter()
         next_logits, suffix_cache = self._run_suffix_prefill(reconstructed)
+        result.suffix_ms = (time.perf_counter() - t_suffix_start) * 1000.0
+        result.prefill_fwd_ms = result.prefix_ms + result.suffix_ms
+        result.total_ms = (time.perf_counter() - t_total_start) * 1000.0
         next_tok = self._select_next_token(next_logits, do_sample=False)
         return result, prefix_cache, suffix_cache, next_tok, input_ids, prefill_hidden, local_prompt_refs
