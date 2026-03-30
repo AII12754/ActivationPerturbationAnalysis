@@ -51,10 +51,12 @@ class LatencyFirstPrefillKernel:
 
         torch.cuda.set_device(self.device)
 
+        t_prev_update_start = time.perf_counter()
         if self._pending_prefill_update is not None:
             self._pending_prefill_update.result()
             self._pending_prefill_update = None
         self._drain_decode_updates(wait=False)
+        prev_update_wait_ms = (time.perf_counter() - t_prev_update_start) * 1000.0
 
         input_ids = self.tokenizer.encode(text, add_special_tokens=False)
         if len(input_ids) > self.max_seq_len:
@@ -78,7 +80,7 @@ class LatencyFirstPrefillKernel:
         torch.cuda.synchronize()
         prefill_fwd_ms = (time.perf_counter() - t_fwd_start) * 1000.0
 
-        result = PrefillResult(seq_len=seq_len, prefill_fwd_ms=prefill_fwd_ms)
+        result = PrefillResult(seq_len=seq_len, prefill_fwd_ms=prefill_fwd_ms, prev_update_wait_ms=prev_update_wait_ms)
 
         if not is_test:
             next_logits, suffix_cache = self._run_suffix_prefill(prefill_hidden)

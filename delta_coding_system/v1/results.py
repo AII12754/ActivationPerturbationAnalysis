@@ -30,6 +30,7 @@ class PrefillResult:
     encode_self_ref_ms: float = 0.0
     encode_unigram_ms: float = 0.0
     table_update_ms: float = 0.0
+    prev_update_wait_ms: float = 0.0
     total_ms: float = 0.0
     reconstructed_hidden: Optional[torch.Tensor] = None
 

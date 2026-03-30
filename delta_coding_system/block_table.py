@@ -128,6 +128,18 @@ class BlockTable:
             top_k=packet.top_k,
         )
 
+    def _narrow_int8_packet(self, packet: Int8OutlierPacket, idx: int) -> Int8OutlierPacket:
+        """Return a narrow view (no copy) of position *idx* from a batched packet."""
+        return Int8OutlierPacket(
+            quantized=packet.quantized.narrow(0, idx, 1),
+            scales=packet.scales.narrow(0, idx, 1),
+            zero_points=packet.zero_points.narrow(0, idx, 1),
+            topk_values=packet.topk_values.narrow(0, idx, 1),
+            topk_indices=packet.topk_indices.narrow(0, idx, 1),
+            group_size=packet.group_size,
+            top_k=packet.top_k,
+        )
+
     def _pin_int8_packet(self, packet: Int8OutlierPacket) -> Int8OutlierPacket:
         return Int8OutlierPacket(
             quantized=packet.quantized.pin_memory(),
@@ -186,11 +198,17 @@ class BlockTable:
         )
 
     def _encode_hidden_batch_for_storage(self, hidden_states: torch.Tensor) -> List[StoredHidden]:
+        N = hidden_states.shape[0]
         if self.storage_format != "int8":
-            return [self._prepare_stored_hidden(hidden_states[i].to(dtype=torch.float16)) for i in range(hidden_states.shape[0])]
+            # Single batch transfer, return views (no per-entry pin_memory).
+            fp16 = hidden_states.to(device=self.device, dtype=torch.float16).detach()
+            return [fp16[i] for i in range(N)]
 
+        # Batch quantize → batch device move → narrow views.
+        # Avoids N×5 clone + N×5 pin_memory (the old code's bottleneck).
         packet = groupwise_int8_quantize_topk(hidden_states.to(dtype=torch.float16), self.int8_group_size, self.int8_top_k)
-        return [self._prepare_stored_hidden(self._slice_int8_packet(packet, i)) for i in range(hidden_states.shape[0])]
+        packet = self._move_int8_packet(packet, self.device, non_blocking=False)
+        return [self._narrow_int8_packet(packet, i) for i in range(N)]
 
     def _decode_stored_batch(self, stored_batch: List[StoredHidden], output_device: torch.device) -> torch.Tensor:
         if not stored_batch:
@@ -209,6 +227,12 @@ class BlockTable:
                 for i, t in enumerate(tensor_batch):
                     stacked[i] = t
             if stacked.device != output_device:
+                # Pin to enable true non_blocking CPU→GPU transfer.
+                if (stacked.device.type == "cpu"
+                        and output_device.type == "cuda"
+                        and self.enable_async_cpu_output_copy
+                        and not stacked.is_pinned()):
+                    stacked = stacked.pin_memory()
                 non_blocking = bool(
                     stacked.device.type == "cpu"
                     and stacked.is_pinned()
@@ -220,6 +244,12 @@ class BlockTable:
 
         packet_batch = [item for item in stored_batch if isinstance(item, Int8OutlierPacket)]
         packet = self._merge_int8_packets(packet_batch)
+        # Pin the merged tensor once (5 calls) for true non_blocking transfer.
+        if (packet.quantized.device.type == "cpu"
+                and output_device.type == "cuda"
+                and self.enable_async_cpu_output_copy
+                and not packet.quantized.is_pinned()):
+            packet = self._pin_int8_packet(packet)
         non_blocking = bool(
             packet.quantized.device.type == "cpu"
             and packet.quantized.is_pinned()
@@ -398,6 +428,8 @@ class BlockTable:
             current_id = self._allocate_block(kind)
             blocks, _ = self._current_block(kind)
             self._set_current_block(kind, current_id)
+            # Spill only on new block allocation (not per-insert).
+            self._spill_cold_blocks_if_needed()
         return blocks, current_id
 
     def _insert_entry(self, kind: str, key: Tuple[int, ...], stored_hidden: StoredHidden) -> bool:
@@ -424,7 +456,6 @@ class BlockTable:
                 bi_key = (int(key[0]), int(key[1]))
                 self._bigram_index[bi_key] = (block_id, slot)
                 self._num_bigrams += 1
-            self._spill_cold_blocks_if_needed()
             return True
 
     def _get_entry(self, kind: str, key: Tuple[int, ...]) -> Optional[StoredHidden]:

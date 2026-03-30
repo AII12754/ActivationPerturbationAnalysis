@@ -81,6 +81,7 @@ def _build_latency_summary(dataset_name: str, request_records: List[Dict[str, An
     }
     op_keys = [
         "prefill_forward_ms",
+        "prefill_prev_update_wait_ms",
         "prefill_classify_wait_ms",
         "prefill_encode_delta_ms",
         "prefill_encode_unigram_ms",
@@ -249,6 +250,7 @@ def run_dataset(model, tokenizer, device: torch.device, dataset_name: str, args)
             "decode_recon_cosine_mean": decode_res.recon_cosine_mean,
             "decode_recon_cosine_min": decode_res.recon_cosine_min,
             "prefill_forward_ms": prefill_res.prefill_fwd_ms,
+            "prefill_prev_update_wait_ms": prefill_res.prev_update_wait_ms,
             "prefill_classify_wait_ms": prefill_res.classify_ms,
             "prefill_cpu_cache_lookup_ms": prefill_res.classify_ms,
             "prefill_encode_delta_ms": prefill_res.encode_delta_ms,
