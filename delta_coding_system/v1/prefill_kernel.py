@@ -51,9 +51,19 @@ class LatencyFirstPrefillKernel:
 
         torch.cuda.set_device(self.device)
 
+        # Non-blocking: let previous update finish in background.
+        # classify reads are GIL-safe vs concurrent _insert_entry writes.
         t_prev_update_start = time.perf_counter()
         if self._pending_prefill_update is not None:
-            self._pending_prefill_update.result()
+            if self._pending_prefill_update.done():
+                try:
+                    self._pending_prefill_update.result()
+                except Exception:
+                    import logging as _logging
+                    _logging.getLogger(__name__).exception("Previous prefill table update failed")
+            else:
+                # Still running — stash for later error checking
+                self._pending_decode_updates.append(self._pending_prefill_update)
             self._pending_prefill_update = None
         self._drain_decode_updates(wait=False)
         prev_update_wait_ms = (time.perf_counter() - t_prev_update_start) * 1000.0

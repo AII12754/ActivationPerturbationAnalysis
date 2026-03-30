@@ -870,7 +870,14 @@ class OverlappedPipeline:
 
         # Tokenize
         if self._pending_prefill_update is not None:
-            self._pending_prefill_update.result()
+            if self._pending_prefill_update.done():
+                try:
+                    self._pending_prefill_update.result()
+                except Exception:
+                    logger.exception("Previous prefill table update failed")
+            else:
+                # Still running — stash for later error checking
+                self._pending_decode_updates.append(self._pending_prefill_update)
             self._pending_prefill_update = None
         self._drain_decode_updates(wait=False)
 
